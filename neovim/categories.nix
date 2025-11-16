@@ -13,6 +13,7 @@ in
 }@packageDef:
 let
   vp = pkgs.vimPlugins;
+  np = pkgs.neovimPlugins;
   values = builtins.attrValues;
 in
 {
@@ -21,11 +22,11 @@ in
       inherit (vp)
         lze
         lzextras
-        plenary-nvim
-        mini-nvim
-        snacks-nvim
-        blink-cmp
         catppuccin-nvim
+        vim-sleuth
+        oil-nvim
+        vim-repeat
+        vim-abolish
         ;
     };
 
@@ -41,15 +42,16 @@ in
         fidget-nvim
         nvim-lspconfig
         ;
+      inherit (np) inlay-hints;
     };
   };
   optionalPlugins = {
     core = values {
       inherit (vp)
-        vim-sleuth
-        oil-nvim
-        vim-repeat
-        vim-abolish
+        mini-nvim
+        snacks-nvim
+        blink-cmp
+        auto-hlsearch-nvim
         vim-tmux-navigator
         ;
     };
@@ -60,6 +62,7 @@ in
       inherit (vp)
         nvim-treesitter-context
         nvim-treesitter-textobjects
+        nvim-treesitter-textsubjects
         todo-comments-nvim
         nvim-ufo
         statuscol-nvim
@@ -96,6 +99,7 @@ in
       inherit (vp)
         lazydev-nvim
         obsidian-nvim
+        go-nvim
         ;
     };
 

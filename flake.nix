@@ -9,7 +9,10 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
-    nixCats.url = "github:BirdeeHub/nixCats-nvim";
+    emacs-overlay = {
+      url = "github:nix-community/emacs-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     systems.url = "github:nix-systems/default";
 
@@ -22,9 +25,21 @@
     # overlay defined for custom builds in the overlays directory.
     # for specific tags, branches and commits, see:
     # https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-flake.html#examples
+    nixCats.url = "github:BirdeeHub/nixCats-nvim";
+    "plugins-inlay-hints" = {
+      url = "github:MysticalDevil/inlay-hints.nvim";
+      flake = false;
+    };
 
   };
 
-  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } { imports = [ ./neovim ]; };
+  outputs =
+    inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        ./args.nix
+        ./neovim
+      ];
+    };
 
 }

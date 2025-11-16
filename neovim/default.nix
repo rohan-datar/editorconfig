@@ -4,7 +4,7 @@
   ...
 }:
 let
-  inherit (inputs) systems nixpkgs;
+  inherit (inputs) nixpkgs;
   inherit (inputs.nixCats) utils;
 
   luaPath = ./.;
@@ -16,7 +16,6 @@ let
   packageDefinitions = import ./packages.nix inputs;
 in
 {
-  systems = import systems;
 
   perSystem =
     {
