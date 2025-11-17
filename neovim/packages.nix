@@ -9,6 +9,7 @@ in
       settings = {
         wrapRc = true;
         aliases = [
+          "bin/nvim"
           "nvim"
           "rdvim"
           "vim"
@@ -35,6 +36,7 @@ in
       settings = {
         wrapRc = true;
         aliases = [
+          "bin/nvim"
           "nvim"
           "rdvim"
           "vim"
