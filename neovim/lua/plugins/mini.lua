@@ -1,12 +1,12 @@
 return {
-	"nvim-mini/mini.nvim",
+	"mini.nvim",
 	lazy = false,
 	for_cat = "core",
 	after = function()
 		require("mini.icons").setup()
 
 		-- statusline setup
-		require("mini.satusline").setup({
+		require("mini.statusline").setup({
 			use_icons = true,
 			content = {
 				active = function()
@@ -32,7 +32,7 @@ return {
 			},
 		})
 		vim.api.nvim_set_hl(0, "MiniStatuslineFilename", { bg = "NONE" })
-		vim.api.nvim_set_hl(0, "MiniStatuslineIncactive", { bg = "NONE" })
+		vim.api.nvim_set_hl(0, "MiniStatuslineInactive", { bg = "NONE" })
 
 		require("mini.diff").setup({
 			source = require("mini.diff").gen_source.none(),

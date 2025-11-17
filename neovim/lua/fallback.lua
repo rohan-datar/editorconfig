@@ -10,10 +10,12 @@ require("nixCatsUtils.catPacker").setup({
 	{ "mfussenegger/nvim-lint" },
 	{ "stevearc/conform.nvim" },
 	{ "j-hui/fidget.nvim" },
-	{ "neovim/nvim-lspconfig" },
 	{ "asiryk/auto-hlsearch.nvim" },
 
 	-- lazy loaded
+	{ "neovim/nvim-lspconfig", opt = true },
+	{ "williamboman/mason.nvim", opt = true },
+	{ "williamboman/mason-lspconfig.nvim", opt = true },
 	{ "stevearc/oil.nvim", opt = true },
 	{ "tpope/vim-repeat", opt = true },
 	{ "nvim-treesitter/nvim-treesitter-textobjects", opt = true },

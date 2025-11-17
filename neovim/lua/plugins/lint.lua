@@ -1,5 +1,5 @@
 return {
-	"mfussenegger/nvim-lint",
+	"nvim-lint",
 	for_cat = "editing",
 	event = { "BufReadPre", "BufNewFile" },
 	after = function()

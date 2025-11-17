@@ -35,6 +35,3 @@ vim.keymap.set(
 
 -- Quick replace word under my cursor everywhere in the document
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
-
--- Go back to file explorer
-vim.keymap.set("n", "<leader>ef", vim.cmd.Oil)

@@ -25,7 +25,6 @@ in
         ai = true;
         ui = true;
         lsp = true;
-        lint = true;
         compilers = true;
       };
     };
@@ -70,7 +69,6 @@ in
         ai = true;
         ui = true;
         lsp = true;
-        lint = true;
         compilers = true;
       };
     };

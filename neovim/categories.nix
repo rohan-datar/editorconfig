@@ -1,7 +1,4 @@
 inputs:
-let
-  inherit (inputs.nixCats) utils;
-in
 {
   pkgs,
   settings,
@@ -24,9 +21,9 @@ in
         lzextras
         catppuccin-nvim
         vim-sleuth
-        oil-nvim
         vim-repeat
         vim-abolish
+        fidget-nvim
         ;
     };
 
@@ -36,14 +33,13 @@ in
         conform-nvim
         ;
     };
-
-    extra = values {
+    lsp = values {
       inherit (vp)
-        fidget-nvim
         nvim-lspconfig
         ;
       inherit (np) inlay-hints;
     };
+
   };
   optionalPlugins = {
     core = values {
@@ -53,16 +49,23 @@ in
         blink-cmp
         auto-hlsearch-nvim
         vim-tmux-navigator
+        oil-nvim
         ;
     };
 
-    treesitter = (vp.nvim-treesitter.withPlugins (plugins: vp.nvim-treesitter.allGrammars));
-
-    ui = values {
+    treesitter = [
+      (vp.nvim-treesitter.withPlugins (plugins: vp.nvim-treesitter.allGrammars))
+    ]
+    ++ values {
       inherit (vp)
         nvim-treesitter-context
         nvim-treesitter-textobjects
         nvim-treesitter-textsubjects
+        ;
+    };
+
+    ui = values {
+      inherit (vp)
         todo-comments-nvim
         nvim-ufo
         statuscol-nvim
@@ -106,7 +109,7 @@ in
     debuggers = values { inherit (vp) nvim-dap; };
   };
 
-  lspAndRuntimeDeps = {
+  lspsAndRuntimeDeps = {
     core = values {
       inherit (pkgs)
         universal-ctags
@@ -143,18 +146,26 @@ in
         lua-language-server
         zls
         jdt-language-server
+        superhtml
+        markdown-oxide
         ;
       inherit (pkgs.nodePackages) vscode-json-languageserver;
     };
 
-    lint = values {
+    editing = values {
       inherit (pkgs)
         codespell
         stylua
         gofumpt
         yamllint
-        superhtml
         nixfmt
+        conform
+        ;
+    };
+
+    git = values {
+      inherit (pkgs)
+        lazygit
         ;
     };
   };

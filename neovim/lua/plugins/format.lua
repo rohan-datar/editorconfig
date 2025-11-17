@@ -1,5 +1,5 @@
 return {
-	"stevearc/conform.nvim",
+	"conform.nvim",
 	for_cat = "editing",
 	after = function()
 		require("conform").setup({

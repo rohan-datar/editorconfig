@@ -1,8 +1,36 @@
 return {
-	"saghen/blink.cmp",
+	"blink.cmp",
 	lazy = false,
 	for_cat = "core",
+	on_require = "blink.cmp",
 	after = function()
+		local snips = {}
+		if nixCats("snippets") then
+			snips = {
+				expand = function(snippet)
+					require("luasnip").lsp_expand(snippet)
+				end,
+				active = function(filter)
+					if filter and filter.direction then
+						return require("luasnip").jumpable(filter.direction)
+					end
+					return require("luasnip").in_snippet()
+				end,
+				jump = function(direction)
+					require("luasnip").jump(direction)
+				end,
+			}
+		end
+
+		local copilot = {}
+		if nixCats("ai") then
+			copilot = {
+				name = "copilot",
+				module = "blink-copilot",
+				score_offset = 100,
+				async = true,
+			}
+		end
 		require("blink.cmp").setup({
 			-- 'default' for mappings similar to built-in completion
 			-- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
@@ -46,20 +74,7 @@ return {
 				nerd_font_variant = "mono",
 			},
 
-			snippets = {
-				expand = function(snippet)
-					require("luasnip").lsp_expand(snippet)
-				end,
-				active = function(filter)
-					if filter and filter.direction then
-						return require("luasnip").jumpable(filter.direction)
-					end
-					return require("luasnip").in_snippet()
-				end,
-				jump = function(direction)
-					require("luasnip").jump(direction)
-				end,
-			},
+			snippets = snips,
 			-- default list of enabled providers defined so that you can extend it
 			-- elsewhere in your config, without redefining it, via `opts_extend`
 			sources = {
