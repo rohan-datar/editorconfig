@@ -108,6 +108,7 @@ require("lze").load({
 						disable = { "missing-fields" },
 					},
 					telemetry = { enabled = false },
+					hint = { enable = true },
 				},
 			},
 		},
@@ -117,17 +118,80 @@ require("lze").load({
 		for_cat = "compilers",
 		lsp = {
 			filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+			settings = {
+				clangd = {
+					InlayHints = {
+						Designators = true,
+						Enabled = true,
+						ParameterNames = true,
+						DeducedTypes = true,
+					},
+					fallbackFlags = { "-std=c++20" },
+				},
+			},
 		},
 	},
 	{
 		"gopls",
 		for_cat = "lsp",
-		lsp = {},
+		lsp = {
+			settings = {
+				gopls = {
+					hints = {
+						rangeVariableTypes = true,
+						parameterNames = true,
+						constantValues = true,
+						assignVariableTypes = true,
+						compositeLiteralFields = true,
+						compositeLiteralTypes = true,
+						functionTypeParameters = true,
+					},
+				},
+			},
+		},
 	},
 	{
 		"rust-analyzer",
 		for_cat = "lsp",
-		lsp = {},
+		lsp = {
+			-- NOTE: might change this later after checking out rustaceanvim
+			settings = {
+				["rust-analyzer"] = {
+					inlayHints = {
+						bindingModeHints = {
+							enable = false,
+						},
+						chainingHints = {
+							enable = true,
+						},
+						closingBraceHints = {
+							enable = true,
+							minLines = 25,
+						},
+						closureReturnTypeHints = {
+							enable = "never",
+						},
+						lifetimeElisionHints = {
+							enable = "never",
+							useParameterNames = false,
+						},
+						maxLength = 25,
+						parameterHints = {
+							enable = true,
+						},
+						reborrowHints = {
+							enable = "never",
+						},
+						renderColons = true,
+						typeHints = {
+							enable = true,
+							hideClosureInitialization = false,
+							hideNamedConstructor = false,
+						},
+					},
+				},
+			},
+		},
 	},
 	{
 		"nil_ls",
@@ -142,12 +206,33 @@ require("lze").load({
 	{
 		"jdtls",
 		for_cat = "lsp",
-		lsp = {},
+		lsp = {
+			settings = {
+				java = {
+					inlayHints = {
+						parameterNames = {
+							enabled = "all",
+							exclusions = { "this" },
+						},
+					},
+				},
+			},
+		},
 	},
 	{
 		"zls",
 		for_cat = "lsp",
-		lsp = {},
+		lsp = {
+			settings = {
+				zls = {
+					enable_inlay_hints = true,
+					inlay_hints_show_builtin = true,
+					inlay_hints_exclude_single_argument = true,
+					inlay_hints_hide_redundant_param_names = false,
+					inlay_hints_hide_redundant_param_names_last_token = false,
+				},
+			},
+		},
 	},
 	{
 		"sourcekit",
