@@ -30,6 +30,10 @@
       url = "github:MysticalDevil/inlay-hints.nvim";
       flake = false;
     };
+    "plugins-compile-nvim" = {
+      url = "github:pohlrabi404/compile.nvim";
+      flake = false;
+    };
 
   };
 

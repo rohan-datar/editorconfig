@@ -53,4 +53,6 @@ require("nixCatsUtils.catPacker").setup({
 			return "make install_jsregexp"
 		end)(),
 	},
+	{ "MysticalDevil/inlay-hints.nvim", opt = true },
+	{ "pohlrabi404/compile.nvim", opt = true },
 })

@@ -147,6 +147,13 @@ return {
 			end,
 			mode = { "n" },
 		},
+		{
+			"<leader>fs",
+			function()
+				Snacks.picker.explorer()
+			end,
+			mode = { "n" },
+		},
 
 		-- Grep
 		{

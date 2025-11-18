@@ -40,6 +40,10 @@ in
       inherit (np) inlay-hints;
     };
 
+    compilers = values {
+      inherit (np) compile-nvim;
+    };
+
   };
   optionalPlugins = {
     core = values {

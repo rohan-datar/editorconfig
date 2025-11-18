@@ -88,6 +88,22 @@
         "type": "github"
       }
     },
+    "plugins-compile-nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1759286049,
+        "narHash": "sha256-DE1aWdIY+DxraVAuA0aU3qL6BtGyUWrobdzTcSoYjK4=",
+        "owner": "pohlrabi404",
+        "repo": "compile.nvim",
+        "rev": "3003da28a3c021d740a1b9591ee421ee4a1dd622",
+        "type": "github"
+      },
+      "original": {
+        "owner": "pohlrabi404",
+        "repo": "compile.nvim",
+        "type": "github"
+      }
+    },
     "plugins-inlay-hints": {
       "flake": false,
       "locked": {
@@ -110,6 +126,7 @@
         "flake-parts": "flake-parts",
         "nixCats": "nixCats",
         "nixpkgs": "nixpkgs",
+        "plugins-compile-nvim": "plugins-compile-nvim",
         "plugins-inlay-hints": "plugins-inlay-hints",
         "systems": "systems"
       }
