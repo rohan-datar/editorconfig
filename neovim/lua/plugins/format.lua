@@ -24,6 +24,7 @@ return {
 				-- javascript = { { "prettierd", "prettier" } },
 				go = { "gofmt", stop_after_first = true },
 				-- templ = { "templ" },
+				rust = { "rustfmt", lsp_format = "fallback" },
 				yaml = { "yq" },
 				json = { "jq" },
 				swift = { "swiftformat" },

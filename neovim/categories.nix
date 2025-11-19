@@ -162,6 +162,7 @@ in
         codespell
         stylua
         gofumpt
+        rustfmt
         yamllint
         nixfmt
         conform
