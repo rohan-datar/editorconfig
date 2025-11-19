@@ -38,7 +38,8 @@ require("nixCatsUtils.catPacker").setup({
 	{ "NeogitOrg/neogit", opt = true },
 	{ "folke/lazydev.nvim", opt = true },
 	{ "ray-x/go.nvim", opt = true },
-	{ "epwalsh/obsidian.nvim", opt = true },
+	{ "mrcjkb/rustaceanvim", opt = true },
+	{ "obsidian-nvim/obsidian.nvim", opt = true },
 	{ "rafamadriz/friendly-snippets", opt = true },
 	{
 		"L3MON4D3/LuaSnip",

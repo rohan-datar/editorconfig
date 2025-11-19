@@ -107,6 +107,7 @@ in
         lazydev-nvim
         obsidian-nvim
         go-nvim
+        rustaceanvim
         ;
     };
 

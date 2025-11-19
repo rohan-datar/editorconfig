@@ -89,6 +89,10 @@ require("lze").load({
 		ft = { "go", "gomod" },
 	},
 	{
+		"rustaceanvim",
+		lazy = false,
+	},
+	{
 		"lua_ls",
 		for_cat = "lsp",
 		lsp = {
