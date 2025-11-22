@@ -9,3 +9,7 @@ require("fallback")
 -- actual requires
 require("config")
 require("plugins")
+
+if nixCats("lsp") then
+	require("lsp")
+end

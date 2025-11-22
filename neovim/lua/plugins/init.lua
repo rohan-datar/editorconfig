@@ -87,7 +87,3 @@ require("lze").load({
 	{ import = "plugins.git" },
 	{ import = "plugins.compile" },
 })
-
-if nixCats("lsp") then
-	require("lsp")
-end
