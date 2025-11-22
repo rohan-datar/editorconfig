@@ -43,6 +43,7 @@ return {
 			scope = { enabled = true },
 			quickfile = { enabled = true },
 			picker = {
+				layout = "ivy",
 				sources = {
 					files = { hidden = true },
 					grep = { hidden = true },
@@ -151,6 +152,13 @@ return {
 			"<leader>fs",
 			function()
 				Snacks.picker.explorer()
+			end,
+			mode = { "n" },
+		},
+		{
+			"<leader>lg",
+			function()
+				Snacks.lazygit()
 			end,
 			mode = { "n" },
 		},
