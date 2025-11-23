@@ -8,19 +8,22 @@ return {
 		"copilot.lua",
 		for_cat = "ai",
 		cmd = "Copilot",
-		event = "InsertEnter",
-		opts = {
-			suggestion = { enabled = false },
-			panel = { enabled = false },
-			filetypes = {
-				markdown = true,
-				help = true,
-			},
-		},
+		event = "DeferredUIEnter",
+		after = function()
+			require("copilot").setup({
+				suggestion = { enabled = false },
+				panel = { enabled = false },
+				filetypes = {
+					markdown = true,
+					help = true,
+				},
+			})
+		end,
 	},
 	{
 		"codecompanion.nvim",
 		for_cat = "ai",
+		event = "DeferredUIEnter",
 		keys = {
 			{
 				"<leader>ch",
