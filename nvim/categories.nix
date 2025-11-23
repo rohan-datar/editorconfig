@@ -33,12 +33,6 @@ in
         conform-nvim
         ;
     };
-    lsp = values {
-      inherit (vp)
-        nvim-lspconfig
-        ;
-      inherit (np) inlay-hints;
-    };
 
     compilers = values {
       inherit (np) compile-nvim;
@@ -66,6 +60,13 @@ in
         nvim-treesitter-textobjects
         nvim-treesitter-textsubjects
         ;
+    };
+
+    lsp = values {
+      inherit (vp)
+        nvim-lspconfig
+        ;
+      inherit (np) inlay-hints;
     };
 
     ui = values {

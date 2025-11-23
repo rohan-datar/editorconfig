@@ -59,12 +59,20 @@ require("lze").load({
 		end,
 	},
 	{
-		"inlay-hints.nvim",
+		"inlay-hints",
 		for_cat = "lsp",
 		event = "LspAttach",
 		after = function()
 			require("inlay-hints").setup()
 		end,
+		keys = {
+			{
+				"<leader>ih",
+				"<cmd>InlayHintsToggle<cr>",
+				desc = "toggle lsp inlay hints",
+				mode = { "n" },
+			},
+		},
 	},
 	{
 		"lazydev.nvim",
