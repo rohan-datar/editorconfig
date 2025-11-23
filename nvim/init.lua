@@ -1,5 +1,5 @@
 -- fallback for non-nix
-require("nixCatsUtils").setup({
+require("nixCatsUtils.init").setup({
 	non_nix_value = true,
 })
 
@@ -9,7 +9,3 @@ require("fallback")
 -- actual requires
 require("config")
 require("plugins")
-
-if nixCats("lsp") then
-	require("lsp")
-end
