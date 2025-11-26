@@ -98,7 +98,50 @@ require("lze").load({
 	},
 	{
 		"rustaceanvim",
-		lazy = false,
+		ft = { "rust" },
+		after = function()
+			vim.g.rustaceanvim = {
+				server = {
+					on_attach = require("lsp.on_attach"),
+				},
+				default_settings = {
+					["rust-analyzer"] = {
+						inlayHints = {
+							bindingModeHints = {
+								enable = false,
+							},
+							chainingHints = {
+								enable = true,
+							},
+							closingBraceHints = {
+								enable = true,
+								minLines = 25,
+							},
+							closureReturnTypeHints = {
+								enable = "never",
+							},
+							lifetimeElisionHints = {
+								enable = "never",
+								useParameterNames = false,
+							},
+							maxLength = 25,
+							parameterHints = {
+								enable = true,
+							},
+							reborrowHints = {
+								enable = "never",
+							},
+							renderColons = true,
+							typeHints = {
+								enable = true,
+								hideClosureInitialization = false,
+								hideNamedConstructor = false,
+							},
+						},
+					},
+				},
+			}
+		end,
 	},
 	{
 		"lua_ls",
@@ -157,49 +200,6 @@ require("lze").load({
 						compositeLiteralFields = true,
 						compositeLiteralTypes = true,
 						functionTypeParameters = true,
-					},
-				},
-			},
-		},
-	},
-	{
-		"rust-analyzer",
-		for_cat = "lsp",
-		lsp = {
-			-- NOTE: might change this later after checking out rustaceanvim
-			settings = {
-				["rust-analyzer"] = {
-					inlayHints = {
-						bindingModeHints = {
-							enable = false,
-						},
-						chainingHints = {
-							enable = true,
-						},
-						closingBraceHints = {
-							enable = true,
-							minLines = 25,
-						},
-						closureReturnTypeHints = {
-							enable = "never",
-						},
-						lifetimeElisionHints = {
-							enable = "never",
-							useParameterNames = false,
-						},
-						maxLength = 25,
-						parameterHints = {
-							enable = true,
-						},
-						reborrowHints = {
-							enable = "never",
-						},
-						renderColons = true,
-						typeHints = {
-							enable = true,
-							hideClosureInitialization = false,
-							hideNamedConstructor = false,
-						},
 					},
 				},
 			},

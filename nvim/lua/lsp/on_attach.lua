@@ -14,9 +14,9 @@ return function(_, bufnr)
 		Snacks.picker.lsp_definitions()
 	end, "Go To Definition")
 
-	nmap("gr", function()
+	nmap("gu", function()
 		Snacks.picker.lsp_references()
-	end, "Find All References")
+	end, "Find All Uses")
 
 	nmap("gi", function()
 		Snacks.picker.lsp_implementations()
