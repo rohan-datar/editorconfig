@@ -72,6 +72,9 @@ return {
 					diff = {
 						provider = "mini_diff",
 					},
+					action_palette = {
+						provider = "snacks",
+					},
 				},
 			})
 		end,
