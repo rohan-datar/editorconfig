@@ -35,3 +35,14 @@ vim.keymap.set(
 
 -- Quick replace word under my cursor everywhere in the document
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+
+-- terminal mode keymaps
+vim.keymap.set("t", "<C-w><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+vim.keymap.set("t", "<C-w>:", "<C-\\><C-n>:", { desc = "Enter command mode" })
+vim.keymap.set("t", "<C-q>:", vim.cmd.quit, { desc = "Quit terminal mode" })
+vim.keymap.set("t", "<C-w>_", function()
+	vim.cmd.wincmd("_")
+end)
+vim.keymap.set("t", "<C-w>=", function()
+	vim.cmd.wincmd("=")
+end)
