@@ -48,6 +48,7 @@ in
         auto-hlsearch-nvim
         vim-tmux-navigator
         oil-nvim
+        nvim-surround
         ;
     };
 

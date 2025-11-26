@@ -24,6 +24,14 @@ require("lze").load({
 	{ "vim-sleuth", for_cat = "core" },
 	{ "vim-repeat", for_cat = "core" },
 	{ "vim-abolish", for_cat = "core" },
+	{
+		"nvim-surround",
+		for_cat = "core",
+		event = "DeferredUIEnter",
+		after = function()
+			require("nvim-surround").setup({})
+		end,
+	},
 	{ import = "plugins.mini" },
 	{ import = "plugins.completion" },
 	{ import = "plugins.format" },
