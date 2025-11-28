@@ -5,7 +5,7 @@ return {
 		dep_of = "nvim-ufo",
 	},
 	{
-		"statuscol-nvim",
+		"statuscol.nvim",
 		for_cat = "ui",
 		dep_of = "nvim-ufo",
 		after = function()
@@ -24,6 +24,7 @@ return {
 		"nvim-ufo",
 		for_cat = "ui",
 		event = "DeferredUIEnter",
+		on_require = { "ufo" },
 		before = function()
 			vim.opt.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
 			vim.opt.foldcolumn = "1" -- '0' is not bad
@@ -83,11 +84,9 @@ return {
 				},
 				fold_virt_text_handler = handler,
 			})
+			vim.keymap.set("n", "zR", require("ufo").openAllFolds)
+			vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
+			vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds)
 		end,
-		keys = {
-			{ "zR", require("ufo").openAllFolds, mode = { "n" } },
-			{ "zM", require("ufo").closeAllFolds, mode = { "n" } },
-			{ "zr", require("ufo").openFoldsExceptKinds, mode = { "n" } },
-		},
 	},
 }

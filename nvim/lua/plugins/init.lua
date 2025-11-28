@@ -38,6 +38,7 @@ require("lze").load({
 	{ import = "plugins.lint" },
 	{ import = "plugins.files" },
 	{ import = "plugins.notifications" },
+	{ import = "plugins.folding" },
 	{
 		"auto-hlsearch.nvim",
 		for_cat = "core",
