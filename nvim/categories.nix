@@ -155,6 +155,7 @@ in
         jdt-language-server
         superhtml
         markdown-oxide
+        clang-tools
         ;
       inherit (pkgs.nodePackages) vscode-json-languageserver;
     };
