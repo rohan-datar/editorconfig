@@ -184,6 +184,7 @@ require("lze").load({
 					fallbackFlags = { "-std=c++20" },
 				},
 			},
+			on_attach = require("lsp.on_attach"),
 		},
 	},
 	{
