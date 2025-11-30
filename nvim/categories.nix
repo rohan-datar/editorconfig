@@ -73,7 +73,6 @@ in
     lsp = values {
       inherit (vp)
         nvim-lspconfig
-        rustaceanvim
         ;
       inherit (np) inlay-hints;
     };

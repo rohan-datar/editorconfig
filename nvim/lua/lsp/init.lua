@@ -88,6 +88,45 @@ require("lze").load({
 		end,
 	},
 	{
+		"rust-analyzer",
+		lazy = false, -- needed because rustaceanvim needs it loaded early
+		for_cat = "lsp",
+		lsp = {
+			inlayHints = {
+				bindingModeHints = {
+					enable = false,
+				},
+				chainingHints = {
+					enable = true,
+				},
+				closingBraceHints = {
+					enable = true,
+					minLines = 25,
+				},
+				closureReturnTypeHints = {
+					enable = "never",
+				},
+				lifetimeElisionHints = {
+					enable = "never",
+					useParameterNames = false,
+				},
+				maxLength = 25,
+				parameterHints = {
+					enable = true,
+				},
+				reborrowHints = {
+					enable = "never",
+				},
+				renderColons = true,
+				typeHints = {
+					enable = true,
+					hideClosureInitialization = false,
+					hideNamedConstructor = false,
+				},
+			},
+		},
+	},
+	{
 		"go.nvim",
 		for_cat = "extra",
 		after = function()
