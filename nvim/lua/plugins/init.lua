@@ -81,8 +81,7 @@ require("lze").load({
 	{
 		"tiny-inline-diagnostic.nvim",
 		for_cat = "ui",
-		event = "DeferredUIEnter",
-		priority = 999,
+		lazy = false,
 		before = function()
 			vim.diagnostic.config({ virtual_text = false })
 		end,

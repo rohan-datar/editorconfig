@@ -38,6 +38,13 @@ in
       inherit (np) compile-nvim;
     };
 
+    lsp = values {
+      inherit (vp) rustaceanvim;
+    };
+
+    ui = values {
+      inherit (vp) tiny-inline-diagnostic-nvim;
+    };
   };
   optionalPlugins = {
     core = values {
@@ -66,6 +73,7 @@ in
     lsp = values {
       inherit (vp)
         nvim-lspconfig
+        rustaceanvim
         ;
       inherit (np) inlay-hints;
     };
@@ -78,7 +86,6 @@ in
         promise-async
         render-markdown-nvim
         quicker-nvim
-        tiny-inline-diagnostic-nvim
         ;
     };
 
@@ -109,7 +116,6 @@ in
         lazydev-nvim
         obsidian-nvim
         go-nvim
-        rustaceanvim
         ;
     };
 
