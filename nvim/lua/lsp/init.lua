@@ -40,9 +40,9 @@ require("lze").load({
 				lineFoldingOnly = true,
 			}
 			vim.lsp.config("*", {
-				on_attach = require("lsp.on_attach"),
 				capabilities = capabilities,
 			})
+			require("lsp.on_attach")
 		end,
 	},
 	{
