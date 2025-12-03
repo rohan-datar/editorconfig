@@ -118,7 +118,13 @@ in
         ;
     };
 
-    debuggers = values { inherit (vp) nvim-dap; };
+    debuggers = values {
+      inherit (vp)
+        nvim-dap
+        nvim-dap-view
+        nvim-dap-go
+        ;
+    };
   };
 
   lspsAndRuntimeDeps = {
@@ -140,12 +146,13 @@ in
         rustc
         zig
         clang
-
         ;
     };
 
     debuggers = values {
       inherit (pkgs)
+        lldb
+        gdb
         delve
         ;
     };

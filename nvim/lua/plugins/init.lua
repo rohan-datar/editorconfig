@@ -94,6 +94,7 @@ require("lze").load({
 	{ import = "plugins.quickfix" },
 	{ import = "plugins.git" },
 	{ import = "plugins.compile" },
+	{ import = "plugins.debugger" },
 })
 
 if nixCats("lsp") then

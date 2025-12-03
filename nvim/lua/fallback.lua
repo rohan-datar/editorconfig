@@ -41,6 +41,7 @@ require("nixCatsUtils.catPacker").setup({
 	{ "mrcjkb/rustaceanvim", opt = true },
 	{ "obsidian-nvim/obsidian.nvim", opt = true },
 	{ "rafamadriz/friendly-snippets", opt = true },
+	{ "mfussenegger/nvim-dap", opt = true },
 	{
 		"L3MON4D3/LuaSnip",
 		opt = true,

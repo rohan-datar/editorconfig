@@ -26,6 +26,7 @@ in
         ui = true;
         lsp = true;
         compilers = true;
+        debuggers = true;
       };
     };
 
