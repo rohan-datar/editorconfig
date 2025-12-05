@@ -51,7 +51,21 @@ return {
 					cwd = "${workspaceFolder}",
 				},
 			}
-			-- TODO add keymaps for debugger actions
 		end,
+		keys = {
+			{ "<leader>dt", "<cmd>DapViewToggle<cr>", mode = { "n" } },
+			{ "<leader>dc", "<cmd>DapContinue<cr>", mode = { "n" } },
+			{ "<leader>db", "<cmd>DapToggleBreakpoint<cr>", mode = { "n" } },
+			{ "<leader>dw", "<cmd>DapViewWatch<cr>", mode = { "n" } },
+			{ "<leader>dp", "<cmd>DapPause<cr>", mode = { "n" } },
+			{ "<leader>ds", "<cmd>DapStop<cr>", mode = { "n" } },
+			{ "<leader>de", "<cmd>DapEvaluate<cr>", mode = { "n" } },
+			{ "<leader>di", "<cmd>DapStepInto<cr>", mode = { "n" } },
+			{ "<leader>do", "<cmd>DapStepOver<cr>", mode = { "n" } },
+			{ "<leader>du", "<cmd>DapStepOut<cr>", mode = { "n" } },
+			{ "<leader>dbk", "<cmd>DapStepBack<cr>", mode = { "n" } },
+			{ "<leader>dr", "<cmd>DapRestart<cr>", mode = { "n" } },
+			{ "<leader>drc", "<cmd>DapRunToCursor<cr>", mode = { "n" } },
+		},
 	},
 }
