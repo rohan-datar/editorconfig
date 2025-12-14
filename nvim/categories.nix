@@ -92,7 +92,7 @@ in
       inherit (vp)
         copilot-lua
         blink-copilot
-        codecompanion-nvim
+        CopilotChat-nvim
         ;
     };
 
@@ -146,6 +146,7 @@ in
         rustc
         zig
         clang
+        nodejs
         ;
     };
 
