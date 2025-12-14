@@ -21,62 +21,21 @@ return {
 		end,
 	},
 	{
-		"codecompanion.nvim",
+		"CopilotChat.nvim",
 		for_cat = "ai",
 		event = "DeferredUIEnter",
 		keys = {
 			{
 				"<leader>ch",
 				function()
-					vim.cmd.CodeCompanionChat("Toggle")
+					vim.cmd.CopilotChatToggle()
 				end,
 				mode = { "n" },
 				desc = "Open chat buffer",
 			},
 		},
 		after = function()
-			require("codecompanion").setup({
-				strategies = {
-					chat = {
-						slash_commands = {
-							["file"] = {
-								opts = { provider = "snacks" },
-								keymaps = {
-									modes = {
-										n = "<C-f>",
-									},
-								},
-							},
-							["buffer"] = {
-								opts = { provider = "snacks" },
-								keymaps = {
-									modes = {
-										n = { "<C-b>", "gb" },
-										i = "<C-b>",
-									},
-								},
-							},
-						},
-						opts = {
-							---Decorate the user message before it's sent to the LLM
-							prompt_decorator = function(message, adapter, context)
-								return string.format([[<prompt>%s</prompt>]], message)
-							end,
-						},
-					},
-				},
-				display = {
-					window = {
-						width = 0.3,
-					},
-					diff = {
-						provider = "mini_diff",
-					},
-					action_palette = {
-						provider = "snacks",
-					},
-				},
-			})
+			require("CopilotChat").setup()
 		end,
 	},
 }

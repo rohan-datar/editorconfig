@@ -11,6 +11,7 @@ require("nixCatsUtils.catPacker").setup({
 	{ "stevearc/conform.nvim" },
 	{ "j-hui/fidget.nvim" },
 	{ "asiryk/auto-hlsearch.nvim" },
+	{ "kylechui/nvim-surround" },
 
 	-- lazy loaded
 	{ "neovim/nvim-lspconfig", opt = true },
@@ -18,6 +19,8 @@ require("nixCatsUtils.catPacker").setup({
 	{ "williamboman/mason-lspconfig.nvim", opt = true },
 	{ "stevearc/oil.nvim", opt = true },
 	{ "tpope/vim-repeat", opt = true },
+	{ "tpope/vim-abolish", opt = true },
+	{ "tpope/vim-sleuth", opt = true },
 	{ "nvim-treesitter/nvim-treesitter-textobjects", opt = true },
 	{ "RRethy/nvim-treesitter-textsubjects", opt = true },
 	{ "nvim-treesitter/nvim-treesitter-textobjects", opt = true },
@@ -33,7 +36,7 @@ require("nixCatsUtils.catPacker").setup({
 	{ "achartier/tiny-inline-diagnostic.nvim", opt = true },
 	{ "zbirenbaum/copilot.lua", opt = true },
 	{ "fang2hou/blink-copilot", opt = true },
-	{ "olimorris/codecompanion.nvim", opt = true },
+	{ "CopilotC-Nvim/CopilotChat.nvim", opt = true },
 	{ "lewis6991/gitsigns.nvim", opt = true },
 	{ "NeogitOrg/neogit", opt = true },
 	{ "folke/lazydev.nvim", opt = true },
@@ -42,6 +45,8 @@ require("nixCatsUtils.catPacker").setup({
 	{ "obsidian-nvim/obsidian.nvim", opt = true },
 	{ "rafamadriz/friendly-snippets", opt = true },
 	{ "mfussenegger/nvim-dap", opt = true },
+	{ "igorlfs/nvim-dap-view", opt = true },
+	{ "leoluz/nvim-dap-go", opt = true },
 	{
 		"L3MON4D3/LuaSnip",
 		opt = true,
