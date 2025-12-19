@@ -43,6 +43,7 @@
       imports = [
         ./args.nix
         ./nvim
+        ./emacs
       ];
     };
 
