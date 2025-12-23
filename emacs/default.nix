@@ -1,65 +1,188 @@
+{ inputs, ... }:
 {
   perSystem =
     {
       pkgs,
-      config,
+      system,
       ...
     }:
     let
-      # Use emacs-pgtk for native Wayland support
-      rdmacs = pkgs.emacsWithPackagesFromUsePackage {
-        package = pkgs.emacs-pgtk;
-        config = ./emacs.org;
-        defaultInitFile = false;
-        alwaysEnsure = true;
-        alwaysTangle = true;
-        extraEmacsPackages = epkgs: [
-          epkgs.cask
-          pkgs.shellcheck
-          pkgs.rust-analyzer
-          pkgs.nil
+      # Tangle the org config to an elisp file using the overlay function
+      initFile = pkgs.tangleOrgBabelFile "init.el" ./emacs.org {
+        languages = [
+          "emacs-lisp"
+          "elisp"
         ];
       };
 
-      # Store the config path
-      emacsConfig = ./emacs.org;
+      # Package registries for finding packages
+      registries = [
+        # GNU ELPA
+        {
+          name = "gnu";
+          type = "elpa";
+          path = inputs.gnu-elpa.outPath + "/elpa-packages";
+          auto-sync-only = true;
+        }
+        # MELPA
+        {
+          name = "melpa";
+          type = "melpa";
+          path = inputs.melpa.outPath + "/recipes";
+        }
+        # NonGNU ELPA
+        {
+          type = "elpa";
+          path = inputs.nongnu-elpa.outPath + "/elpa-packages";
+        }
+        # Archive fallbacks
+        {
+          type = "archive";
+          url = "https://elpa.gnu.org/packages/";
+        }
+        {
+          type = "archive";
+          url = "https://elpa.nongnu.org/nongnu/";
+        }
+      ];
 
-      # Wrapper script that loads config from the source directory
+      # Explicitly list all packages from your config.org
+      # This avoids IFD (Import From Derivation) by not parsing the init file at eval time
+      # Update this list when you add/remove packages from config.org
+      allPackages = [
+        # Evil mode
+        "evil"
+        "evil-collection"
+        "evil-surround"
+        "evil-matchit"
+
+        # Keybindings
+        "general"
+
+        # Appearance
+        "catppuccin-theme"
+        "doom-modeline"
+        "nerd-icons"
+        "nerd-icons-dired"
+        "nerd-icons-ibuffer"
+        "indent-guide"
+
+        # Development
+        "projectile"
+        "sideline"
+        "sideline-flymake"
+        "yasnippet"
+        "yasnippet-snippets"
+        "eldoc-box"
+
+        # Language modes
+        "nix-mode"
+        "lua-mode"
+        "rust-mode"
+        "dotenv-mode"
+        "web-mode"
+
+        # Terminal
+        "eat"
+
+        # Version Control
+        "magit"
+        "diff-hl"
+
+        # Completion
+        "corfu"
+        "nerd-icons-corfu"
+        "cape"
+        "orderless"
+        "vertico"
+        "marginalia"
+        "nerd-icons-completion"
+
+        # Org mode
+        "toc-org"
+        "org-superstar"
+
+        # Other packages
+        "consult"
+        "helpful"
+        "diminish"
+        "rainbow-delimiters"
+        "ws-butler"
+        "neotree"
+      ];
+
+      # Build the Emacs environment with twist
+      rdmacs =
+        (pkgs.emacsTwist {
+          # Use emacs-pgtk for native Wayland support
+          emacsPackage = pkgs.emacs-pgtk;
+
+          # The tangled init file(s)
+          initFiles = [ initFile ];
+
+          # Lock directory for reproducible builds
+          lockDir = ./lock;
+
+          # Package registries
+          inherit registries;
+
+          # Don't try to parse init files - we specify packages explicitly
+          # This avoids IFD
+          initReader = _file: {
+            elispPackages = [ ];
+            systemPackages = [ ];
+          };
+
+          # Explicitly list all packages
+          extraPackages = allPackages;
+
+          # Don't native compile ahead of time for faster builds during iteration
+          nativeCompileAheadDefault = false;
+        }).overrideScope
+          (
+            self: super: {
+              # Override specific packages if needed
+              elispPackages = super.elispPackages.overrideScope (
+                eself: esuper: {
+                  # Example: if a package needs special handling
+                  # vterm = esuper.vterm.overrideAttrs (old: { ... });
+                }
+              );
+            }
+          );
+
+      # Test wrapper that runs in an isolated environment
       rdmacs-test = pkgs.writeShellScriptBin "rdmacs-test" ''
-        # Use a separate user-emacs-directory to avoid conflicts
-        export HOME="''${XDG_RUNTIME_DIR:-/tmp}/rdmacs-test-$$"
-        mkdir -p "$HOME/.emacs.d"
+        # Create isolated home directory for testing
+        TEST_HOME="''${XDG_RUNTIME_DIR:-/tmp}/rdmacs-test-$$"
+        mkdir -p "$TEST_HOME"
 
-        # Create a minimal init that loads the org config
-        # We specify a writable output path for the tangled file
-        cat > "$HOME/.emacs.d/init.el" << EOF
-        (require 'org)
-        (defvar rdmacs-config-org "${emacsConfig}")
-        (defvar rdmacs-config-el "$HOME/.emacs.d/config.el")
-        (org-babel-tangle-file rdmacs-config-org rdmacs-config-el)
-        (load-file rdmacs-config-el)
-        EOF
+        # Clean up on exit
+        trap "rm -rf $TEST_HOME" EXIT
 
-        exec ${rdmacs}/bin/emacs "$@"
+        # Run Emacs with isolated home
+        HOME="$TEST_HOME" exec ${rdmacs}/bin/emacs "$@"
       '';
+
     in
     {
       packages = {
-        rdmacs = rdmacs;
-        rdmacs-test = rdmacs-test;
+        inherit rdmacs rdmacs-test;
       };
 
-      apps = {
-        rdmacs = {
-          type = "app";
-          program = "${rdmacs}/bin/emacs";
-          meta.description = "Emacs with packages from use-package config";
+      apps =
+        # Twist provides makeApps for lock/update functionality
+        (rdmacs.makeApps { lockDirName = "emacs/lock"; }) // {
+          rdmacs = {
+            type = "app";
+            program = "${rdmacs}/bin/emacs";
+            meta.description = "Emacs with packages built by twist.nix";
+          };
+          rdmacs-test = {
+            type = "app";
+            program = "${rdmacs-test}/bin/rdmacs-test";
+            meta.description = "Emacs in isolated environment for testing";
+          };
         };
-        rdmacs-test = {
-          type = "app";
-          program = "${rdmacs-test}/bin/rdmacs-test";
-          meta.description = "Emacs with live-editable config from source directory";
-        };
-      };
     };
 }

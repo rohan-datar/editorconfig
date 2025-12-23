@@ -1,7 +1,7 @@
 #+Title: My Emacs Config
 #+Author: Rohan Datar
-#+PROPERTY: header-args:emacs-lisp :tangle yes
-#+Startup: showeverything
+#+PROPERTY: header-args:emacs-lisp :tangle emacs.el
+#+PROPERTY: header-args :mkdirp yes :comments no
 #+Options: toc:2
 
 * Table Of Contents :toc:
@@ -82,7 +82,7 @@ To fix this, you need to find this file (C-x C-f), fix the error and press C-c C
 This snippet adds a hook to org-mode buffers so that rdmacs/org-babel-tangle-config gets executed each time such a buffer gets saved.
 This function checks to see if the file being saved is the init.org file you’re looking at right now, and if so,
 automatically exports the configuration here to the associated output files.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp 
     (defun rdmacs/org-babel-tangle-config ()
       "Automatically tangle our init.org config file and refresh package-quickstart when we save it. Credit to Emacs From Scratch for this one!"
       (interactive)
@@ -116,12 +116,10 @@ We use the default built in package manager package.el.
 *** Setting package repositories
 Like Linux distributions, Emacs uses repositories to manage its packages.
 #+begin_src emacs-lisp
-    (unless (getenv "NIX_PROFILES")
     (setq package-archives '(("melpa" . "https://melpa.org/packages/") ;; Sets default package repositories
                              ("org" . "https://orgmode.org/elpa/")
                              ("elpa" . "https://elpa.gnu.org/packages/")
                              ("nongnu" . "https://elpa.nongnu.org/nongnu/"))) ;; For Eat Terminal
-    )
 #+end_src
 
 *** Package quickstart

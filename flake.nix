@@ -9,22 +9,39 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
+    systems.url = "github:nix-systems/default";
+
+    # Emacs Twist - for building Emacs configurations
+    twist = {
+      url = "github:emacs-twist/twist.nix";
+    };
+    org-babel = {
+      url = "github:emacs-twist/org-babel";
+    };
+
+    # Package registries for Twist
+    melpa = {
+      url = "github:melpa/melpa";
+      flake = false;
+    };
+    gnu-elpa = {
+      # Use GitHub mirror for better availability
+      url = "github:elpa-mirrors/elpa";
+      flake = false;
+    };
+    nongnu-elpa = {
+      # Use GitHub mirror for better availability
+      url = "github:elpa-mirrors/nongnu";
+      flake = false;
+    };
+
+    # Keep emacs-overlay for potential fallback use
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    systems.url = "github:nix-systems/default";
-
-    # see :help nixCats.flake.inputs
-    # If you want your plugin to be loaded by the standard overlay,
-    # i.e. if it wasnt on nixpkgs, but doesnt have an extra build step.
-    # Then you should name it "plugins-something"
-    # If you wish to define a custom build step not handled by nixpkgs,
-    # then you should name it in a different format, and deal with that in the
-    # overlay defined for custom builds in the overlays directory.
-    # for specific tags, branches and commits, see:
-    # https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-flake.html#examples
+    # NixCats for Neovim configuration
     nixCats.url = "github:BirdeeHub/nixCats-nvim";
     "plugins-inlay-hints" = {
       url = "github:MysticalDevil/inlay-hints.nvim";

@@ -16,6 +16,8 @@
         };
         overlays = [
           inputs.emacs-overlay.overlays.default
+          inputs.org-babel.overlays.default
+          inputs.twist.overlays.default
         ];
       };
     };
