@@ -54,27 +54,4 @@ in
         };
       };
     };
-
-  flake = {
-    homeModules.nixCats = utils.mkHomeModules {
-      inherit
-        nixpkgs
-        utils
-        luaPath
-        categoryDefinitions
-        packageDefinitions
-        dependencyOverlays
-        ;
-    };
-    nixosModules.nixCats = utils.mkNixosModules {
-      inherit
-        nixpkgs
-        utils
-        luaPath
-        categoryDefinitions
-        packageDefinitions
-        dependencyOverlays
-        ;
-    };
-  };
 }

@@ -174,6 +174,8 @@
     {
       packages = {
         inherit rdmacs rdmacs-test;
+        # Export init file for use in home-manager module
+        rdmacs-init = initFile;
       };
       apps = {
         rdmacs = {

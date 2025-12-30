@@ -62,6 +62,36 @@
         ./nvim
         ./emacs
       ];
+
+      # Combine homeModules from different sources
+      flake.homeModules = {
+        nixCats =
+          inputs.nixCats.utils.mkHomeModules {
+            inherit (inputs) nixpkgs;
+            inherit (inputs.nixCats) utils;
+            luaPath = ./nvim;
+            categoryDefinitions = import ./nvim/categories.nix inputs;
+            packageDefinitions = import ./nvim/packages.nix inputs;
+            dependencyOverlays = [
+              (inputs.nixCats.utils.standardPluginOverlay inputs)
+            ];
+          };
+        rdmacs = import ./emacs/home-module.nix;
+      };
+
+      flake.nixosModules = {
+        nixCats =
+          inputs.nixCats.utils.mkNixosModules {
+            inherit (inputs) nixpkgs;
+            inherit (inputs.nixCats) utils;
+            luaPath = ./nvim;
+            categoryDefinitions = import ./nvim/categories.nix inputs;
+            packageDefinitions = import ./nvim/packages.nix inputs;
+            dependencyOverlays = [
+              (inputs.nixCats.utils.standardPluginOverlay inputs)
+            ];
+          };
+      };
     };
 
 }
