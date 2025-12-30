@@ -276,6 +276,12 @@
       repo = "toc-org";
       type = "github";
     };
+    transient = {
+      flake = false;
+      owner = "magit";
+      repo = "transient";
+      type = "github";
+    };
     vertico = {
       flake = false;
       owner = "minad";

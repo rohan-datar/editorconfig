@@ -688,6 +688,7 @@
         "sideline": "sideline",
         "sideline-flymake": "sideline-flymake",
         "toc-org": "toc-org",
+        "transient": "transient",
         "vertico": "vertico",
         "web-mode": "web-mode",
         "with-editor": "with-editor",
@@ -789,6 +790,22 @@
       "original": {
         "owner": "snosov1",
         "repo": "toc-org",
+        "type": "github"
+      }
+    },
+    "transient": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1766875708,
+        "narHash": "sha256-vIiBMx8lRCAQgbDUHcTUZ9PAkj60NwYmY/QbZe8zpQs=",
+        "owner": "magit",
+        "repo": "transient",
+        "rev": "caacdd789c9ed29839c5e46c56cdfba06299e7fb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "magit",
+        "repo": "transient",
         "type": "github"
       }
     },

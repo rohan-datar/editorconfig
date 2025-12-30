@@ -86,6 +86,7 @@
         "eat"
 
         # Version Control
+        "transient"
         "magit"
         "diff-hl"
 
@@ -111,9 +112,11 @@
         "neotree"
       ];
 
-      # Build the Emacs environment with twist
+      # Build the Emacs environment with twist library API
       rdmacs =
-        (pkgs.emacsTwist {
+        (inputs.twist.lib.makeEnv {
+          inherit pkgs;
+
           # Use emacs-pgtk for native Wayland support
           emacsPackage = pkgs.emacs-pgtk;
 
@@ -155,7 +158,10 @@
       rdmacs-test = pkgs.writeShellScriptBin "rdmacs-test" ''
         # Create isolated home directory for testing
         TEST_HOME="''${XDG_RUNTIME_DIR:-/tmp}/rdmacs-test-$$"
-        mkdir -p "$TEST_HOME"
+        mkdir -p "$TEST_HOME/.emacs.d"
+
+        # Copy init file to the temp home
+        cp ${initFile} "$TEST_HOME/.emacs.d/init.el"
 
         # Clean up on exit
         trap "rm -rf $TEST_HOME" EXIT
@@ -169,20 +175,17 @@
       packages = {
         inherit rdmacs rdmacs-test;
       };
-
-      apps =
-        # Twist provides makeApps for lock/update functionality
-        (rdmacs.makeApps { lockDirName = "emacs/lock"; }) // {
-          rdmacs = {
-            type = "app";
-            program = "${rdmacs}/bin/emacs";
-            meta.description = "Emacs with packages built by twist.nix";
-          };
-          rdmacs-test = {
-            type = "app";
-            program = "${rdmacs-test}/bin/rdmacs-test";
-            meta.description = "Emacs in isolated environment for testing";
-          };
+      apps = {
+        rdmacs = {
+          type = "app";
+          program = "${rdmacs}/bin/emacs";
+          meta.description = "Emacs with packages built by twist.nix";
         };
+        rdmacs-test = {
+          type = "app";
+          program = "${rdmacs-test}/bin/rdmacs-test";
+          meta.description = "Emacs in isolated environment for testing";
+        };
+      };
     };
 }
