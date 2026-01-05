@@ -63,11 +63,9 @@ in
       (vp.nvim-treesitter.withPlugins (plugins: vp.nvim-treesitter.allGrammars))
     ]
     ++ values {
-      inherit (vp)
-        nvim-treesitter-context
-        nvim-treesitter-textobjects
-        nvim-treesitter-textsubjects
-        ;
+      inherit (vp) nvim-treesitter-context;
+      # Use flake input version to bypass nixpkgs require check issue
+      inherit (np) nvim-treesitter-textobjects;
     };
 
     lsp = values {
@@ -114,8 +112,9 @@ in
       inherit (vp)
         lazydev-nvim
         obsidian-nvim
-        go-nvim
         ;
+      # Use flake input version to bypass nixpkgs require check issue
+      inherit (np) go-nvim;
     };
 
     debuggers = values {

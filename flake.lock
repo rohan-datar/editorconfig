@@ -119,6 +119,22 @@
         "type": "github"
       }
     },
+    "plugins-go-nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1764564678,
+        "narHash": "sha256-lc3F7pSTdsfk7AgJzh9Uz/EVAleay61wzsPli5Gnqs4=",
+        "owner": "ray-x",
+        "repo": "go.nvim",
+        "rev": "41a18f0c05534c375bafec7ed05cdb409c4abcc6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ray-x",
+        "repo": "go.nvim",
+        "type": "github"
+      }
+    },
     "plugins-inlay-hints": {
       "flake": false,
       "locked": {
@@ -135,6 +151,23 @@
         "type": "github"
       }
     },
+    "plugins-nvim-treesitter-textobjects": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767434017,
+        "narHash": "sha256-5VeIAW09my+4fqXbzVG7RnLXrjpXAk/g2vd7RbhNws8=",
+        "owner": "nvim-treesitter",
+        "repo": "nvim-treesitter-textobjects",
+        "rev": "28a3494c075ef0f353314f627546537e43c09592",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nvim-treesitter",
+        "ref": "main",
+        "repo": "nvim-treesitter-textobjects",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "emacs-overlay": "emacs-overlay",
@@ -143,7 +176,9 @@
         "nixpkgs": "nixpkgs",
         "org-babel": "org-babel",
         "plugins-compile-nvim": "plugins-compile-nvim",
+        "plugins-go-nvim": "plugins-go-nvim",
         "plugins-inlay-hints": "plugins-inlay-hints",
+        "plugins-nvim-treesitter-textobjects": "plugins-nvim-treesitter-textobjects",
         "systems": "systems"
       }
     },

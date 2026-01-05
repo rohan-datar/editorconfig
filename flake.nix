@@ -32,6 +32,16 @@
       url = "github:pohlrabi404/compile.nvim";
       flake = false;
     };
+    # Pin nvim-treesitter-textobjects main branch to bypass nixpkgs require check issue
+    "plugins-nvim-treesitter-textobjects" = {
+      url = "github:nvim-treesitter/nvim-treesitter-textobjects/main";
+      flake = false;
+    };
+    # Pin go.nvim to bypass nixpkgs require check issue
+    "plugins-go-nvim" = {
+      url = "github:ray-x/go.nvim";
+      flake = false;
+    };
 
   };
 
