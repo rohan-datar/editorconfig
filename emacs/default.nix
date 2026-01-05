@@ -15,91 +15,14 @@
         ];
       };
 
-      # Override ws-butler to fetch from GitHub instead of savannah.gnu.org
-      # Workaround for https://github.com/nix-community/emacs-overlay/issues/499
-      ws-butler-github = pkgs.emacs-pgtk.pkgs.trivialBuild {
-        pname = "ws-butler";
-        version = "20250613";
-        src = pkgs.fetchFromGitHub {
-          owner = "lewang";
-          repo = "ws-butler";
-          rev = "67c49cfdf5a5a9f28792c500c8eb0017cfe74a3a";
-          hash = "sha256-maOhnDkG3GibrbI1EuPRY+Ej4AZJgbFheu6lC72vZ4w=";
-        };
-      };
+      # Emacs packages and runtime dependencies imported from separate file
+      packages = import ./packages.nix { inherit pkgs; };
 
       # Build Emacs with packages using emacs-overlay's emacsWithPackages
-      rdmacs = pkgs.emacs-pgtk.pkgs.withPackages (
-        epkgs: with epkgs; [
-          # Evil mode
-          evil
-          evil-collection
-          evil-surround
-          evil-matchit
+      rdmacs = pkgs.emacs-pgtk.pkgs.withPackages packages.emacsPackages;
 
-          # Keybindings
-          general
-
-          # Appearance
-          catppuccin-theme
-          doom-modeline
-          nerd-icons
-          nerd-icons-dired
-          nerd-icons-ibuffer
-          indent-guide
-
-          # Development
-          projectile
-          sideline
-          sideline-flymake
-          yasnippet
-          yasnippet-snippets
-          eldoc-box
-
-          # Language modes
-          nix-mode
-          lua-mode
-          rust-mode
-          dotenv-mode
-          web-mode
-          nix-ts-mode
-
-          # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
-          # Exclude broken grammars (tree-sitter-razor)
-          (treesit-grammars.with-grammars (
-            grammars: builtins.filter (g: g.pname or "" != "tree-sitter-razor") (builtins.attrValues grammars)
-          ))
-
-          # Terminal
-          eat
-
-          # Version Control
-          transient
-          magit
-          diff-hl
-
-          # Completion
-          corfu
-          nerd-icons-corfu
-          cape
-          orderless
-          vertico
-          marginalia
-          nerd-icons-completion
-
-          # Org mode
-          toc-org
-          org-superstar
-
-          # Other packages
-          consult
-          helpful
-          diminish
-          rainbow-delimiters
-          ws-butler-github
-          neotree
-        ]
-      );
+      # Runtime deps path for wrappers
+      runtimePath = pkgs.lib.makeBinPath packages.runtimeDeps;
 
       # Create an init directory with our tangled config
       initDir = pkgs.runCommand "rdmacs-init-dir" { } ''
@@ -115,7 +38,8 @@
         postBuild = ''
           rm $out/bin/emacs
           makeWrapper ${rdmacs}/bin/emacs $out/bin/emacs \
-            --add-flags "--init-directory ${initDir}"
+            --add-flags "--init-directory ${initDir}" \
+            --prefix PATH : ${runtimePath}
         '';
       };
 
@@ -137,11 +61,13 @@
           # Replace the Emacs binary with a wrapper script
           rm $out/Applications/Emacs.app/Contents/MacOS/Emacs
           makeWrapper ${rdmacs}/bin/emacs $out/Applications/Emacs.app/Contents/MacOS/Emacs \
-            --add-flags "--init-directory ${initDir}"
+            --add-flags "--init-directory ${initDir}" \
+            --prefix PATH : ${runtimePath}
 
           # Also provide wrapped bin/emacs for CLI use
           makeWrapper ${rdmacs}/bin/emacs $out/bin/emacs \
-            --add-flags "--init-directory ${initDir}"
+            --add-flags "--init-directory ${initDir}" \
+            --prefix PATH : ${runtimePath}
         '';
         installPhase = "true";
       };
@@ -150,6 +76,8 @@
       # Tangles your local emacs.org on the fly, so you can iterate without rebuilding
       # Run from the flake directory, or set RDMACS_CONFIG to your emacs.org path
       rdmacs-test = pkgs.writeShellScriptBin "rdmacs-test" ''
+        export PATH="${runtimePath}:$PATH"
+
         EMACS_ORG="''${RDMACS_CONFIG:-./emacs/emacs.org}"
 
         if [ ! -f "$EMACS_ORG" ]; then
