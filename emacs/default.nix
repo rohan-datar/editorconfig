@@ -7,7 +7,8 @@
       ...
     }:
     let
-      # Tangle the org config to an elisp file using the overlay function
+      # Tangle the org config to an elisp file
+      # org-babel overlay provides tangleOrgBabelFile
       initFile = pkgs.tangleOrgBabelFile "init.el" ./emacs.org {
         languages = [
           "emacs-lisp"
@@ -15,178 +16,149 @@
         ];
       };
 
-      # Package registries for finding packages
-      registries = [
-        # GNU ELPA
-        {
-          name = "gnu";
-          type = "elpa";
-          path = inputs.gnu-elpa.outPath + "/elpa-packages";
-          auto-sync-only = true;
-        }
-        # MELPA
-        {
-          name = "melpa";
-          type = "melpa";
-          path = inputs.melpa.outPath + "/recipes";
-        }
-        # NonGNU ELPA
-        {
-          type = "elpa";
-          path = inputs.nongnu-elpa.outPath + "/elpa-packages";
-        }
-        # Archive fallbacks
-        {
-          type = "archive";
-          url = "https://elpa.gnu.org/packages/";
-        }
-        {
-          type = "archive";
-          url = "https://elpa.nongnu.org/nongnu/";
-        }
-      ];
+      # Override ws-butler to fetch from GitHub instead of savannah.gnu.org
+      # Workaround for https://github.com/nix-community/emacs-overlay/issues/499
+      ws-butler-github = pkgs.emacs-pgtk.pkgs.trivialBuild {
+        pname = "ws-butler";
+        version = "20250613";
+        src = pkgs.fetchFromGitHub {
+          owner = "lewang";
+          repo = "ws-butler";
+          rev = "67c49cfdf5a5a9f28792c500c8eb0017cfe74a3a";
+          hash = "sha256-maOhnDkG3GibrbI1EuPRY+Ej4AZJgbFheu6lC72vZ4w=";
+        };
+      };
 
-      # Explicitly list all packages from your config.org
-      # This avoids IFD (Import From Derivation) by not parsing the init file at eval time
-      # Update this list when you add/remove packages from config.org
-      allPackages = [
-        # Evil mode
-        "evil"
-        "evil-collection"
-        "evil-surround"
-        "evil-matchit"
+      # Build Emacs with packages using emacs-overlay's emacsWithPackages
+      rdmacs = pkgs.emacs-pgtk.pkgs.withPackages (
+        epkgs: with epkgs; [
+          # Evil mode
+          evil
+          evil-collection
+          evil-surround
+          evil-matchit
 
-        # Keybindings
-        "general"
+          # Keybindings
+          general
 
-        # Appearance
-        "catppuccin-theme"
-        "doom-modeline"
-        "nerd-icons"
-        "nerd-icons-dired"
-        "nerd-icons-ibuffer"
-        "indent-guide"
+          # Appearance
+          catppuccin-theme
+          doom-modeline
+          nerd-icons
+          nerd-icons-dired
+          nerd-icons-ibuffer
+          indent-guide
 
-        # Development
-        "projectile"
-        "sideline"
-        "sideline-flymake"
-        "yasnippet"
-        "yasnippet-snippets"
-        "eldoc-box"
+          # Development
+          projectile
+          sideline
+          sideline-flymake
+          yasnippet
+          yasnippet-snippets
+          eldoc-box
 
-        # Language modes
-        "nix-mode"
-        "lua-mode"
-        "rust-mode"
-        "dotenv-mode"
-        "web-mode"
+          # Language modes
+          nix-mode
+          lua-mode
+          rust-mode
+          dotenv-mode
+          web-mode
+          nix-ts-mode
 
-        # Terminal
-        "eat"
+          # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
+          # Exclude broken grammars (tree-sitter-razor)
+          (treesit-grammars.with-grammars (grammars:
+            builtins.filter (g: g.pname or "" != "tree-sitter-razor")
+              (builtins.attrValues grammars)))
 
-        # Version Control
-        "transient"
-        "magit"
-        "diff-hl"
+          # Terminal
+          eat
 
-        # Completion
-        "corfu"
-        "nerd-icons-corfu"
-        "cape"
-        "orderless"
-        "vertico"
-        "marginalia"
-        "nerd-icons-completion"
+          # Version Control
+          transient
+          magit
+          diff-hl
 
-        # Org mode
-        "toc-org"
-        "org-superstar"
+          # Completion
+          corfu
+          nerd-icons-corfu
+          cape
+          orderless
+          vertico
+          marginalia
+          nerd-icons-completion
 
-        # Other packages
-        "consult"
-        "helpful"
-        "diminish"
-        "rainbow-delimiters"
-        "ws-butler"
-        "neotree"
-      ];
+          # Org mode
+          toc-org
+          org-superstar
 
-      # Build the Emacs environment with twist library API
-      rdmacs =
-        (inputs.twist.lib.makeEnv {
-          inherit pkgs;
+          # Other packages
+          consult
+          helpful
+          diminish
+          rainbow-delimiters
+          ws-butler-github
+          neotree
+        ]
+      );
 
-          # Use emacs-pgtk for native Wayland support
-          emacsPackage = pkgs.emacs-pgtk;
+      # Create an init directory with our tangled config
+      initDir = pkgs.runCommand "rdmacs-init-dir" { } ''
+        mkdir -p $out
+        cp ${initFile} $out/init.el
+      '';
 
-          # The tangled init file(s)
-          initFiles = [ initFile ];
+      # Wrapper that loads our tangled init file
+      rdmacs-wrapped = pkgs.writeShellScriptBin "rdmacs" ''
+        exec ${rdmacs}/bin/emacs --init-directory ${initDir} "$@"
+      '';
 
-          # Lock directory for reproducible builds
-          lockDir = ./lock;
-
-          # Package registries
-          inherit registries;
-
-          # Don't try to parse init files - we specify packages explicitly
-          # This avoids IFD
-          initReader = _file: {
-            elispPackages = [ ];
-            systemPackages = [ ];
-          };
-
-          # Explicitly list all packages
-          extraPackages = allPackages;
-
-          # Don't native compile ahead of time for faster builds during iteration
-          nativeCompileAheadDefault = false;
-        }).overrideScope
-          (
-            self: super: {
-              # Override specific packages if needed
-              elispPackages = super.elispPackages.overrideScope (
-                eself: esuper: {
-                  # Example: if a package needs special handling
-                  # vterm = esuper.vterm.overrideAttrs (old: { ... });
-                }
-              );
-            }
-          );
-
-      # Test wrapper that runs in an isolated environment
+      # Test wrapper for live config editing
+      # Tangles your local emacs.org on the fly, so you can iterate without rebuilding
+      # Run from the flake directory, or set RDMACS_CONFIG to your emacs.org path
       rdmacs-test = pkgs.writeShellScriptBin "rdmacs-test" ''
-        # Create isolated home directory for testing
-        TEST_HOME="''${XDG_RUNTIME_DIR:-/tmp}/rdmacs-test-$$"
-        mkdir -p "$TEST_HOME/.emacs.d"
+        EMACS_ORG="''${RDMACS_CONFIG:-./emacs/emacs.org}"
 
-        # Copy init file to the temp home
-        cp ${initFile} "$TEST_HOME/.emacs.d/init.el"
+        if [ ! -f "$EMACS_ORG" ]; then
+          echo "Error: Cannot find emacs.org at $EMACS_ORG"
+          echo "Run from the flake directory or set RDMACS_CONFIG to your emacs.org path"
+          exit 1
+        fi
 
-        # Clean up on exit
-        trap "rm -rf $TEST_HOME" EXIT
+        # Create temp directory for tangled output
+        TANGLE_DIR="$(mktemp -d)"
+        trap "rm -rf $TANGLE_DIR" EXIT
 
-        # Run Emacs with isolated home
-        HOME="$TEST_HOME" exec ${rdmacs}/bin/emacs "$@"
+        # Copy org file to temp dir so tangle output goes there
+        cp "$EMACS_ORG" "$TANGLE_DIR/emacs.org"
+
+        # Tangle org file to elisp on the fly
+        ${rdmacs}/bin/emacs --batch \
+          --eval "(require 'org)" \
+          --eval "(org-babel-tangle-file \"$TANGLE_DIR/emacs.org\" nil \"emacs-lisp\")"
+
+        # Run Emacs with tangled config as init directory
+        # (emacs.el gets renamed to init.el for Emacs to find it)
+        mv "$TANGLE_DIR/emacs.el" "$TANGLE_DIR/init.el"
+        exec ${rdmacs}/bin/emacs --init-directory "$TANGLE_DIR" "$@"
       '';
 
     in
     {
       packages = {
         inherit rdmacs rdmacs-test;
-        # Export init file for use in home-manager module
-        rdmacs-init = initFile;
+        rdmacs-wrapped = rdmacs-wrapped;
       };
       apps = {
         rdmacs = {
           type = "app";
-          program = "${rdmacs}/bin/emacs";
-          meta.description = "Emacs with packages built by twist.nix";
+          program = "${rdmacs-wrapped}/bin/rdmacs";
+          meta.description = "Emacs with packages from emacs-overlay";
         };
         rdmacs-test = {
           type = "app";
           program = "${rdmacs-test}/bin/rdmacs-test";
-          meta.description = "Emacs in isolated environment for testing";
+          meta.description = "Emacs with live-tangling for config iteration";
         };
       };
     };
