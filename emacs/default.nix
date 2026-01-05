@@ -1,4 +1,3 @@
-{ inputs, ... }:
 {
   perSystem =
     {
@@ -67,9 +66,9 @@
 
           # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
           # Exclude broken grammars (tree-sitter-razor)
-          (treesit-grammars.with-grammars (grammars:
-            builtins.filter (g: g.pname or "" != "tree-sitter-razor")
-              (builtins.attrValues grammars)))
+          (treesit-grammars.with-grammars (
+            grammars: builtins.filter (g: g.pname or "" != "tree-sitter-razor") (builtins.attrValues grammars)
+          ))
 
           # Terminal
           eat
