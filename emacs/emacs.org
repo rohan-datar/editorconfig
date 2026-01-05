@@ -579,7 +579,6 @@ To explore the current buffer's syntax tree, use the treesit-explore-mode comman
             (json-mode . json-ts-mode)
             (typescript-mode . typescript-ts-mode)
             (conf-toml-mode . toml-ts-mode)
-    		(nix-mode . nix-ts-mode)
             ))
 
     ;; Or if there is no built in mode
@@ -588,6 +587,7 @@ To explore the current buffer's syntax tree, use the treesit-explore-mode comman
     (use-package go-mod-ts-mode :ensure nil :mode "\\.mod\\'")
     (use-package rust-ts-mode :ensure nil :mode "\\.rs\\'")
     (use-package tsx-ts-mode :ensure nil :mode "\\.tsx\\'")
+    (use-package nix-ts-mode :ensure nil :mode "\\.nix\\'")
 #+end_src
 
 ** Eldoc

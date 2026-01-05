@@ -11,34 +11,15 @@
 
     systems.url = "github:nix-systems/default";
 
-    # Emacs Twist - for building Emacs configurations
-    twist = {
-      url = "github:emacs-twist/twist.nix";
-    };
-    org-babel = {
-      url = "github:emacs-twist/org-babel";
-    };
-
-    # Package registries for Twist
-    melpa = {
-      url = "github:melpa/melpa";
-      flake = false;
-    };
-    gnu-elpa = {
-      # Use GitHub mirror for better availability
-      url = "github:elpa-mirrors/elpa";
-      flake = false;
-    };
-    nongnu-elpa = {
-      # Use GitHub mirror for better availability
-      url = "github:elpa-mirrors/nongnu";
-      flake = false;
-    };
-
-    # Keep emacs-overlay for potential fallback use
+    # Emacs overlay - provides up-to-date Emacs builds and packages
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # org-babel overlay for tangling org files to elisp
+    org-babel = {
+      url = "github:emacs-twist/org-babel";
     };
 
     # NixCats for Neovim configuration
