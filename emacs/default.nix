@@ -107,11 +107,6 @@
         cp ${initFile} $out/init.el
       '';
 
-      # Wrapper that loads our tangled init file
-      rdmacs-wrapped = pkgs.writeShellScriptBin "rdmacs" ''
-        exec ${rdmacs}/bin/emacs --init-directory ${initDir} "$@"
-      '';
-
       # Wrapper suitable for services.emacs (provides bin/emacs with init dir)
       rdmacs-service = pkgs.symlinkJoin {
         name = "rdmacs-service";
@@ -122,6 +117,33 @@
           makeWrapper ${rdmacs}/bin/emacs $out/bin/emacs \
             --add-flags "--init-directory ${initDir}"
         '';
+      };
+
+      # Darwin app bundle with init-directory baked in (for Spotlight/GUI launch)
+      rdmacs-darwin = pkgs.stdenv.mkDerivation {
+        name = "rdmacs-darwin";
+        dontUnpack = true;
+        nativeBuildInputs = [ pkgs.makeWrapper ];
+        buildPhase = ''
+          mkdir -p $out/Applications
+          mkdir -p $out/bin
+
+          # Copy the Emacs.app structure
+          cp -r ${rdmacs}/Applications/Emacs.app $out/Applications/
+
+          # Make the app bundle writable so we can modify the launcher
+          chmod -R u+w $out/Applications/Emacs.app
+
+          # Replace the Emacs binary with a wrapper script
+          rm $out/Applications/Emacs.app/Contents/MacOS/Emacs
+          makeWrapper ${rdmacs}/bin/emacs $out/Applications/Emacs.app/Contents/MacOS/Emacs \
+            --add-flags "--init-directory ${initDir}"
+
+          # Also provide wrapped bin/emacs for CLI use
+          makeWrapper ${rdmacs}/bin/emacs $out/bin/emacs \
+            --add-flags "--init-directory ${initDir}"
+        '';
+        installPhase = "true";
       };
 
       # Test wrapper for live config editing
@@ -157,15 +179,9 @@
     in
     {
       packages = {
-        inherit rdmacs rdmacs-test rdmacs-service;
-        rdmacs-wrapped = rdmacs-wrapped;
+        inherit rdmacs rdmacs-test rdmacs-service rdmacs-darwin;
       };
       apps = {
-        rdmacs = {
-          type = "app";
-          program = "${rdmacs-wrapped}/bin/rdmacs";
-          meta.description = "Emacs with packages from emacs-overlay";
-        };
         rdmacs-test = {
           type = "app";
           program = "${rdmacs-test}/bin/rdmacs-test";
