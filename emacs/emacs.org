@@ -7,6 +7,7 @@
 * Table Of Contents :toc:
 - [[#core-setup--performance][Core Setup & Performance]]
   - [[#startup-performance][Startup Performance]]
+  - [[#nix-store-compatibility][Nix Store Compatibility]]
   - [[#auto-tangle-configuration-file][Auto-tangle Configuration file]]
   - [[#show-startup-time][Show startup time]]
   - [[#package-manager][Package manager]]
@@ -67,6 +68,21 @@ Also set the maximum output size for reading process output, allowing for larger
 #+begin_src emacs-lisp
     ;; The default is 800 kilobytes. Measured in bytes.
     (setq gc-cons-threshold (* 50 1000 1000))
+#+end_src
+
+** Nix Store Compatibility
+When running from Nix, the init directory is in the read-only Nix store.
+Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
+#+begin_src emacs-lisp
+    (let ((cache-dir (expand-file-name "~/.cache/emacs/")))
+      ;; Ensure cache directory exists
+      (unless (file-exists-p cache-dir)
+        (make-directory cache-dir t))
+      ;; Native compilation cache
+      (when (boundp 'native-comp-eln-load-path)
+        (startup-redirect-eln-cache (expand-file-name "eln-cache/" cache-dir)))
+      ;; Yasnippet snippets directory
+      (setq yas-snippet-dirs (list (expand-file-name "snippets/" cache-dir))))
 #+end_src
 
 ** Auto-tangle Configuration file
