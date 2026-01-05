@@ -113,6 +113,18 @@
         exec ${rdmacs}/bin/emacs --init-directory ${initDir} "$@"
       '';
 
+      # Wrapper suitable for services.emacs (provides bin/emacs with init dir)
+      rdmacs-service = pkgs.symlinkJoin {
+        name = "rdmacs-service";
+        paths = [ rdmacs ];
+        nativeBuildInputs = [ pkgs.makeWrapper ];
+        postBuild = ''
+          rm $out/bin/emacs
+          makeWrapper ${rdmacs}/bin/emacs $out/bin/emacs \
+            --add-flags "--init-directory ${initDir}"
+        '';
+      };
+
       # Test wrapper for live config editing
       # Tangles your local emacs.org on the fly, so you can iterate without rebuilding
       # Run from the flake directory, or set RDMACS_CONFIG to your emacs.org path
@@ -146,7 +158,7 @@
     in
     {
       packages = {
-        inherit rdmacs rdmacs-test;
+        inherit rdmacs rdmacs-test rdmacs-service;
         rdmacs-wrapped = rdmacs-wrapped;
       };
       apps = {
