@@ -19,77 +19,82 @@ in
   runtimeDeps = with pkgs; [
     # Language servers
     clang-tools # clangd
-    nil         # Nix LSP
+    nil # Nix LSP
   ];
 
   # Emacs packages function for withPackages
-  emacsPackages = epkgs: with epkgs; [
-    # Evil mode
-    evil
-    evil-collection
-    evil-surround
-    evil-matchit
+  emacsPackages =
+    epkgs: with epkgs; [
+      # Evil mode
+      evil
+      evil-collection
+      evil-surround
+      evil-matchit
 
-    # Keybindings
-    general
+      # Keybindings
+      general
 
-    # Appearance
-    catppuccin-theme
-    doom-modeline
-    nerd-icons
-    nerd-icons-dired
-    nerd-icons-ibuffer
-    indent-guide
+      # Appearance
+      catppuccin-theme
+      doom-modeline
+      nerd-icons
+      nerd-icons-dired
+      nerd-icons-ibuffer
+      indent-guide
 
-    # Development
-    projectile
-    sideline
-    sideline-flymake
-    yasnippet
-    yasnippet-snippets
-    eldoc-box
+      # Development
+      projectile
+      sideline
+      sideline-flymake
+      yasnippet
+      yasnippet-snippets
+      eldoc-box
 
-    # Language modes
-    nix-mode
-    lua-mode
-    rust-mode
-    dotenv-mode
-    web-mode
-    nix-ts-mode
+      # LSP
+      lsp-mode
+      lsp-ui
 
-    # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
-    # Exclude broken grammars (tree-sitter-razor)
-    (treesit-grammars.with-grammars (
-      grammars: builtins.filter (g: g.pname or "" != "tree-sitter-razor") (builtins.attrValues grammars)
-    ))
+      # Language modes
+      nix-mode
+      lua-mode
+      rust-mode
+      dotenv-mode
+      web-mode
+      nix-ts-mode
 
-    # Terminal
-    eat
+      # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
+      # Exclude broken grammars (tree-sitter-razor)
+      (treesit-grammars.with-grammars (
+        grammars: builtins.filter (g: g.pname or "" != "tree-sitter-razor") (builtins.attrValues grammars)
+      ))
 
-    # Version Control
-    transient
-    magit
-    diff-hl
+      # Terminal
+      eat
 
-    # Completion
-    corfu
-    nerd-icons-corfu
-    cape
-    orderless
-    vertico
-    marginalia
-    nerd-icons-completion
+      # Version Control
+      transient
+      magit
+      diff-hl
 
-    # Org mode
-    toc-org
-    org-superstar
+      # Completion
+      corfu
+      nerd-icons-corfu
+      cape
+      orderless
+      vertico
+      marginalia
+      nerd-icons-completion
 
-    # Other packages
-    consult
-    helpful
-    diminish
-    rainbow-delimiters
-    ws-butler-github
-    neotree
-  ];
+      # Org mode
+      toc-org
+      org-superstar
+
+      # Other packages
+      consult
+      helpful
+      diminish
+      rainbow-delimiters
+      ws-butler-github
+      neotree
+    ];
 }
