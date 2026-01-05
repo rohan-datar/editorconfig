@@ -112,9 +112,8 @@ in
       inherit (vp)
         lazydev-nvim
         obsidian-nvim
+        # go-nvim
         ;
-      # Use flake input version to bypass nixpkgs require check issue
-      inherit (np) go-nvim;
     };
 
     debuggers = values {
