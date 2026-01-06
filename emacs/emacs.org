@@ -246,27 +246,37 @@ Notes:
 *To use it, remove :tangle no from the beginning of the source code block.*
 #+begin_src emacs-lisp
     (use-package evil
-      :init
-      (evil-mode)
-      :config
-      (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
-      :custom
-      (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
-      (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
-      (evil-want-C-i-jump nil)      ;; Disables C-i jump
-      (evil-undo-system 'undo-redo) ;; C-r to redo
-      (evil-want-fine-undo t)
-      ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
-      :bind (:map evil-motion-state-map
-                  ("SPC" . nil)
-                  ("RET" . nil)
-                  ("TAB" . nil)))
+        :init
+        (evil-mode)
+        :config
+        (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
+    	;; normalize some emacs and vim keybindings
+        (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+        (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join) 
+    	;; diagnostic keybindings
+        (evil-define-key 'normal 'global (kbd "] d") 'flymake-goto-next-error) ;; Go to next Flymake error
+        (evil-define-key 'normal 'global (kbd "[ d") 'flymake-goto-prev-error) ;; Go to previous Flymake error
+
+        ;; Diff-HL navigation for version control
+        (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
+        (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
+        :custom
+        (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
+        (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
+        (evil-want-C-i-jump nil)      ;; Disables C-i jump
+        (evil-undo-system 'undo-redo) ;; C-r to redo
+        (evil-want-fine-undo t)
+        ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
+        :bind (:map evil-motion-state-map
+                    ("SPC" . nil)
+                    ("RET" . nil)
+                    ("TAB" . nil)))
     (use-package evil-collection
-      :after evil
-      :config
-      ;; Setting where to use evil-collection
-      (setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult info))
-      (evil-collection-init))
+        :after evil
+        :config
+        ;; Setting where to use evil-collection
+        (setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult info))
+        (evil-collection-init))
 
     (use-package evil-surround
         :ensure t
@@ -274,11 +284,11 @@ Notes:
         :config
         (global-evil-surround-mode 1))
 
-(use-package evil-matchit
-  :ensure t
-  :after evil-collection
-  :config
-  (global-evil-matchit-mode 1))
+    (use-package evil-matchit
+        :ensure t
+        :after evil-collection
+        :config
+        (global-evil-matchit-mode 1))
 #+end_src
 
 ** General Keybindings
@@ -295,10 +305,10 @@ Note: The Leader key is what you will press when you want to access your keybind
 #+begin_src emacs-lisp
     (use-package general
       :config
-      (general-evil-setup) ;; <- evil
+      (general-evil-setup) 
       ;; Set up 'C-SPC' as the leader key
       (general-create-definer rdmacs/leader-keys
-        :states '(normal insert visual motion emacs) ;; <- evil
+        :states '(normal insert visual motion emacs) 
         :keymaps 'override
         :prefix "SPC"
         :global-prefix "C-SPC") ;; Set global leader key so we can access our keybindings from any state
@@ -313,23 +323,29 @@ Note: The Leader key is what you will press when you want to access your keybind
 
       (rdmacs/leader-keys
         "s" '(:ignore t :wk "Search")
-        "s c" '((lambda () (interactive) (find-file "~/.emacs.d/init.org")) :wk "Find emacs Config")
+        "s c" '((lambda () (interactive) (find-file "~/editorconfig/emacs/emacs.org")) :wk "Find emacs Config")
         "s r" '(consult-recent-file :wk "Search recent files")
         "s f" '(consult-fd :wk "Search files with fd")
         "s g" '(consult-ripgrep :wk "Search with ripgrep")
         "s l" '(consult-line :wk "Search line")
+    	"s h" '(consult-info :wk "Search help")
         "s i" '(consult-imenu :wk "Search Imenu buffer locations")) ;; This one is really cool
 
       (rdmacs/leader-keys
-        "d" '(:ignore t :wk "Buffers & Dired")
-        "d s" '(consult-buffer :wk "Switch buffer")
-        "d k" '(kill-current-buffer :wk "Kill current buffer")
-        "d i" '(ibuffer :wk "Ibuffer")
-        "d n" '(next-buffer :wk "Next buffer")
-        "d p" '(previous-buffer :wk "Previous buffer")
-        "d r" '(revert-buffer :wk "Reload buffer")
-        "d v" '(dired :wk "Open dired")
+        "d" '(:ignore t :wk "Dired")
+        "d d" '(dired :wk "Open dired")
         "d j" '(dired-jump :wk "Dired jump to current"))
+      
+      (rdmacs/leader-keys
+      "b" '(:ignore t :wk "Buffers")
+      "b i" '(consult-buffer :wk "Switch buffer")
+      "b b" '(ibuffer :wk "Ibuffer")
+      "b d" '(kill-current-buffer :wk "Kill current buffer")
+      "b k" '(kill-current-buffer :wk "Kill current buffer")
+      "b x" '(kill-current-buffer :wk "Kill current buffer")
+      "b n" '(next-buffer :wk "Next buffer")
+      "b p" '(previous-buffer :wk "Previous buffer")
+      "b r" '(revert-buffer :wk "Reload buffer"))
 
       (rdmacs/leader-keys
         "e" '(:ignore t :wk "Languages/LSP")
@@ -348,14 +364,19 @@ Note: The Leader key is what you will press when you want to access your keybind
 
       (rdmacs/leader-keys
         "g" '(:ignore t :wk "Git")
-        "g s" '(magit-status :wk "Magit status"))
+        "g g" '(magit-status :wk "Magit status")
+        "g l" '(magit-log-current :wk "Show current log")
+        "g d" '(magit-diff-buffer-file :wk "Show diff for the current file")
+        "g D" '(diff-hl-show-hunk :wk "Show diff for hunk")
+        "g b" '(magit-blame :wk "Git blame"))
 
       (rdmacs/leader-keys
         "h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
         "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
-        "h r" '((lambda () (interactive)
-                  (load-file "~/.emacs.d/init.el"))
-                :wk "Reload Emacs config"))
+    	"h m" '(describe-mode :wk "Describe mode")
+    	"h k" '(helpful-key :wk "Describe keybinding")
+    	"h f" '(helpful-function :wk "Describe function")
+    	"h v" '(helpful-variable :wk "Describe variable"))
 
       (rdmacs/leader-keys
         "t" '(:ignore t :wk "Toggle")
@@ -365,8 +386,7 @@ Note: The Leader key is what you will press when you want to access your keybind
      (rdmacs/leader-keys
       "c" '(:ignore t :wk "Compile")
       "c c" '(compile :wk "Run compile command")
-      "c r" '(recompile :wk "Recompile"))
-      )
+      "c r" '(recompile :wk "Recompile")))
 
 
     ;; Fix general.el leader key not working instantly in messages buffer with evil mode
@@ -376,8 +396,7 @@ Note: The Leader key is what you will press when you want to access your keybind
                  (when-let ((messages-buffer (get-buffer "*Messages*")))
                    (with-current-buffer messages-buffer
                      (evil-normalize-keymaps))))
-               nil nil t)
-       )
+               nil nil t))
 #+end_src
 
 ** Which-Key
@@ -1037,7 +1056,7 @@ and integrates with version control to show file states.
   (neo-vc-integration '(face char))        ;; Enable VC integration to display file states with faces (color coding) and characters (icons).
   :defer t                                 ;; Load the package only when needed to improve startup time.
   :config
-  (setq neo-theme 'nerd-icons)         ;; Set the theme to 'nerd-icons' if nerd fonts are available.
+  (setq neo-theme 'nerd-icons))         ;; Set the theme to 'nerd-icons' if nerd fonts are available.
 #+end_src
 
 * Runtime Performance

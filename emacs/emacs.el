@@ -1,6 +1,16 @@
 ;; The default is 800 kilobytes. Measured in bytes.
 (setq gc-cons-threshold (* 50 1000 1000))
 
+(let ((cache-dir (expand-file-name "~/.cache/emacs/")))
+  ;; Ensure cache directory exists
+  (unless (file-exists-p cache-dir)
+    (make-directory cache-dir t))
+  ;; Native compilation cache
+  (when (boundp 'native-comp-eln-load-path)
+    (startup-redirect-eln-cache (expand-file-name "eln-cache/" cache-dir)))
+  ;; Yasnippet snippets directory
+  (setq yas-snippet-dirs (list (expand-file-name "snippets/" cache-dir))))
+
 (defun rdmacs/org-babel-tangle-config ()
   "Automatically tangle our init.org config file and refresh package-quickstart when we save it. Credit to Emacs From Scratch for this one!"
   (interactive)
@@ -100,51 +110,59 @@
   (dired-kill-when-opening-new-dired-buffer t)               ;; Close the previous buffer when opening a new `dired' instance.
   :config
   (when (eq system-type 'darwin)
-    (let ((gls (executable-find "gls")))                     ;; Use GNU ls on macOS if available.
-      (when gls
-        (setq insert-directory-program gls)))))
+    (setq insert-directory-program "/run/current-system/sw/bin/ls")))
 
 (use-package evil
-      :init
-      (evil-mode)
-      :config
-      (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
-      :custom
-      (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
-      (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
-      (evil-want-C-i-jump nil)      ;; Disables C-i jump
-      (evil-undo-system 'undo-redo) ;; C-r to redo
-      (evil-want-fine-undo t)
-      ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
-      :bind (:map evil-motion-state-map
-                  ("SPC" . nil)
-                  ("RET" . nil)
-                  ("TAB" . nil)))
-    (use-package evil-collection
-      :after evil
-      :config
-      ;; Setting where to use evil-collection
-      (setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult info))
-      (evil-collection-init))
+    :init
+    (evil-mode)
+    :config
+    (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
+	;; normalize some emacs and vim keybindings
+    (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+    (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join) 
+	;; diagnostic keybindings
+    (evil-define-key 'normal 'global (kbd "] d") 'flymake-goto-next-error) ;; Go to next Flymake error
+    (evil-define-key 'normal 'global (kbd "[ d") 'flymake-goto-prev-error) ;; Go to previous Flymake error
 
-    (use-package evil-surround
-        :ensure t
-        :after evil-collection
-        :config
-        (global-evil-surround-mode 1))
+    ;; Diff-HL navigation for version control
+    (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
+    (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
+    :custom
+    (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
+    (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
+    (evil-want-C-i-jump nil)      ;; Disables C-i jump
+    (evil-undo-system 'undo-redo) ;; C-r to redo
+    (evil-want-fine-undo t)
+    ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
+    :bind (:map evil-motion-state-map
+                ("SPC" . nil)
+                ("RET" . nil)
+                ("TAB" . nil)))
+(use-package evil-collection
+    :after evil
+    :config
+    ;; Setting where to use evil-collection
+    (setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult info))
+    (evil-collection-init))
+
+(use-package evil-surround
+    :ensure t
+    :after evil-collection
+    :config
+    (global-evil-surround-mode 1))
 
 (use-package evil-matchit
-  :ensure t
-  :after evil-collection
-  :config
-  (global-evil-matchit-mode 1))
+    :ensure t
+    :after evil-collection
+    :config
+    (global-evil-matchit-mode 1))
 
 (use-package general
   :config
-  (general-evil-setup) ;; <- evil
+  (general-evil-setup) 
   ;; Set up 'C-SPC' as the leader key
   (general-create-definer rdmacs/leader-keys
-    :states '(normal insert visual motion emacs) ;; <- evil
+    :states '(normal insert visual motion emacs) 
     :keymaps 'override
     :prefix "SPC"
     :global-prefix "C-SPC") ;; Set global leader key so we can access our keybindings from any state
@@ -159,46 +177,60 @@
 
   (rdmacs/leader-keys
     "s" '(:ignore t :wk "Search")
-    "s c" '((lambda () (interactive) (find-file "~/.emacs.d/init.org")) :wk "Find emacs Config")
+    "s c" '((lambda () (interactive) (find-file "~/editorconfig/emacs/emacs.org")) :wk "Find emacs Config")
     "s r" '(consult-recent-file :wk "Search recent files")
     "s f" '(consult-fd :wk "Search files with fd")
     "s g" '(consult-ripgrep :wk "Search with ripgrep")
     "s l" '(consult-line :wk "Search line")
+	"s h" '(consult-info :wk "Search help")
     "s i" '(consult-imenu :wk "Search Imenu buffer locations")) ;; This one is really cool
 
   (rdmacs/leader-keys
-    "d" '(:ignore t :wk "Buffers & Dired")
-    "d s" '(consult-buffer :wk "Switch buffer")
-    "d k" '(kill-current-buffer :wk "Kill current buffer")
-    "d i" '(ibuffer :wk "Ibuffer")
-    "d n" '(next-buffer :wk "Next buffer")
-    "d p" '(previous-buffer :wk "Previous buffer")
-    "d r" '(revert-buffer :wk "Reload buffer")
-    "d v" '(dired :wk "Open dired")
+    "d" '(:ignore t :wk "Dired")
+    "d d" '(dired :wk "Open dired")
     "d j" '(dired-jump :wk "Dired jump to current"))
+  
+  (rdmacs/leader-keys
+  "b" (:ignore t :wk "Buffers")
+  "b i" '(consult-buffer :wk "Switch buffer")
+  "b b" '(ibuffer :wk "Ibuffer")
+  "b d" '(kill-current-buffer :wk "Kill current buffer")
+  "b k" '(kill-current-buffer :wk "Kill current buffer")
+  "b x" '(kill-current-buffer :wk "Kill current buffer")
+  "b n" '(next-buffer :wk "Next buffer")
+  "b p" '(previous-buffer :wk "Previous buffer")
+  "b r" '(revert-buffer :wk "Reload buffer"))
 
   (rdmacs/leader-keys
-    "e" '(:ignore t :wk "Languages")
-    "e e" '(eglot-reconnect :wk "Eglot Reconnect")
+    "e" '(:ignore t :wk "Languages/LSP")
+    "e e" '(lsp-restart-workspace :wk "LSP Restart")
     "e d" '(eldoc-doc-buffer :wk "Eldoc Buffer")
-    "e f" '(eglot-format :wk "Eglot Format")
+    "e f" '(lsp-format-buffer :wk "LSP Format")
     "e l" '(consult-flymake :wk "Consult Flymake")
-    "e r" '(eglot-rename :wk "Eglot Rename")
-    "e i" '(xref-find-definitions :wk "Find definition")
+    "e r" '(lsp-rename :wk "LSP Rename")
+    "e i" '(lsp-find-definition :wk "Find definition")
+    "e R" '(lsp-find-references :wk "Find references")
+    "e a" '(lsp-execute-code-action :wk "Code action")
+    "e h" '(lsp-ui-doc-glance :wk "Hover doc")
     "e v" '(:ignore t :wk "Elisp")
     "e v b" '(eval-buffer :wk "Evaluate elisp in buffer")
     "e v r" '(eval-region :wk "Evaluate elisp in region"))
 
   (rdmacs/leader-keys
     "g" '(:ignore t :wk "Git")
-    "g s" '(magit-status :wk "Magit status"))
+    "g g" '(magit-status :wk "Magit status")
+    "g l" '(magit-log-current :wk "Show current log")
+    "g d" '(magit-diff-buffer-file :wk "Show diff for the current file")
+    "g D" '(diff-hl-show-hunk :wk "Show diff for hunk")
+    "g b" '(magit-blame :wk "Git blame"))
 
   (rdmacs/leader-keys
     "h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
     "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
-    "h r" '((lambda () (interactive)
-              (load-file "~/.emacs.d/init.el"))
-            :wk "Reload Emacs config"))
+	"h m" '(describe-mode :wk "Describe mode")
+	"h k" '(helpful-key :wk "Describe keybinding")
+	"h f" '(helpful-function :wk "Describe function")
+	"h v" '(helpful-variable :wk "Describe variable"))
 
   (rdmacs/leader-keys
     "t" '(:ignore t :wk "Toggle")
@@ -208,8 +240,7 @@
  (rdmacs/leader-keys
   "c" '(:ignore t :wk "Compile")
   "c c" '(compile :wk "Run compile command")
-  "c r" '(recompile :wk "Recompile"))
-  )
+  "c r" '(recompile :wk "Recompile")))
 
 
 ;; Fix general.el leader key not working instantly in messages buffer with evil mode
@@ -219,8 +250,7 @@
              (when-let ((messages-buffer (get-buffer "*Messages*")))
                (with-current-buffer messages-buffer
                  (evil-normalize-keymaps))))
-           nil nil t)
-   )
+           nil nil t))
 
 (use-package which-key
   :ensure nil ;; Don't install which-key because it's now built-in
@@ -285,21 +315,48 @@
   (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
   (projectile-project-search-path '("~/projects/" "~/work/" ("~/github" . 1)))) ;; . 1 means only search the first subdirectory level for projects
 
-(use-package eglot
-  :ensure nil ;; Don't install eglot because it's now built-in
-  :hook ((c-mode c++-mode ;; Autostart lsp servers for a given mode
-                 lua-mode) ;; Lua-mode needs to be installed
-         . eglot-ensure)
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (((c-mode c++-mode   ;; C/C++ with clangd
+           lua-mode          ;; Lua
+           nix-mode          ;; Nix with nil
+           nix-ts-mode)      ;; Nix tree-sitter mode
+          . lsp-deferred)
+         (lsp-completion-mode . rdmacs/lsp-mode-setup-completion))
   :custom
-  ;; Good default
-  (eglot-events-buffer-size 0) ;; No event buffers (LSP server logs)
-  (eglot-autoshutdown t);; Shutdown unused servers.
-  (eglot-report-progress nil) ;; Disable LSP server logs (Don't show lsp messages at the bottom, java)
-  ;; Manual lsp servers
-  ;;:config
-  ;;(add-to-list 'eglot-server-programs
-  ;;             `(lua-mode . ("PATH_TO_THE_LSP_FOLDER/bin/lua-language-server" "-lsp"))) ;; Adds our lua lsp server to eglot's server list
-  )
+  (lsp-keymap-prefix "C-c l")           ;; Set prefix for lsp-command-keymap
+  (lsp-idle-delay 0.500)                ;; Debounce timer for server communication
+  (lsp-log-io nil)                      ;; Disable logging for better performance
+  (lsp-completion-provider :none)       ;; Use corfu instead of lsp's completion
+  (lsp-headerline-breadcrumb-enable t)  ;; Show breadcrumb navigation
+  (lsp-enable-symbol-highlighting t)    ;; Highlight references
+  (lsp-enable-snippet t)                ;; Enable snippet support (yasnippet)
+  (lsp-modeline-diagnostics-enable t)   ;; Show diagnostics in modeline
+  :init
+  ;; Use corfu for completion
+  (defun rdmacs/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless)))
+  :config
+  ;; Configure nil for Nix
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection "nil")
+    :major-modes '(nix-mode nix-ts-mode)
+    :server-id 'nil-ls)))
+
+(use-package lsp-ui
+  :after lsp-mode
+  :custom
+  (lsp-ui-doc-enable t)                 ;; Enable doc popup
+  (lsp-ui-doc-show-with-cursor nil)     ;; Don't show doc on cursor hover (use K instead)
+  (lsp-ui-doc-show-with-mouse t)        ;; Show doc on mouse hover
+  (lsp-ui-doc-position 'at-point)       ;; Show doc at point
+  (lsp-ui-sideline-enable t)            ;; Show sideline info
+  (lsp-ui-sideline-show-diagnostics t)  ;; Show diagnostics in sideline
+  (lsp-ui-sideline-show-hover nil)      ;; Don't show hover info in sideline
+  (lsp-ui-sideline-show-code-actions t) ;; Show code actions in sideline
+  (lsp-ui-peek-enable t))               ;; Enable peek feature
 
 (use-package flymake
   :ensure nil          ;; This is built-in, no need to fetch it.
@@ -332,7 +389,6 @@
         (json-mode . json-ts-mode)
         (typescript-mode . typescript-ts-mode)
         (conf-toml-mode . toml-ts-mode)
-		(nix-mode . nix-ts-mode)
         ))
 
 ;; Or if there is no built in mode
@@ -341,6 +397,7 @@
 (use-package go-mod-ts-mode :ensure nil :mode "\\.mod\\'")
 (use-package rust-ts-mode :ensure nil :mode "\\.rs\\'")
 (use-package tsx-ts-mode :ensure nil :mode "\\.tsx\\'")
+(use-package nix-ts-mode :ensure nil :mode "\\.nix\\'")
 
 (use-package eldoc
   :ensure nil                                ;; This is built-in, no need to fetch it.
@@ -599,7 +656,7 @@
   (neo-vc-integration '(face char))        ;; Enable VC integration to display file states with faces (color coding) and characters (icons).
   :defer t                                 ;; Load the package only when needed to improve startup time.
   :config
-  (setq neo-theme 'nerd-icons)         ;; Set the theme to 'nerd-icons' if nerd fonts are available.
+  (setq neo-theme 'nerd-icons))         ;; Set the theme to 'nerd-icons' if nerd fonts are available.
 
 ;; Make gc pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))

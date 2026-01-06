@@ -17,6 +17,9 @@ in
 {
   # External tools (LSPs, formatters, etc.) to be available in PATH
   runtimeDeps = with pkgs; [
+	# general environment
+	ripgrep
+	fd
     # Language servers
     clang-tools # clangd
     nil # Nix LSP
