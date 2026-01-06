@@ -73,11 +73,13 @@ in
 
       # Terminal
       eat
+	  vterm
 
       # Version Control
       transient
       magit
       diff-hl
+	  blamer
 
       # Completion
       corfu

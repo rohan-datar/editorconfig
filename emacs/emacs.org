@@ -43,6 +43,7 @@
   - [[#magit][Magit]]
   - [[#diff-hl][Diff-hl]]
   - [[#smerge][Smerge]]
+  - [[#blamer][Blamer]]
 - [[#completion][Completion]]
   - [[#corfu][Corfu]]
   - [[#cape][Cape]]
@@ -250,6 +251,7 @@ Notes:
         (evil-mode)
         :config
         (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
+        (evil-set-initial-state 'vterm-mode 'insert) ;; Set initial state in vterm terminal to insert mode
     	;; normalize some emacs and vim keybindings
         (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
         (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join) 
@@ -724,6 +726,16 @@ If you want a faster and more responsive terminal emulator try out vterm.
     (use-package eat
       :hook ('eshell-load-hook #'eat-eshell-mode))
 #+end_src
+*** Vterm
+vterm is an improved terminal emulator package which uses a compiled native module to interact with the underlying terminal applications. This enables it to be much faster than term-mode and to also provide a more complete terminal emulation experience.
+#+begin_src emacs-lisp
+(use-package vterm
+  :commands vterm
+  :config
+  ;; (setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
+  (setq vterm-max-scrollback 10000))
+
+#+end_src
 
 * Multi File Example
 ** Adding the lisp directory to load-path
@@ -782,6 +794,18 @@ lower version during a merge.
               ("C-c ^ l" . smerge-keep-lower)  ;; Keep the changes from the lower version.
               ("C-c ^ n" . smerge-next)        ;; Move to the next conflict.
               ("C-c ^ p" . smerge-previous)))  ;; Move to the previous conflict.
+#+end_src
+
+** Blamer
+Blamer shows git blame info similar to gitlens.
+#+begin_src emacs-lisp
+(use-package blamer
+  :defer 20
+  :custom
+  (blamer-idle-time 0.3)
+  (blamer-min-offset 70)
+  :config
+  (global-blamer-mode 1))
 #+end_src
 
 * Completion
