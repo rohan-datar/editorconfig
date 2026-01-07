@@ -33,6 +33,8 @@ in
       evil-collection
       evil-surround
       evil-matchit
+	  evil-multiedit
+	  evil-mc
 
       # Keybindings
       general

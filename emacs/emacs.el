@@ -95,9 +95,7 @@
          ("C-+" . text-scale-increase)
          ("C--" . text-scale-decrease)
          ("<C-wheel-up>" . text-scale-increase)
-         ("<C-wheel-down>" . text-scale-decrease)
-         )
-  )
+         ("<C-wheel-down>" . text-scale-decrease)))
 
 (use-package dired
   :ensure nil                                                ;; This is built-in, no need to fetch it.
@@ -117,6 +115,7 @@
     (evil-mode)
     :config
     (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
+    (evil-set-initial-state 'vterm-mode 'insert) ;; Set initial state in vterm terminal to insert mode
 	;; normalize some emacs and vim keybindings
     (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
     (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join) 
@@ -124,9 +123,23 @@
     (evil-define-key 'normal 'global (kbd "] d") 'flymake-goto-next-error) ;; Go to next Flymake error
     (evil-define-key 'normal 'global (kbd "[ d") 'flymake-goto-prev-error) ;; Go to previous Flymake error
 
+    (evil-define-key 'normal 'global (kbd "K") 'eldoc-box-help-at-point)
+
     ;; Diff-HL navigation for version control
     (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
     (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
+    ;; Commenting functionality for single and multiple lines
+    (evil-define-key 'normal 'global (kbd "gcc")
+               (lambda ()
+                 (interactive)
+                 (if (not (use-region-p))
+                     (comment-or-uncomment-region (line-beginning-position) (line-end-position)))))
+
+    (evil-define-key 'visual 'global (kbd "gc")
+               (lambda ()
+                 (interactive)
+                 (if (use-region-p)
+                     (comment-or-uncomment-region (region-beginning) (region-end)))))
     :custom
     (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
     (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
@@ -138,11 +151,13 @@
                 ("SPC" . nil)
                 ("RET" . nil)
                 ("TAB" . nil)))
+
 (use-package evil-collection
     :after evil
     :config
-    ;; Setting where to use evil-collection
-    (setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult info))
+	;; setting where to use evil-collection
+	(setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult info neotree))
+    (setq evil-collection-want-find-usages-bindings t)
     (evil-collection-init))
 
 (use-package evil-surround
@@ -156,6 +171,18 @@
     :after evil-collection
     :config
     (global-evil-matchit-mode 1))
+
+(use-package evil-multiedit
+    :ensure t
+    :after evil-collection
+    :config
+    (evil-multiedit-default-keybinds))
+
+(use-package evil-mc
+  :ensure t
+  :after evil-multiedit
+  :config
+  (global-evil-mc-mode 1))
 
 (use-package general
   :config
@@ -171,7 +198,7 @@
     "." '(find-file :wk "Find file")
     "TAB" '(comment-line :wk "Comment lines")
     "q" '(flymake-show-buffer-diagnostics :wk "Flymake buffer diagnostic")
-    "t t" '(eat :wk "Eat terminal")
+    "t t" '(vterm :wk "vterm terminal")
     "p" '(projectile-command-map :wk "Projectile")
     "s p" '(projectile-discover-projects-in-search-path :wk "Search for projects"))
 
@@ -186,12 +213,13 @@
     "s i" '(consult-imenu :wk "Search Imenu buffer locations")) ;; This one is really cool
 
   (rdmacs/leader-keys
-    "d" '(:ignore t :wk "Dired")
-    "d d" '(dired :wk "Open dired")
-    "d j" '(dired-jump :wk "Dired jump to current"))
+    "f" '(:ignore t :wk "Files")
+    "f f" '(dired :wk "Open dired")
+    "f e" '(dired-jump :wk "Dired jump to current")
+    "f s" '(neotree-toggle :wk "Toggle neotree"))
   
   (rdmacs/leader-keys
-  "b" (:ignore t :wk "Buffers")
+  "b" '(:ignore t :wk "Buffers")
   "b i" '(consult-buffer :wk "Switch buffer")
   "b b" '(ibuffer :wk "Ibuffer")
   "b d" '(kill-current-buffer :wk "Kill current buffer")
@@ -313,7 +341,7 @@
   ;; (projectile-auto-discover nil) ;; Disable auto search for better startup times ;; Search with a keybind
   (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
   (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
-  (projectile-project-search-path '("~/projects/" "~/work/" ("~/github" . 1)))) ;; . 1 means only search the first subdirectory level for projects
+  (projectile-project-search-path '("~/Documents/" "~/Documents/UW-Classes/" "~/Documents/dev/" ("~/" . 1)))) ;; . 1 means only search the first subdirectory level for projects
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
@@ -442,6 +470,12 @@
 (use-package eat
   :hook ('eshell-load-hook #'eat-eshell-mode))
 
+(use-package vterm
+  :commands vterm
+  :config
+  ;; (setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
+  (setq vterm-max-scrollback 10000))
+
 ;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
 ;; (require 'start-multiFileExample)
@@ -468,6 +502,14 @@
               ("C-c ^ n" . smerge-next)        ;; Move to the next conflict.
               ("C-c ^ p" . smerge-previous)))  ;; Move to the previous conflict.
 
+(use-package blamer
+  :defer 20
+  :custom
+  (blamer-idle-time 0.3)
+  (blamer-min-offset 70)
+  :config
+  (global-blamer-mode 1))
+
 (use-package corfu
   ;; Optional customizations
   :custom
@@ -479,8 +521,6 @@
   (corfu-separator ?\s)          ;; Orderless field separator, Use M-SPC to enter separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
   (completion-ignore-case t)
@@ -493,12 +533,22 @@
   ;; `completion-at-point' is often bound to M-TAB.
   (tab-always-indent 'complete)
 
-  (corfu-preview-current nil) ;; Don't insert completion without confirmation
+  (corfu-preview-current 'insert) ;; Auto-insert when navigating (like blink.cmp auto_insert)
+  (corfu-preselect 'first)        ;; Preselect first candidate so TAB selects it immediately
   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
   ;; be used globally (M-/).  See also the customization variable
   ;; `global-corfu-modes' to exclude certain modes.
+  :bind
+  (:map corfu-map
+        ("TAB" . corfu-next)
+        ([tab] . corfu-next)
+        ("S-TAB" . corfu-previous)
+        ([backtab] . corfu-previous)
+        ("RET" . corfu-insert)
+        ([return] . corfu-insert))
   :init
-  (global-corfu-mode))
+  (global-corfu-mode)
+  (corfu-popupinfo-mode t))
 
 (use-package nerd-icons-corfu
   :after corfu
