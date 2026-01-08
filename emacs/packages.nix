@@ -13,100 +13,114 @@ let
       hash = "sha256-maOhnDkG3GibrbI1EuPRY+Ej4AZJgbFheu6lC72vZ4w=";
     };
   };
+
+  values = builtins.attrValues;
 in
 {
   # External tools (LSPs, formatters, etc.) to be available in PATH
-  runtimeDeps = with pkgs; [
-	# general environment
-	ripgrep
-	fd
-    # Language servers
-    clang-tools # clangd
-    nil # Nix LSP
-	claude-code
-  ];
+  runtimeDeps = values {
+    inherit (pkgs)
+      # general environment
+      ripgrep
+      fd
+      # Language servers
+      clang-tools # clangd
+      nil # Nix LSP
+      lua-language-server
+      superhtml
+      gopls
+
+      claude-code
+      ;
+  };
 
   # Emacs packages function for withPackages
   emacsPackages =
-    epkgs: with epkgs; [
+    epkgs:
+    values {
       # Evil mode
-      evil
-      evil-collection
-      evil-surround
-      evil-matchit
-	  evil-multiedit
-	  evil-mc
+      inherit (epkgs)
+        evil
+        evil-collection
+        evil-surround
+        evil-matchit
+        evil-multiedit
+        evil-mc
 
-      # Keybindings
-      general
+        # Keybindings
+        general
 
-      # Appearance
-      catppuccin-theme
-      doom-modeline
-      nerd-icons
-      nerd-icons-dired
-      nerd-icons-ibuffer
-      indent-guide
+        # Appearance
+        catppuccin-theme
+        doom-modeline
+        nerd-icons
+        nerd-icons-dired
+        nerd-icons-ibuffer
+        indent-guide
 
-      # Development
-      projectile
-      sideline
-      sideline-flymake
-      yasnippet
-      yasnippet-snippets
-      eldoc-box
+        # Development
+        projectile
+        sideline
+        sideline-flymake
+        yasnippet
+        yasnippet-snippets
+        eldoc-box
+		format-all
 
-      # LSP
-      lsp-mode
-      lsp-ui
+        # LSP
+        lsp-mode
+        lsp-ui
 
-      # Language modes
-      nix-mode
-      lua-mode
-      rust-mode
-      dotenv-mode
-      web-mode
-      nix-ts-mode
+        # Language modes
+        nix-mode
+        lua-mode
+        rust-mode
+        dotenv-mode
+        web-mode
+        nix-ts-mode
+
+        # Terminal
+        eat
+        vterm
+
+        # Version Control
+        transient
+        magit
+        diff-hl
+        blamer
+
+        # Completion
+        corfu
+        nerd-icons-corfu
+        cape
+        orderless
+        vertico
+        marginalia
+        nerd-icons-completion
+
+        # Org mode
+        toc-org
+        org-superstar
+
+        #AI
+        copilot-chat
+        claude-code
+
+        # Other packages
+        consult
+        helpful
+        diminish
+        rainbow-delimiters
+        neotree
+        ;
+
+      # Custom package override (defined in let block)
+      ws-butler = ws-butler-github;
 
       # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
       # Exclude broken grammars (tree-sitter-razor)
-      (treesit-grammars.with-grammars (
+      treesit = epkgs.treesit-grammars.with-grammars (
         grammars: builtins.filter (g: g.pname or "" != "tree-sitter-razor") (builtins.attrValues grammars)
-      ))
-
-      # Terminal
-      eat
-	  vterm
-
-      # Version Control
-      transient
-      magit
-      diff-hl
-	  blamer
-
-      # Completion
-      corfu
-      nerd-icons-corfu
-      cape
-      orderless
-      vertico
-      marginalia
-      nerd-icons-completion
-
-      # Org mode
-      toc-org
-      org-superstar
-
-	  #AI
-	  copilot-chat
-	  claude-code
-
-      # Other packages
-      consult
-      helpful
-      diminish
-      rainbow-delimiters
-      ws-butler-github
-      neotree
-    ];
+      );
+    };
 }

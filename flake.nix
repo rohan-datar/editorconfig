@@ -45,6 +45,7 @@
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         ./args.nix
+        ./formatter.nix
         ./nvim
         ./emacs
       ];

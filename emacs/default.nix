@@ -107,7 +107,12 @@
     in
     {
       packages = {
-        inherit rdmacs rdmacs-test rdmacs-service rdmacs-darwin;
+        inherit
+          rdmacs
+          rdmacs-test
+          rdmacs-service
+          rdmacs-darwin
+          ;
       };
       apps = {
         rdmacs-test = {

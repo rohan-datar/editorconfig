@@ -27,6 +27,7 @@
 - [[#development][Development]]
   - [[#projectile][Projectile]]
   - [[#lsp-mode][LSP Mode]]
+  - [[#format-all][Format-All]]
   - [[#flymake][Flymake]]
   - [[#sideline-flymake][Sideline-flymake]]
   - [[#yasnippet][Yasnippet]]
@@ -424,17 +425,10 @@ Note: The Leader key is what you will press when you want to access your keybind
            (call-interactively #'projectile-compile-project)
          (call-interactively #'compile)))
 
-     (defun rdmacs/smart-recompile ()
-       "Run `projectile-recompile' if in a project, otherwise `recompile'."
-       (interactive)
-       (if (projectile-project-p)
-           (call-interactively #'projectile-recompile)
-         (call-interactively #'recompile)))
-
      (rdmacs/leader-keys
       "c" '(:ignore t :wk "Compile & AI")
       "c c" '(rdmacs/smart-compile :wk "Run compile command")
-      "c r" '(rdmacs/smart-recompile :wk "Recompile")
+      "c r" '(recompile :wk "Recompile")
       "c h" '(copilot-chat :wk "Open copilot chat")
       "c l" '(claude-code-transient :wk "Open claude code")))
 
@@ -496,7 +490,6 @@ With Emacs version 29, true transparency has been added.
     ;; This sets the default font on all graphical frames created after restarting Emacs.
     ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
     ;; are not right unless I also add this method of setting the default font.
-
     (add-to-list 'default-frame-alist '(font . "Maple Mono NF")) ;; Set your favorite font
     (setq-default line-spacing 0.12)
 #+end_src
@@ -573,14 +566,15 @@ LSP Mode is a client for the Language Server Protocol.
 It provides IDE-like features such as code completion, diagnostics, and code actions.
 For more information, check out the [[https://emacs-lsp.github.io/lsp-mode/][documentation]].
 
-LSP servers need to be available in your PATH. We package them via Nix in packages.nix.
+We register LSP clients explicitly to use PATH lookup, since Nix provides the servers in packages.nix.
 #+begin_src emacs-lisp
     (use-package lsp-mode
       :commands (lsp lsp-deferred)
-      :hook (((c-mode c++-mode   ;; C/C++ with clangd
-               lua-mode          ;; Lua
-               nix-mode          ;; Nix with nil
-               nix-ts-mode)      ;; Nix tree-sitter mode
+      :hook (((c-mode c++-mode
+               lua-mode
+               nix-mode nix-ts-mode
+               go-mode go-ts-mode
+               html-mode mhtml-mode web-mode)
               . lsp-deferred)
              (lsp-completion-mode . rdmacs/lsp-mode-setup-completion))
       :custom
@@ -593,17 +587,41 @@ LSP servers need to be available in your PATH. We package them via Nix in packag
       (lsp-enable-snippet t)                ;; Enable snippet support (yasnippet)
       (lsp-modeline-diagnostics-enable t)   ;; Show diagnostics in modeline
       :init
-      ;; Use corfu for completion
       (defun rdmacs/lsp-mode-setup-completion ()
         (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
               '(orderless)))
       :config
-      ;; Configure nil for Nix
+      ;; Register LSP clients with PATH lookup (Nix provides the servers)
+      ;; nil - Nix
       (lsp-register-client
        (make-lsp-client
         :new-connection (lsp-stdio-connection "nil")
         :major-modes '(nix-mode nix-ts-mode)
-        :server-id 'nil-ls)))
+        :server-id 'nil-ls))
+      ;; lua-language-server - Lua
+      (lsp-register-client
+       (make-lsp-client
+        :new-connection (lsp-stdio-connection "lua-language-server")
+        :major-modes '(lua-mode)
+        :server-id 'lua-ls))
+      ;; clangd - C/C++
+      (lsp-register-client
+       (make-lsp-client
+        :new-connection (lsp-stdio-connection "clangd")
+        :major-modes '(c-mode c++-mode)
+        :server-id 'clangd))
+      ;; gopls - Go
+      (lsp-register-client
+       (make-lsp-client
+        :new-connection (lsp-stdio-connection "gopls")
+        :major-modes '(go-mode go-ts-mode)
+        :server-id 'gopls))
+      ;; superhtml - HTML
+      (lsp-register-client
+       (make-lsp-client
+        :new-connection (lsp-stdio-connection "superhtml")
+        :major-modes '(html-mode mhtml-mode web-mode)
+        :server-id 'superhtml)))
 
     (use-package lsp-ui
       :after lsp-mode
@@ -619,6 +637,12 @@ LSP servers need to be available in your PATH. We package them via Nix in packag
       (lsp-ui-peek-enable t))               ;; Enable peek feature
 #+end_src
 
+** Format-All
+Lets you auto-format source code in many languages using the same command for all languages, instead of learning a different Emacs package and formatting command for each language.
+#+begin_src emacs-lisp
+(use-package format-all
+   :hook (prog-mode . format-all-mode))
+#+end_src
 ** Flymake
 Flymake is an on-the-fly syntax checking extension that provides real-time feedback
 about errors and warnings in your code as you write. This can greatly enhance your
