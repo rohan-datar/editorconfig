@@ -30,6 +30,7 @@
   - [[#format-all][Format-All]]
   - [[#flymake][Flymake]]
   - [[#sideline-flymake][Sideline-flymake]]
+  - [[#flymake-collection][Flymake-collection]]
   - [[#yasnippet][Yasnippet]]
   - [[#tree-sitter][Tree-Sitter]]
   - [[#code-folding][Code Folding]]
@@ -249,81 +250,74 @@ Notes:
 
 *To use it, remove :tangle no from the beginning of the source code block.*
 #+begin_src emacs-lisp
-    (use-package evil
-        :init
-        (evil-mode)
-        :config
-        (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
-        (evil-set-initial-state 'vterm-mode 'insert) ;; Set initial state in vterm terminal to insert mode
-    	;; normalize some emacs and vim keybindings
-        (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-        (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
-    	;; fix jumplist
-        (evil-define-key 'normal 'global (kbd "C-i") 'evil-jump-forward)
-    	;; diagnostic keybindings
-        (evil-define-key 'normal 'global (kbd "] d") 'flymake-goto-next-error) ;; Go to next Flymake error
-        (evil-define-key 'normal 'global (kbd "[ d") 'flymake-goto-prev-error) ;; Go to previous Flymake error
+        (use-package evil
+            :init
+            (evil-mode)
+            :config
+            (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
+            (evil-set-initial-state 'vterm-mode 'insert) ;; Set initial state in vterm terminal to insert mode
+        	;; normalize some emacs and vim keybindings
+            (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+            (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+        	;; fix jumplist
+            (evil-define-key 'normal 'global (kbd "C-i") 'evil-jump-forward)
+        	;; diagnostic keybindings
+            (evil-define-key 'normal 'global (kbd "] d") 'flymake-goto-next-error) ;; Go to next Flymake error
+            (evil-define-key 'normal 'global (kbd "[ d") 'flymake-goto-prev-error) ;; Go to previous Flymake error
 
-        (evil-define-key 'normal 'global (kbd "K") 'eldoc-box-help-at-point)
+            (evil-define-key 'normal 'global (kbd "K") 'eldoc-box-help-at-point)
 
-        ;; Diff-HL navigation for version control
-        (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
-        (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
-        ;; Commenting functionality for single and multiple lines
-        (evil-define-key 'normal 'global (kbd "gcc")
-                   (lambda ()
-                     (interactive)
-                     (if (not (use-region-p))
-                         (comment-or-uncomment-region (line-beginning-position) (line-end-position)))))
+            ;; Diff-HL navigation for version control
+            (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
+            (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
+            :custom
+            (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
+            (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
+            (evil-want-C-i-jump nil)      ;; Disables C-i jump
+            (evil-undo-system 'undo-redo) ;; C-r to redo
+            (evil-want-fine-undo t)
+            ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
+            :bind (:map evil-motion-state-map
+                        ("SPC" . nil)
+                        ("RET" . nil)
+                        ("TAB" . nil)))
 
-        (evil-define-key 'visual 'global (kbd "gc")
-                   (lambda ()
-                     (interactive)
-                     (if (use-region-p)
-                         (comment-or-uncomment-region (region-beginning) (region-end)))))
-        :custom
-        (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
-        (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
-        (evil-want-C-i-jump nil)      ;; Disables C-i jump
-        (evil-undo-system 'undo-redo) ;; C-r to redo
-        (evil-want-fine-undo t)
-        ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
-        :bind (:map evil-motion-state-map
-                    ("SPC" . nil)
-                    ("RET" . nil)
-                    ("TAB" . nil)))
+        (use-package evil-collection
+            :after evil
+            :config
+        	;; setting where to use evil-collection
+        	(setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult info neotree))
+            (setq evil-collection-want-find-usages-bindings t)
+            (evil-collection-init))
 
-    (use-package evil-collection
-        :after evil
-        :config
-    	;; setting where to use evil-collection
-    	(setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult info neotree))
-        (setq evil-collection-want-find-usages-bindings t)
-        (evil-collection-init))
+        (use-package evil-surround
+            :ensure t
+            :after evil-collection
+            :config
+            (global-evil-surround-mode 1))
 
-    (use-package evil-surround
-        :ensure t
-        :after evil-collection
-        :config
-        (global-evil-surround-mode 1))
+        (use-package evil-matchit
+            :ensure t
+            :after evil-collection
+            :config
+            (global-evil-matchit-mode 1))
 
-    (use-package evil-matchit
-        :ensure t
-        :after evil-collection
-        :config
-        (global-evil-matchit-mode 1))
+        (use-package evil-multiedit
+            :ensure t
+            :after evil-collection
+            :config
+            (evil-multiedit-default-keybinds))
 
-    (use-package evil-multiedit
-        :ensure t
-        :after evil-collection
-        :config
-        (evil-multiedit-default-keybinds))
+        (use-package evil-mc
+          :ensure t
+          :after evil-multiedit
+          :config
+          (global-evil-mc-mode 1))
 
-    (use-package evil-mc
-      :ensure t
-      :after evil-multiedit
-      :config
-      (global-evil-mc-mode 1))
+        (use-package evil-nerd-commenter
+    	  :config
+    	  (evil-define-key 'normal 'global (kbd "gcc")  'evilnc-comment-or-uncomment-lines)
+    	  (evil-define-key 'visual 'global (kbd "gc") 'evilnc-comment-or-uncomment-lines))
 #+end_src
 
 ** General Keybindings
@@ -704,42 +698,22 @@ To use it write out the full keyword (or use autocompletion) and press Tab.
 
 ** Tree-Sitter
 A parser generator tool and an incremental parsing library.
-Check out TJ's [[https://www.youtube.com/watch?v=09-9LltqWLY][video]] to learn why you should use it.
+With Emacs 29 Tree-Sitter is now built-in.
 
-With Emacs 29 Tree-Sitter is now built-in. You may need to compile Emacs from source to have it enabled.
-You also need to have a compiler installed so Emacs can compile the parsers into a shared library.
-For more info about how to use Tree-Sitter check out this [[https://www.masteringemacs.org/article/how-to-get-started-tree-sitter][masteringemacs]] article.
-
-Using Tree-Sitter is somewhat hacky because it requires you to:
-- manually manage a source list of the parsers you want to use.
-- remap the major modes you want to use.
-You can also use treesit-auto, but it is updated quite slowly so we don't use it.
+We use treesit-auto to automatically remap major modes to their tree-sitter variants.
+Parser grammars are installed via Nix (in packages.nix), so we disable automatic installation.
 
 To explore the current buffer's syntax tree, use the treesit-explore-mode command.
 
 #+begin_src emacs-lisp
-    ;; Optionally, add any additional mode remappings not covered by defaults
-    (setq major-mode-remap-alist
-          '((yaml-mode . yaml-ts-mode)
-            (sh-mode . bash-ts-mode)
-            (c-mode . c-ts-mode)
-            (c++-mode . c++-ts-mode)
-            (css-mode . css-ts-mode)
-            (python-mode . python-ts-mode)
-            (mhtml-mode . html-ts-mode)
-            (javascript-mode . js-ts-mode)
-            (json-mode . json-ts-mode)
-            (typescript-mode . typescript-ts-mode)
-            (conf-toml-mode . toml-ts-mode)))
-
-    ;; Or if there is no built in mode
-    (use-package cmake-ts-mode :ensure nil :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
-    (use-package go-ts-mode :ensure nil :mode "\\.go\\'")
-    (use-package go-mod-ts-mode :ensure nil :mode "\\.mod\\'")
-    (use-package rust-ts-mode :ensure nil :mode "\\.rs\\'")
-    (use-package tsx-ts-mode :ensure nil :mode "\\.tsx\\'")
-    (use-package nix-ts-mode :ensure nil :mode "\\.nix\\'")
+(use-package treesit-auto
+  :custom
+  (treesit-auto-install nil)  ;; Don't download parsers - Nix provides them
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
 #+end_src
+
 ** Code Folding
 treesit-fold provides treesitter-based code folding for Emacs 29+, similar to nvim-ufo.
 It offers better folding regions than the built-in hs-minor-mode since

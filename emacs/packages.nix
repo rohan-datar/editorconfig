@@ -61,6 +61,7 @@ in
         evil-matchit
         evil-multiedit
         evil-mc
+		evil-nerd-commenter
 
         # Keybindings
         general
@@ -83,6 +84,7 @@ in
         eldoc-box
         format-all
         treesit-fold
+        treesit-auto
 
         # LSP
         lsp-mode
