@@ -118,7 +118,9 @@
     (evil-set-initial-state 'vterm-mode 'insert) ;; Set initial state in vterm terminal to insert mode
 	;; normalize some emacs and vim keybindings
     (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-    (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join) 
+    (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+	;; fix jumplist
+    (evil-define-key 'normal 'global (kbd "C-i") 'evil-jump-forward)
 	;; diagnostic keybindings
     (evil-define-key 'normal 'global (kbd "] d") 'flymake-goto-next-error) ;; Go to next Flymake error
     (evil-define-key 'normal 'global (kbd "[ d") 'flymake-goto-prev-error) ;; Go to previous Flymake error
@@ -299,7 +301,12 @@
   :config
   (load-theme 'catppuccin t)) ;; We need to add t to trust this package
 
-(add-to-list 'default-frame-alist '(alpha-background . 90)) ;; For all new frames henceforth
+(if (eq system-type 'darwin)
+    ;; macOS-specific transparency
+    (progn
+      (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+      (set-frame-parameter nil 'alpha '(90 . 90)))
+    (add-to-list 'default-frame-alist '(alpha-background . 90)) ;; For all new frames henceforth
 
 (set-face-attribute 'default nil
                     :font "Maple Mono NF" ;; Set your favorite type of font or download JetBrains Mono
@@ -476,12 +483,6 @@
   ;; (setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
   (setq vterm-max-scrollback 10000))
 
-;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-
-;; (require 'start-multiFileExample)
-
-;; (start/hello)
-
 (use-package magit
   :defer
   :custom (magit-diff-refine-hunk (quote all)) ;; Shows inline diff
@@ -601,6 +602,10 @@
   :hook
   ('marginalia-mode-hook . 'nerd-icons-completion-marginalia-setup))
 
+(use-package copilot-chat)
+
+(use-package claude-code)
+
 (use-package org
   :ensure nil
   :custom
@@ -696,7 +701,8 @@
   :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package ws-butler
-  :init (ws-butler-global-mode))
+  :config 
+  (ws-butler-global-mode 1))
 
 (use-package neotree
   :ensure t
@@ -712,3 +718,9 @@
 (setq gc-cons-threshold (* 2 1000 1000))
 ;; Increase the amount of data which Emacs reads from the process
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
+
+;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+
+;; (require 'start-multiFileExample)
+
+;; (start/hello)

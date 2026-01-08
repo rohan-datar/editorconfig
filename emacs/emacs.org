@@ -18,9 +18,9 @@
   - [[#general-keybindings][General Keybindings]]
   - [[#which-key][Which-Key]]
 - [[#appearance][Appearance]]
-  - [[#set-theme][Set Theme]]
+  - [[#theme][Theme]]
   - [[#transparency][Transparency]]
-  - [[#setting-fonts][Setting Fonts]]
+  - [[#fonts][Fonts]]
   - [[#doom-modeline][Doom Modeline]]
   - [[#nerd-icons][Nerd Icons]]
   - [[#indent-guide][Indent Guide]]
@@ -35,10 +35,6 @@
   - [[#eldoc-box][Eldoc-Box]]
   - [[#language-modes][Language modes]]
   - [[#terminal][Terminal]]
-- [[#multi-file-example][Multi File Example]]
-  - [[#adding-the-lisp-directory-to-load-path][Adding the lisp directory to load-path]]
-  - [[#sourcing-the-files][Sourcing the files]]
-  - [[#using-the-file][Using the file]]
 - [[#version-control][Version Control]]
   - [[#magit][Magit]]
   - [[#diff-hl][Diff-hl]]
@@ -49,6 +45,9 @@
   - [[#cape][Cape]]
   - [[#orderless][Orderless]]
   - [[#vertico-and-marginalia][Vertico and Marginalia]]
+- [[#ai][AI]]
+  - [[#copilot-chat][Copilot Chat]]
+  - [[#claude-code][Claude Code]]
 - [[#other-packages][Other packages]]
   - [[#org-mode][Org Mode]]
   - [[#consult][Consult]]
@@ -58,6 +57,10 @@
   - [[#ws-butler][Ws-butler]]
   - [[#neotree][Neotree]]
 - [[#runtime-performance][Runtime Performance]]
+- [[#multi-file-example][Multi File Example]]
+  - [[#adding-the-lisp-directory-to-load-path][Adding the lisp directory to load-path]]
+  - [[#sourcing-the-files][Sourcing the files]]
+  - [[#using-the-file][Using the file]]
 
 * Core Setup & Performance
 These are essential settings and small tweaks that must load before any packages.
@@ -414,10 +417,26 @@ Note: The Leader key is what you will press when you want to access your keybind
         "t v" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
         "t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
 
+     (defun rdmacs/smart-compile ()
+       "Run `projectile-compile-project' if in a project, otherwise `compile'."
+       (interactive)
+       (if (projectile-project-p)
+           (call-interactively #'projectile-compile-project)
+         (call-interactively #'compile)))
+
+     (defun rdmacs/smart-recompile ()
+       "Run `projectile-recompile' if in a project, otherwise `recompile'."
+       (interactive)
+       (if (projectile-project-p)
+           (call-interactively #'projectile-recompile)
+         (call-interactively #'recompile)))
+
      (rdmacs/leader-keys
-      "c" '(:ignore t :wk "Compile")
-      "c c" '(compile :wk "Run compile command")
-      "c r" '(recompile :wk "Recompile")))
+      "c" '(:ignore t :wk "Compile & AI")
+      "c c" '(rdmacs/smart-compile :wk "Run compile command")
+      "c r" '(rdmacs/smart-recompile :wk "Recompile")
+      "c h" '(copilot-chat :wk "Open copilot chat")
+      "c l" '(claude-code-transient :wk "Open claude code")))
 
 
     ;; Fix general.el leader key not working instantly in messages buffer with evil mode
@@ -450,7 +469,7 @@ Which-key is a helper utility for keychords (which key to press).
 #+end_src
 
 * Appearance
-** Set Theme
+** Theme
 #+begin_src emacs-lisp
     (use-package catppuccin-theme
       :config
@@ -460,10 +479,15 @@ Which-key is a helper utility for keychords (which key to press).
 ** Transparency
 With Emacs version 29, true transparency has been added.
 #+begin_src emacs-lisp
-    (add-to-list 'default-frame-alist '(alpha-background . 90)) ;; For all new frames henceforth
+(if (eq system-type 'darwin)
+    ;; macOS-specific transparency
+    (progn
+      (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+      (set-frame-parameter nil 'alpha '(90 . 90)))
+  (add-to-list 'default-frame-alist '(alpha-background . 90))) ;; For all new frames henceforth
 #+end_src
 
-** Setting Fonts
+** Fonts
 #+begin_src emacs-lisp
     (set-face-attribute 'default nil
                         :font "Maple Mono NF" ;; Set your favorite type of font or download JetBrains Mono
@@ -766,30 +790,6 @@ vterm is an improved terminal emulator package which uses a compiled native modu
 
 #+end_src
 
-* Multi File Example
-** Adding the lisp directory to load-path
-Adds the lisp directory to Emacs's load path to search for elisp files.
-This is necessary because Emacs does not search the entire user-emacs-directory.
-The directory name can be anything, just add it to the load-path.
-#+begin_src emacs-lisp
-    ;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-#+end_src
-
-** Sourcing the files
-To use the elisp files we need to load it.
-Notes:
-- Don't forget the file and the provide name needs to be the same.
-- When naming elisp files, functions, it is recommended to use a group name (e.g. init-, start- or any custom name), so it does not get mixed up with other names, functions.
-#+begin_src emacs-lisp
-    ;; (require 'start-multiFileExample)
-#+end_src
-
-** Using the file
-And now we can use everything from that file.
-#+begin_src emacs-lisp
-    ;; (start/hello)
-#+end_src
-
 * Version Control
 ** Magit
 Complete text-based user interface to Git.
@@ -960,6 +960,15 @@ One alternative is ivy and counsel, check out the [[https://github.com/MiniApoll
       ('marginalia-mode-hook . 'nerd-icons-completion-marginalia-setup))
 #+end_src
 
+* AI
+** Copilot Chat
+#+begin_src emacs-lisp
+(use-package copilot-chat)
+#+end_src
+** Claude Code
+#+begin_src emacs-lisp
+(use-package claude-code)
+#+end_src
 * Other packages
 All the package setups that don't need much tweaking.
 ** Org Mode
@@ -1129,4 +1138,28 @@ We also increase Read Process Output Max so Emacs can read more data.
     (setq gc-cons-threshold (* 2 1000 1000))
     ;; Increase the amount of data which Emacs reads from the process
     (setq read-process-output-max (* 1024 1024)) ;; 1mb
+#+end_src
+
+* Multi File Example
+** Adding the lisp directory to load-path
+Adds the lisp directory to Emacs's load path to search for elisp files.
+This is necessary because Emacs does not search the entire user-emacs-directory.
+The directory name can be anything, just add it to the load-path.
+#+begin_src emacs-lisp
+    ;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+#+end_src
+
+** Sourcing the files
+To use the elisp files we need to load it.
+Notes:
+- Don't forget the file and the provide name needs to be the same.
+- When naming elisp files, functions, it is recommended to use a group name (e.g. init-, start- or any custom name), so it does not get mixed up with other names, functions.
+#+begin_src emacs-lisp
+    ;; (require 'start-multiFileExample)
+#+end_src
+
+** Using the file
+And now we can use everything from that file.
+#+begin_src emacs-lisp
+    ;; (start/hello)
 #+end_src

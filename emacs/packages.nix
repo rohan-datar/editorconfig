@@ -23,6 +23,7 @@ in
     # Language servers
     clang-tools # clangd
     nil # Nix LSP
+	claude-code
   ];
 
   # Emacs packages function for withPackages
@@ -95,6 +96,10 @@ in
       # Org mode
       toc-org
       org-superstar
+
+	  #AI
+	  copilot-chat
+	  claude-code
 
       # Other packages
       consult
