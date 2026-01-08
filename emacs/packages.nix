@@ -45,6 +45,11 @@ in
       yamllint
       codespell
 
+      # Debuggers (for dap-mode)
+      delve # Go debugger (dlv)
+      gdb # GDB for C/C++
+	  lldb
+
       claude-code
       ;
   };
@@ -89,6 +94,9 @@ in
         # LSP
         lsp-mode
         lsp-ui
+
+        # Debugger
+        dap-mode
 
         # Language modes
         nix-mode

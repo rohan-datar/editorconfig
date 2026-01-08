@@ -27,6 +27,7 @@
 - [[#development][Development]]
   - [[#projectile][Projectile]]
   - [[#lsp-mode][LSP Mode]]
+  - [[#dap-mode][Dap Mode]]
   - [[#format-all][Format-All]]
   - [[#flymake][Flymake]]
   - [[#sideline-flymake][Sideline-flymake]]
@@ -401,6 +402,26 @@ Note: The Leader key is what you will press when you want to access your keybind
         "g b" '(magit-blame :wk "Git blame"))
 
       (rdmacs/leader-keys
+        "d" '(:ignore t :wk "Debug")
+        "d d" '(dap-debug :wk "Start debugging")
+        "d t" '(dap-ui-sessions :wk "Toggle DAP UI")
+        "d c" '(dap-continue :wk "Continue")
+        "d b" '(dap-breakpoint-toggle :wk "Toggle breakpoint")
+        "d B" '(dap-breakpoint-condition :wk "Conditional breakpoint")
+        "d p" '(dap-pause :wk "Pause")
+        "d s" '(dap-stop-thread :wk "Stop")
+        "d q" '(dap-disconnect :wk "Quit/Disconnect")
+        "d e" '(dap-eval :wk "Evaluate expression")
+        "d E" '(dap-eval-region :wk "Evaluate region")
+        "d i" '(dap-step-in :wk "Step into")
+        "d o" '(dap-step-out :wk "Step out")
+        "d n" '(dap-next :wk "Step over/next")
+        "d r" '(dap-restart-frame :wk "Restart")
+        "d R" '(dap-ui-repl :wk "Open REPL")
+        "d l" '(dap-ui-locals :wk "Show locals")
+        "d w" '(dap-ui-expressions-add :wk "Add watch expression"))
+
+      (rdmacs/leader-keys
         "h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
         "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
     	"h m" '(describe-mode :wk "Describe mode")
@@ -636,6 +657,37 @@ We register LSP clients explicitly to use PATH lookup, since Nix provides the se
       (lsp-ui-sideline-show-hover nil)      ;; Don't show hover info in sideline
       (lsp-ui-sideline-show-code-actions t) ;; Show code actions in sideline
       (lsp-ui-peek-enable t))               ;; Enable peek feature
+#+end_src
+
+** Dap Mode
+DAP (Debug Adapter Protocol) mode provides debugging support for Emacs.
+This mirrors the nvim-dap setup with support for Go and C/C++ via GDB.
+
+#+begin_src emacs-lisp
+    (use-package dap-mode
+      :after lsp-mode
+      :commands dap-debug
+      :custom
+      ;; Basic settings
+      (dap-auto-configure-features '(sessions locals controls tooltip))
+      (dap-ui-buffer-configurations
+       '(("*dap-ui-sessions*"
+          (side . right) (slot . 1) (window-width . 0.33))
+         ("*dap-ui-locals*"
+          (side . right) (slot . 2) (window-width . 0.33))
+         ("*dap-ui-breakpoints*"
+          (side . left) (slot . 1) (window-width . 0.20))
+         ("*dap-ui-repl*"
+          (side . bottom) (slot . 1) (window-height . 0.25))))
+      :config
+      ;; Enable dap-ui for better debugging experience
+      (dap-ui-mode 1)
+      (dap-tooltip-mode 1)
+
+      ;; Go debugging via delve
+      (require 'dap-dlv-go)
+      (require 'dap-gdb)
+      (require 'dap-lldb))
 #+end_src
 
 ** Format-All
