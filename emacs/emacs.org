@@ -32,6 +32,7 @@
   - [[#sideline-flymake][Sideline-flymake]]
   - [[#yasnippet][Yasnippet]]
   - [[#tree-sitter][Tree-Sitter]]
+  - [[#code-folding][Code Folding]]
   - [[#eldoc][Eldoc]]
   - [[#eldoc-box][Eldoc-Box]]
   - [[#language-modes][Language modes]]
@@ -616,6 +617,12 @@ We register LSP clients explicitly to use PATH lookup, since Nix provides the se
         :new-connection (lsp-stdio-connection "gopls")
         :major-modes '(go-mode go-ts-mode)
         :server-id 'gopls))
+      ;; rust-analyzer - rust
+      (lsp-register-client
+       (make-lsp-client
+        :new-connection (lsp-stdio-connection "rust-analyzer")
+        :major-modes '(rust-mode rust-ts-mode)
+        :server-id 'rust-analyzer))
       ;; superhtml - HTML
       (lsp-register-client
        (make-lsp-client
@@ -692,7 +699,6 @@ You can also use treesit-auto, but it is updated quite slowly so we don't use it
 
 To explore the current buffer's syntax tree, use the treesit-explore-mode command.
 
-*To use it, remove :tangle no from the beginning of the source code block.*
 #+begin_src emacs-lisp
     ;; Optionally, add any additional mode remappings not covered by defaults
     (setq major-mode-remap-alist
@@ -706,8 +712,7 @@ To explore the current buffer's syntax tree, use the treesit-explore-mode comman
             (javascript-mode . js-ts-mode)
             (json-mode . json-ts-mode)
             (typescript-mode . typescript-ts-mode)
-            (conf-toml-mode . toml-ts-mode)
-            ))
+            (conf-toml-mode . toml-ts-mode)))
 
     ;; Or if there is no built in mode
     (use-package cmake-ts-mode :ensure nil :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
@@ -717,7 +722,30 @@ To explore the current buffer's syntax tree, use the treesit-explore-mode comman
     (use-package tsx-ts-mode :ensure nil :mode "\\.tsx\\'")
     (use-package nix-ts-mode :ensure nil :mode "\\.nix\\'")
 #+end_src
+** Code Folding
+treesit-fold provides treesitter-based code folding for Emacs 29+, similar to nvim-ufo.
+It offers better folding regions than the built-in hs-minor-mode since
+it understands the actual syntax structure via treesitter.
+#+begin_src emacs-lisp
+(use-package treesit-fold
+  :after evil
+  :hook ((prog-mode . treesit-fold-mode)
+         (prog-mode . treesit-fold-indicators-mode))
+  :config
+  ;; Fold indicator settings (like statuscol.nvim)
+  (setq treesit-fold-indicators-fringe 'left-fringe)
+  (setq treesit-fold-indicators-priority 100)
 
+  ;; Evil keybindings for folding (matching Vim defaults)
+  (evil-define-key 'normal 'global
+    "za" 'treesit-fold-toggle      ;; Toggle fold at point
+    "zc" 'treesit-fold-close       ;; Close fold at point
+    "zo" 'treesit-fold-open        ;; Open fold at point
+    "zR" 'treesit-fold-open-all    ;; Open all folds (like nvim-ufo)
+    "zM" 'treesit-fold-close-all   ;; Close all folds (like nvim-ufo)
+    "zr" 'treesit-fold-open-recursively  ;; Open fold recursively
+    "zm" 'treesit-fold-close-all)) ;; Close all folds
+#+end_src
 ** Eldoc
 Eldoc provides helpful inline documentation for functions and variables
 in the minibuffer, enhancing the development experience. It can be particularly useful
@@ -769,6 +797,11 @@ These packages are often necessary for features like syntax highlighting, code f
 #+begin_src emacs-lisp
     (use-package rust-mode
       :mode "\\.rs\\'")
+#+end_src
+*** Go
+#+begin_src emacs-lisp
+    (use-package go-mode
+      :mode "\\.go\\'")
 #+end_src
 *** Dotenv
 A simple major mode to provide .env files with color highlighting

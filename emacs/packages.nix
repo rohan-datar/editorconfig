@@ -29,6 +29,14 @@ in
       lua-language-server
       superhtml
       gopls
+      rust-analyzer
+
+      # Formatters
+      stylua
+      rustfmt
+      prettier
+      swiftformat
+      nixfmt
 
       claude-code
       ;
@@ -65,7 +73,8 @@ in
         yasnippet
         yasnippet-snippets
         eldoc-box
-		format-all
+        format-all
+        treesit-fold
 
         # LSP
         lsp-mode
