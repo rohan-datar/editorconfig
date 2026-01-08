@@ -42,60 +42,61 @@
 (setq package-quickstart t) ;; For blazingly fast startup times, this line makes startup miles faster
 
 (use-package emacs
-  :custom
-  (auto-save-default nil)     ;; Stop creating # auto save files
-  (column-number-mode t)      ;; Display the column number in the mode line.
-  (create-lockfiles nil)      ;; Prevent the creation of lock files when editing.
-  (menu-bar-mode nil)         ;; Disable the menu bar
-  (scroll-bar-mode nil)       ;; Disable the scroll bar
-  (tool-bar-mode nil)         ;; Disable the tool bar
-  (inhibit-startup-screen t)  ;; Disable welcome screen
+      :custom
+      (auto-save-default nil)     ;; Stop creating # auto save files
+      (column-number-mode t)      ;; Display the column number in the mode line.
+      (create-lockfiles nil)      ;; Prevent the creation of lock files when editing.
+      (menu-bar-mode nil)         ;; Disable the menu bar
+      (scroll-bar-mode nil)       ;; Disable the scroll bar
+      (tool-bar-mode nil)         ;; Disable the tool bar
+      (inhibit-startup-screen t)  ;; Disable welcome screen
 
-  (delete-by-moving-to-trash t) ;; Move deleted files to the trash instead of permanently deleting them.
-  (delete-selection-mode 1)     ;; Enable replacing selected text with typed text.
+      (delete-by-moving-to-trash t) ;; Move deleted files to the trash instead of permanently deleting them.
+      (delete-selection-mode 1)     ;; Enable replacing selected text with typed text.
 
-  (electric-indent-mode nil)  ;; Turn off the weird indenting that Emacs does by default.
-  (electric-pair-mode t)      ;; Turns on automatic parens pairing
+      (electric-indent-mode nil)  ;; Turn off the weird indenting that Emacs does by default.
+      (electric-pair-mode t)      ;; Turns on automatic parens pairing
 
-  (blink-cursor-mode nil)     ;; Don't blink cursor
-  (global-auto-revert-mode t) ;; Automatically reload file and show changes if the file has changed
+      (blink-cursor-mode nil)     ;; Don't blink cursor
+      (global-auto-revert-mode t) ;; Automatically reload file and show changes if the file has changed
 
-  (recentf-mode t) ;; Enable recent file mode
+      (recentf-mode t) ;; Enable recent file mode
 
-  (global-visual-line-mode t)           ;; Enable truncated lines
-  (display-line-numbers-type 'relative) ;; Relative line numbers
-  (global-display-line-numbers-mode t)  ;; Display line numbers
-  (global-hl-line-mode t)               ;; Highlights the current line
+      (global-visual-line-mode t)           ;; Enable truncated lines
+      (display-line-numbers-type 'relative) ;; Relative line numbers
+      (global-display-line-numbers-mode t)  ;; Display line numbers
+      (global-hl-line-mode t)               ;; Highlights the current line
 
-  (mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
-  (scroll-conservatively 10) ;; Smooth scrolling
-  (scroll-margin 8)
+      (mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
+      (scroll-conservatively 10) ;; Smooth scrolling
+      (scroll-margin 8)
 
-  (tab-always-indent 'complete) ;; Make the TAB key complete text instead of just indenting.
-  (tab-width 4)                 ;; Set the tab width to 4 spaces.
-  (treesit-font-lock-level 4)   ;; Use advanced font locking for Treesit mode.
+      (tab-always-indent 'complete) ;; Make the TAB key complete text instead of just indenting.
+      (tab-width 4)                 ;; Set the tab width to 4 spaces.
+      (treesit-font-lock-level 4)   ;; Use advanced font locking for Treesit mode.
 
-  (make-backup-files nil) ;; Stop creating ~ backup files
-  (use-short-answers t)   ;; Use short answers in prompts for quicker responses (y instead of yes)
+      (make-backup-files nil) ;; Stop creating ~ backup files
+      (use-short-answers t)   ;; Use short answers in prompts for quicker responses (y instead of yes)
 
-  (warning-minimum-level :emergency) ;; Set the minimum level of warnings to display.
+      (warning-minimum-level :emergency) ;; Set the minimum level of warnings to display.
 
-  :hook
-  (prog-mode . (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
-  :config
-  ;; Move customization variables to a separate file and load it, avoid filling up init.el with unnecessary variables
-  (setq custom-file (locate-user-emacs-file "custom-vars.el"))
-  (load custom-file 'noerror 'nomessage)
-  ;; Makes Emacs vertical divisor the symbol │ instead of |.
-  ;; (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+      :hook
+      (prog-mode . (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
+      :config
+      ;; Move customization variables to a separate file and load it, avoid filling up init.el with unnecessary variables
+      (setq custom-file (locate-user-emacs-file "custom-vars.el"))
+      (load custom-file 'noerror 'nomessage)
+      ;; Makes Emacs vertical divisor the symbol │ instead of |.
+      ;; (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
 
-  :bind (
-         ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
-         ;; Zooming In/Out
-         ("C-+" . text-scale-increase)
-         ("C--" . text-scale-decrease)
-         ("<C-wheel-up>" . text-scale-increase)
-         ("<C-wheel-down>" . text-scale-decrease)))
+      :bind (
+             ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
+             ;; Zooming In/Out
+             ("C-+" . text-scale-increase)
+             ("C--" . text-scale-decrease)
+             ("<C-wheel-up>" . text-scale-increase)
+             ("<C-wheel-down>" . text-scale-decrease))
+)
 
 (use-package dired
   :ensure nil                                                ;; This is built-in, no need to fetch it.
@@ -130,18 +131,6 @@
     ;; Diff-HL navigation for version control
     (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
     (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
-    ;; Commenting functionality for single and multiple lines
-    (evil-define-key 'normal 'global (kbd "gcc")
-               (lambda ()
-                 (interactive)
-                 (if (not (use-region-p))
-                     (comment-or-uncomment-region (line-beginning-position) (line-end-position)))))
-
-    (evil-define-key 'visual 'global (kbd "gc")
-               (lambda ()
-                 (interactive)
-                 (if (use-region-p)
-                     (comment-or-uncomment-region (region-beginning) (region-end)))))
     :custom
     (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
     (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
@@ -185,6 +174,11 @@
   :after evil-multiedit
   :config
   (global-evil-mc-mode 1))
+
+(use-package evil-nerd-commenter
+  :config
+  (evil-define-key 'normal 'global (kbd "gcc")  'evilnc-comment-or-uncomment-lines)
+  (evil-define-key 'visual 'global (kbd "gc") 'evilnc-comment-or-uncomment-lines))
 
 (use-package general
   :config
@@ -255,6 +249,26 @@
     "g b" '(magit-blame :wk "Git blame"))
 
   (rdmacs/leader-keys
+    "d" '(:ignore t :wk "Debug")
+    "d d" '(dap-debug :wk "Start debugging")
+    "d t" '(dap-ui-sessions :wk "Toggle DAP UI")
+    "d c" '(dap-continue :wk "Continue")
+    "d b" '(dap-breakpoint-toggle :wk "Toggle breakpoint")
+    "d B" '(dap-breakpoint-condition :wk "Conditional breakpoint")
+    "d p" '(dap-pause :wk "Pause")
+    "d s" '(dap-stop-thread :wk "Stop")
+    "d q" '(dap-disconnect :wk "Quit/Disconnect")
+    "d e" '(dap-eval :wk "Evaluate expression")
+    "d E" '(dap-eval-region :wk "Evaluate region")
+    "d i" '(dap-step-in :wk "Step into")
+    "d o" '(dap-step-out :wk "Step out")
+    "d n" '(dap-next :wk "Step over/next")
+    "d r" '(dap-restart-frame :wk "Restart")
+    "d R" '(dap-ui-repl :wk "Open REPL")
+    "d l" '(dap-ui-locals :wk "Show locals")
+    "d w" '(dap-ui-expressions-add :wk "Add watch expression"))
+
+  (rdmacs/leader-keys
     "h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
     "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
 	"h m" '(describe-mode :wk "Describe mode")
@@ -267,10 +281,19 @@
     "t v" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
     "t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
 
+ (defun rdmacs/smart-compile ()
+   "Run `projectile-compile-project' if in a project, otherwise `compile'."
+   (interactive)
+   (if (projectile-project-p)
+       (call-interactively #'projectile-compile-project)
+     (call-interactively #'compile)))
+
  (rdmacs/leader-keys
-  "c" '(:ignore t :wk "Compile")
-  "c c" '(compile :wk "Run compile command")
-  "c r" '(recompile :wk "Recompile")))
+  "c" '(:ignore t :wk "Compile & AI")
+  "c c" '(rdmacs/smart-compile :wk "Run compile command")
+  "c r" '(recompile :wk "Recompile")
+  "c h" '(copilot-chat :wk "Open copilot chat")
+  "c l" '(claude-code-transient :wk "Open claude code")))
 
 
 ;; Fix general.el leader key not working instantly in messages buffer with evil mode
@@ -306,16 +329,30 @@
     (progn
       (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
       (set-frame-parameter nil 'alpha '(90 . 90)))
-    (add-to-list 'default-frame-alist '(alpha-background . 90)) ;; For all new frames henceforth
+  (add-to-list 'default-frame-alist '(alpha-background . 90))) ;; For all new frames henceforth
+
+(dolist (mode '(org-mode-hook
+                eat-mode-hook
+                shell-mode-hook
+                neotree-mode-hook
+                vterm-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (set-face-attribute 'default nil
-                    :font "Maple Mono NF" ;; Set your favorite type of font or download JetBrains Mono
+                    :font "Maple Mono NF"
+                    :height 140
+                    :weight 'medium)
+(set-face-attribute 'fixed-pitch nil
+                    :font "Maple Mono NF"
+                    :height 140
+                    :weight 'medium)
+(set-face-attribute 'variable-pitch nil
+                    :font "SFProDisplay Nerd Font"
                     :height 140
                     :weight 'medium)
 ;; This sets the default font on all graphical frames created after restarting Emacs.
 ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
 ;; are not right unless I also add this method of setting the default font.
-
 (add-to-list 'default-frame-alist '(font . "Maple Mono NF")) ;; Set your favorite font
 (setq-default line-spacing 0.12)
 
@@ -352,10 +389,11 @@
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
-  :hook (((c-mode c++-mode   ;; C/C++ with clangd
-           lua-mode          ;; Lua
-           nix-mode          ;; Nix with nil
-           nix-ts-mode)      ;; Nix tree-sitter mode
+  :hook (((c-mode c++-mode
+           lua-mode
+           nix-mode nix-ts-mode
+           go-mode go-ts-mode
+           html-mode mhtml-mode web-mode)
           . lsp-deferred)
          (lsp-completion-mode . rdmacs/lsp-mode-setup-completion))
   :custom
@@ -368,17 +406,47 @@
   (lsp-enable-snippet t)                ;; Enable snippet support (yasnippet)
   (lsp-modeline-diagnostics-enable t)   ;; Show diagnostics in modeline
   :init
-  ;; Use corfu for completion
   (defun rdmacs/lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless)))
   :config
-  ;; Configure nil for Nix
+  ;; Register LSP clients with PATH lookup (Nix provides the servers)
+  ;; nil - Nix
   (lsp-register-client
    (make-lsp-client
     :new-connection (lsp-stdio-connection "nil")
     :major-modes '(nix-mode nix-ts-mode)
-    :server-id 'nil-ls)))
+    :server-id 'nil-ls))
+  ;; lua-language-server - Lua
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection "lua-language-server")
+    :major-modes '(lua-mode)
+    :server-id 'lua-ls))
+  ;; clangd - C/C++
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection "clangd")
+    :major-modes '(c-mode c++-mode)
+    :server-id 'clangd))
+  ;; gopls - Go
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection "gopls")
+    :major-modes '(go-mode go-ts-mode)
+    :server-id 'gopls))
+  ;; rust-analyzer - rust
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection "rust-analyzer")
+    :major-modes '(rust-mode rust-ts-mode)
+    :server-id 'rust-analyzer))
+  ;; superhtml - HTML
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection "superhtml")
+    :major-modes '(html-mode mhtml-mode web-mode)
+    :server-id 'superhtml)))
 
 (use-package lsp-ui
   :after lsp-mode
@@ -392,6 +460,34 @@
   (lsp-ui-sideline-show-hover nil)      ;; Don't show hover info in sideline
   (lsp-ui-sideline-show-code-actions t) ;; Show code actions in sideline
   (lsp-ui-peek-enable t))               ;; Enable peek feature
+
+(use-package dap-mode
+  :after lsp-mode
+  :commands dap-debug
+  :custom
+  ;; Basic settings
+  (dap-auto-configure-features '(sessions locals controls tooltip))
+  (dap-ui-buffer-configurations
+   '(("*dap-ui-sessions*"
+      (side . right) (slot . 1) (window-width . 0.33))
+     ("*dap-ui-locals*"
+      (side . right) (slot . 2) (window-width . 0.33))
+     ("*dap-ui-breakpoints*"
+      (side . left) (slot . 1) (window-width . 0.20))
+     ("*dap-ui-repl*"
+      (side . bottom) (slot . 1) (window-height . 0.25))))
+  :config
+  ;; Enable dap-ui for better debugging experience
+  (dap-ui-mode 1)
+  (dap-tooltip-mode 1)
+
+  ;; Go debugging via delve
+  (require 'dap-dlv-go)
+  (require 'dap-gdb)
+  (require 'dap-lldb))
+
+(use-package format-all
+   :hook (prog-mode . format-all-mode))
 
 (use-package flymake
   :ensure nil          ;; This is built-in, no need to fetch it.
@@ -408,31 +504,47 @@
   (sideline-flymake-display-mode 'line) ;; Show errors on the current line
   (sideline-backends-right '(sideline-flymake)))
 
+(use-package flymake-collection
+  :hook (after-init . flymake-collection-hook-setup)
+  :config
+  ;; Configure specific linters per mode (similar to nvim-lint)
+  (push '(sh-mode flymake-collection-shellcheck) flymake-collection-config)
+  (push '(bash-ts-mode flymake-collection-shellcheck) flymake-collection-config)
+  (push '(python-mode flymake-collection-pylint) flymake-collection-config)
+  (push '(python-ts-mode flymake-collection-pylint) flymake-collection-config)
+  (push '(go-mode flymake-collection-golangci-lint) flymake-collection-config)
+  (push '(go-ts-mode flymake-collection-golangci-lint) flymake-collection-config)
+  (push '(yaml-mode flymake-collection-yamllint) flymake-collection-config)
+  (push '(yaml-ts-mode flymake-collection-yamllint) flymake-collection-config))
+
 (use-package yasnippet-snippets
   :hook (prog-mode . yas-minor-mode))
 
-;; Optionally, add any additional mode remappings not covered by defaults
-(setq major-mode-remap-alist
-      '((yaml-mode . yaml-ts-mode)
-        (sh-mode . bash-ts-mode)
-        (c-mode . c-ts-mode)
-        (c++-mode . c++-ts-mode)
-        (css-mode . css-ts-mode)
-        (python-mode . python-ts-mode)
-        (mhtml-mode . html-ts-mode)
-        (javascript-mode . js-ts-mode)
-        (json-mode . json-ts-mode)
-        (typescript-mode . typescript-ts-mode)
-        (conf-toml-mode . toml-ts-mode)
-        ))
+(use-package treesit-auto
+  :custom
+  (treesit-auto-install nil)  ;; Don't download parsers - Nix provides them
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
 
-;; Or if there is no built in mode
-(use-package cmake-ts-mode :ensure nil :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
-(use-package go-ts-mode :ensure nil :mode "\\.go\\'")
-(use-package go-mod-ts-mode :ensure nil :mode "\\.mod\\'")
-(use-package rust-ts-mode :ensure nil :mode "\\.rs\\'")
-(use-package tsx-ts-mode :ensure nil :mode "\\.tsx\\'")
-(use-package nix-ts-mode :ensure nil :mode "\\.nix\\'")
+(use-package treesit-fold
+  :after evil
+  :hook ((prog-mode . treesit-fold-mode)
+         (prog-mode . treesit-fold-indicators-mode))
+  :config
+  ;; Fold indicator settings (like statuscol.nvim)
+  (setq treesit-fold-indicators-fringe 'left-fringe)
+  (setq treesit-fold-indicators-priority 100)
+
+  ;; Evil keybindings for folding (matching Vim defaults)
+  (evil-define-key 'normal 'global
+    "za" 'treesit-fold-toggle      ;; Toggle fold at point
+    "zc" 'treesit-fold-close       ;; Close fold at point
+    "zo" 'treesit-fold-open        ;; Open fold at point
+    "zR" 'treesit-fold-open-all    ;; Open all folds (like nvim-ufo)
+    "zM" 'treesit-fold-close-all   ;; Close all folds (like nvim-ufo)
+    "zr" 'treesit-fold-open-recursively  ;; Open fold recursively
+    "zm" 'treesit-fold-close-all)) ;; Close all folds
 
 (use-package eldoc
   :ensure nil                                ;; This is built-in, no need to fetch it.
@@ -456,6 +568,9 @@
 
 (use-package rust-mode
   :mode "\\.rs\\'")
+
+(use-package go-mode
+  :mode "\\.go\\'")
 
 (use-package dotenv-mode
   :defer t
@@ -606,6 +721,37 @@
 
 (use-package claude-code)
 
+(defun rdmacs/org-font-setup ()
+  ;; Replace list hyphen with dot
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.05)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :font "SFProDisplay Nerd Font" :weight 'regular :height (cdr face)))
+
+  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
+  (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
+
+;; set up  fonts
 (use-package org
   :ensure nil
   :custom
@@ -619,7 +765,7 @@
                 (setq-local electric-pair-inhibit-predicate
                             `(lambda (c)
                                (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
-  )
+  (rdmacs/org-font-setup))
 
 (use-package toc-org
   :commands toc-org-enable
@@ -632,6 +778,14 @@
 (use-package org-tempo
   :ensure nil
   :after org)
+
+(defun rdmacs/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . rdmacs/org-mode-visual-fill))
 
 (use-package consult
   ;; Enable automatic preview at point in the *Completions* buffer. This is

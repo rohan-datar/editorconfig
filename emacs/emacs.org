@@ -20,6 +20,7 @@
 - [[#appearance][Appearance]]
   - [[#theme][Theme]]
   - [[#transparency][Transparency]]
+  - [[#line-numbers][Line Numbers]]
   - [[#fonts][Fonts]]
   - [[#doom-modeline][Doom Modeline]]
   - [[#nerd-icons][Nerd Icons]]
@@ -52,8 +53,15 @@
 - [[#ai][AI]]
   - [[#copilot-chat][Copilot Chat]]
   - [[#claude-code][Claude Code]]
+- [[#org-mode][Org Mode]]
+  - [[#better-fonts][Better Fonts]]
+  - [[#basic-config][Basic Config]]
+  - [[#table-of-contents][Table of Contents]]
+  - [[#org-superstar][Org Superstar]]
+  - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
+  - [[#center-org-buffers][Center Org Buffers]]
 - [[#other-packages][Other packages]]
-  - [[#org-mode][Org Mode]]
+  - [[#markdown-mode][Markdown Mode]]
   - [[#consult][Consult]]
   - [[#helpful][Helpful]]
   - [[#diminish][Diminish]]
@@ -169,61 +177,62 @@ If you plan to use a different package manager, remember to remove this section 
 
 ** Defaults
 #+begin_src emacs-lisp
-(use-package emacs
-  :custom
-  (auto-save-default nil)     ;; Stop creating # auto save files
-  (column-number-mode t)      ;; Display the column number in the mode line.
-  (create-lockfiles nil)      ;; Prevent the creation of lock files when editing.
-  (menu-bar-mode nil)         ;; Disable the menu bar
-  (scroll-bar-mode nil)       ;; Disable the scroll bar
-  (tool-bar-mode nil)         ;; Disable the tool bar
-  (inhibit-startup-screen t)  ;; Disable welcome screen
+    (use-package emacs
+      :custom
+      (auto-save-default nil)     ;; Stop creating # auto save files
+      (column-number-mode t)      ;; Display the column number in the mode line.
+      (create-lockfiles nil)      ;; Prevent the creation of lock files when editing.
+      (menu-bar-mode nil)         ;; Disable the menu bar
+      (scroll-bar-mode nil)       ;; Disable the scroll bar
+      (tool-bar-mode nil)         ;; Disable the tool bar
+      (inhibit-startup-screen t)  ;; Disable welcome screen
 
-  (delete-by-moving-to-trash t) ;; Move deleted files to the trash instead of permanently deleting them.
-  (delete-selection-mode 1)     ;; Enable replacing selected text with typed text.
+      (delete-by-moving-to-trash t) ;; Move deleted files to the trash instead of permanently deleting them.
+      (delete-selection-mode 1)     ;; Enable replacing selected text with typed text.
 
-  (electric-indent-mode nil)  ;; Turn off the weird indenting that Emacs does by default.
-  (electric-pair-mode t)      ;; Turns on automatic parens pairing
+      (electric-indent-mode nil)  ;; Turn off the weird indenting that Emacs does by default.
+      (electric-pair-mode t)      ;; Turns on automatic parens pairing
 
-  (blink-cursor-mode nil)     ;; Don't blink cursor
-  (global-auto-revert-mode t) ;; Automatically reload file and show changes if the file has changed
+      (blink-cursor-mode nil)     ;; Don't blink cursor
+      (global-auto-revert-mode t) ;; Automatically reload file and show changes if the file has changed
 
-  (recentf-mode t) ;; Enable recent file mode
+      (recentf-mode t) ;; Enable recent file mode
 
-  (global-visual-line-mode t)           ;; Enable truncated lines
-  (display-line-numbers-type 'relative) ;; Relative line numbers
-  (global-display-line-numbers-mode t)  ;; Display line numbers
-  (global-hl-line-mode t)               ;; Highlights the current line
+      (global-visual-line-mode t)           ;; Enable truncated lines
+      (display-line-numbers-type 'relative) ;; Relative line numbers
+      (global-display-line-numbers-mode t)  ;; Display line numbers
+      (global-hl-line-mode t)               ;; Highlights the current line
 
-  (mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
-  (scroll-conservatively 10) ;; Smooth scrolling
-  (scroll-margin 8)
+      (mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
+      (scroll-conservatively 10) ;; Smooth scrolling
+      (scroll-margin 8)
 
-  (tab-always-indent 'complete) ;; Make the TAB key complete text instead of just indenting.
-  (tab-width 4)                 ;; Set the tab width to 4 spaces.
-  (treesit-font-lock-level 4)   ;; Use advanced font locking for Treesit mode.
+      (tab-always-indent 'complete) ;; Make the TAB key complete text instead of just indenting.
+      (tab-width 4)                 ;; Set the tab width to 4 spaces.
+      (treesit-font-lock-level 4)   ;; Use advanced font locking for Treesit mode.
 
-  (make-backup-files nil) ;; Stop creating ~ backup files
-  (use-short-answers t)   ;; Use short answers in prompts for quicker responses (y instead of yes)
+      (make-backup-files nil) ;; Stop creating ~ backup files
+      (use-short-answers t)   ;; Use short answers in prompts for quicker responses (y instead of yes)
 
-  (warning-minimum-level :emergency) ;; Set the minimum level of warnings to display.
+      (warning-minimum-level :emergency) ;; Set the minimum level of warnings to display.
 
-  :hook
-  (prog-mode . (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
-  :config
-  ;; Move customization variables to a separate file and load it, avoid filling up init.el with unnecessary variables
-  (setq custom-file (locate-user-emacs-file "custom-vars.el"))
-  (load custom-file 'noerror 'nomessage)
-  ;; Makes Emacs vertical divisor the symbol │ instead of |.
-  ;; (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+      :hook
+      (prog-mode . (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
+      :config
+      ;; Move customization variables to a separate file and load it, avoid filling up init.el with unnecessary variables
+      (setq custom-file (locate-user-emacs-file "custom-vars.el"))
+      (load custom-file 'noerror 'nomessage)
+      ;; Makes Emacs vertical divisor the symbol │ instead of |.
+      ;; (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
 
-  :bind (
-         ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
-         ;; Zooming In/Out
-         ("C-+" . text-scale-increase)
-         ("C--" . text-scale-decrease)
-         ("<C-wheel-up>" . text-scale-increase)
-         ("<C-wheel-down>" . text-scale-decrease)))
+      :bind (
+             ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
+             ;; Zooming In/Out
+             ("C-+" . text-scale-increase)
+             ("C--" . text-scale-decrease)
+             ("<C-wheel-up>" . text-scale-increase)
+             ("<C-wheel-down>" . text-scale-decrease))
+)
 #+end_src
 
 
@@ -446,7 +455,17 @@ Note: The Leader key is what you will press when you want to access your keybind
       "c c" '(rdmacs/smart-compile :wk "Run compile command")
       "c r" '(recompile :wk "Recompile")
       "c h" '(copilot-chat :wk "Open copilot chat")
-      "c l" '(claude-code-transient :wk "Open claude code")))
+      "c l" '(claude-code-transient :wk "Open claude code"))
+
+     (rdmacs/leader-keys
+       :keymaps '(markdown-mode-map markdown-view-mode-map)
+       "m" '(:ignore t :wk "Markdown")
+       "m t" '((lambda ()
+                 (interactive)
+                 (if (eq major-mode 'markdown-view-mode)
+                     (markdown-mode)
+                   (markdown-view-mode)))
+               :wk "Toggle view mode")))
 
 
     ;; Fix general.el leader key not working instantly in messages buffer with evil mode
@@ -497,10 +516,29 @@ With Emacs version 29, true transparency has been added.
   (add-to-list 'default-frame-alist '(alpha-background . 90))) ;; For all new frames henceforth
 #+end_src
 
+** Line Numbers
+We already enabled line numbers globally, but we want to turn them off in some places because it doesn't look good
+#+begin_src emacs-lisp
+(dolist (mode '(org-mode-hook
+                eat-mode-hook
+                shell-mode-hook
+                neotree-mode-hook
+                vterm-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
+
 ** Fonts
 #+begin_src emacs-lisp
     (set-face-attribute 'default nil
-                        :font "Maple Mono NF" ;; Set your favorite type of font or download JetBrains Mono
+                        :font "Maple Mono NF"
+                        :height 140
+                        :weight 'medium)
+    (set-face-attribute 'fixed-pitch nil
+                        :font "Maple Mono NF"
+                        :height 140
+                        :weight 'medium)
+    (set-face-attribute 'variable-pitch nil
+                        :font "SFProDisplay Nerd Font"
                         :height 140
                         :weight 'medium)
     ;; This sets the default font on all graphical frames created after restarting Emacs.
@@ -1070,9 +1108,7 @@ One alternative is ivy and counsel, check out the [[https://github.com/MiniApoll
 #+begin_src emacs-lisp
 (use-package claude-code)
 #+end_src
-* Other packages
-All the package setups that don't need much tweaking.
-** Org Mode
+* Org Mode
 One of the things that Emacs is loved for.
 Once you've used it for a bit, you'll understand why people love it. Even reading about it can be inspiring!
 For example, this document is effectively the source code and descriptions bound into the one document,
@@ -1082,6 +1118,42 @@ We use an Org mode document for our Emacs configuration because it provides:
 - Better organization: It lets us structure with outlines, headings, and tags.
 - Literate Documentation: It's a document, not just source code.
 - Fast Navigation: Quickly jump to sections with something like Imenu.
+
+** Better Fonts
+#+begin_src emacs-lisp
+
+(defun rdmacs/org-font-setup ()
+  ;; Replace list hyphen with dot
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.05)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :font "SFProDisplay Nerd Font" :weight 'regular :height (cdr face)))
+
+  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
+  (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
+#+end_src
+
+** Basic Config
 #+begin_src emacs-lisp
     (use-package org
       :ensure nil
@@ -1089,24 +1161,25 @@ We use an Org mode document for our Emacs configuration because it provides:
       (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
       (org-return-follows-link t)   ;; Sets RETURN key in org-mode to follow links
       :hook
-      (org-mode . org-indent-mode) ;; Indent text
+      (org-mode . org-indent-mode)          ;; Indent text
+      (org-mode . variable-pitch-mode)      ;; Enable variable pitch for prose
+      (org-mode . rdmacs/org-font-setup)    ;; Apply font customizations
       ;; The following prevents <> from auto-pairing when electric-pair-mode is on.
       ;; Otherwise, org-tempo is broken when you try to <s TAB...
       (org-mode . (lambda ()
                     (setq-local electric-pair-inhibit-predicate
                                 `(lambda (c)
-                                   (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
-      )
+                                   (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c)))))))
 #+end_src
 
-*** Table of Contents
+** Table of Contents
 #+begin_src emacs-lisp
     (use-package toc-org
       :commands toc-org-enable
       :hook (org-mode . toc-org-mode))
 #+end_src
 
-*** Org Superstar
+** Org Superstar
 Prettify headings and plain lists in Org mode. Modern version of org-bullets.
 #+begin_src emacs-lisp
     (use-package org-superstar
@@ -1114,7 +1187,7 @@ Prettify headings and plain lists in Org mode. Modern version of org-bullets.
       :hook (org-mode . org-superstar-mode))
 #+end_src
 
-*** Source Code Block Tag Expansion
+** Source Code Block Tag Expansion
 Org-tempo is not a separate package but a module within org that can be enabled.
 Org-tempo allows for '<s' followed by TAB to expand to a begin_src tag.
 #+begin_src emacs-lisp
@@ -1122,9 +1195,47 @@ Org-tempo allows for '<s' followed by TAB to expand to a begin_src tag.
       :ensure nil
       :after org)
 #+end_src
+
+** Center Org Buffers
+We use visual-fill-column to center org-mode buffers for a more pleasing writing experience as it centers the contents of the buffer horizontally to seem more like you are editing a document.
+#+begin_src emacs-lisp
+(defun rdmacs/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . rdmacs/org-mode-visual-fill))
+#+end_src
+
+
+* Other packages
+All the package setups that don't need much tweaking.
+
+** Markdown Mode
+Markdown mode with variable pitch fonts for prose and fixed pitch for code blocks.
+
+#+begin_src emacs-lisp
+(defun rdmacs/markdown-font-setup ()
+  "Set up mixed pitch fonts for markdown mode."
+  ;; Ensure code elements use fixed-pitch
+  (set-face-attribute 'markdown-code-face nil :inherit 'fixed-pitch)
+  (set-face-attribute 'markdown-inline-code-face nil :inherit 'fixed-pitch)
+  (set-face-attribute 'markdown-pre-face nil :inherit 'fixed-pitch))
+
+(use-package markdown-mode
+  :mode ("\\.md\\'" . markdown-mode)
+  :hook
+  (markdown-mode . variable-pitch-mode)
+  (markdown-mode . rdmacs/markdown-font-setup)
+  :custom
+  (markdown-fontify-code-blocks-natively t)) ;; Syntax highlight code blocks
+#+end_src
+
 ** Consult
 Provides search and navigation commands based on the Emacs completion function.
 Check out their [[https://github.com/minad/consult][git repository]] for more awesome functions.
+
 #+begin_src emacs-lisp
     (use-package consult
       ;; Enable automatic preview at point in the *Completions* buffer. This is

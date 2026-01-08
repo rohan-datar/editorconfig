@@ -105,6 +105,7 @@ in
         dotenv-mode
         web-mode
         nix-ts-mode
+        markdown-mode
 
         # Terminal
         eat
@@ -128,6 +129,7 @@ in
         # Org mode
         toc-org
         org-superstar
+		visual-fill-column
 
         #AI
         copilot-chat
