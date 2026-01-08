@@ -38,6 +38,13 @@ in
       swiftformat
       nixfmt
 
+      # Linters (for flymake-collection)
+      shellcheck
+      golangci-lint
+      pylint
+      yamllint
+      codespell
+
       claude-code
       ;
   };
@@ -70,6 +77,7 @@ in
         projectile
         sideline
         sideline-flymake
+        flymake-collection
         yasnippet
         yasnippet-snippets
         eldoc-box

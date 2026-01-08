@@ -676,6 +676,24 @@ Show flymake errors with sideline.
       (sideline-backends-right '(sideline-flymake)))
 #+end_src
 
+** Flymake-collection
+A collection of flymake backends for external linters. This provides similar functionality
+to nvim-lint by integrating external tools like shellcheck, pylint, golangci-lint, etc.
+#+begin_src emacs-lisp
+(use-package flymake-collection
+  :hook (after-init . flymake-collection-hook-setup)
+  :config
+  ;; Configure specific linters per mode (similar to nvim-lint)
+  (push '(sh-mode flymake-collection-shellcheck) flymake-collection-config)
+  (push '(bash-ts-mode flymake-collection-shellcheck) flymake-collection-config)
+  (push '(python-mode flymake-collection-pylint) flymake-collection-config)
+  (push '(python-ts-mode flymake-collection-pylint) flymake-collection-config)
+  (push '(go-mode flymake-collection-golangci-lint) flymake-collection-config)
+  (push '(go-ts-mode flymake-collection-golangci-lint) flymake-collection-config)
+  (push '(yaml-mode flymake-collection-yamllint) flymake-collection-config)
+  (push '(yaml-ts-mode flymake-collection-yamllint) flymake-collection-config))
+#+end_src
+
 ** Yasnippet
 A template system for Emacs. And yasnippet-snippets is a snippet collection package.
 To use it write out the full keyword (or use autocompletion) and press Tab.
