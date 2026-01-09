@@ -98,7 +98,30 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
       (when (boundp 'native-comp-eln-load-path)
         (startup-redirect-eln-cache (expand-file-name "eln-cache/" cache-dir)))
       ;; Yasnippet snippets directory
-      (setq yas-snippet-dirs (list (expand-file-name "snippets/" cache-dir))))
+      (setq yas-snippet-dirs (list (expand-file-name "snippets/" cache-dir)))
+      ;; Package quickstart cache
+      (setq package-quickstart-file (expand-file-name "package-quickstart.el" cache-dir))
+      ;; Recent files list
+      (setq recentf-save-file (expand-file-name "recentf" cache-dir))
+      ;; Custom file for customize settings
+      (setq custom-file (expand-file-name "custom-vars.el" cache-dir))
+      ;; Savehist (minibuffer history)
+      (setq savehist-file (expand-file-name "history" cache-dir))
+      ;; Transient (Magit command history)
+      (setq transient-history-file (expand-file-name "transient/history.el" cache-dir))
+      ;; Projectile bookmarks (known projects list)
+      (setq projectile-known-projects-file (expand-file-name "projectile/bookmarks.eld" cache-dir))
+      (setq projectile-cache-file (expand-file-name "projectile/cache.eld" cache-dir))
+      ;; DAP mode breakpoints
+      (setq dap-breakpoints-file (expand-file-name "dap/breakpoints" cache-dir))
+      ;; LSP session
+      (setq lsp-session-file (expand-file-name "lsp-session" cache-dir))
+      ;; URL cache and cookies (used by many packages)
+      (setq url-configuration-directory (expand-file-name "url/" cache-dir))
+      ;; Eshell directory (history, aliases, etc.)
+      (setq eshell-directory-name (expand-file-name "eshell/" cache-dir))
+      ;; Bookmarks
+      (setq bookmark-default-file (expand-file-name "bookmarks" cache-dir)))
 #+end_src
 
 ** Auto-tangle Configuration file
@@ -219,8 +242,7 @@ If you plan to use a different package manager, remember to remove this section 
       :hook
       (prog-mode . (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
       :config
-      ;; Move customization variables to a separate file and load it, avoid filling up init.el with unnecessary variables
-      (setq custom-file (locate-user-emacs-file "custom-vars.el"))
+      ;; Load custom file (path set in Nix Store Compatibility section)
       (load custom-file 'noerror 'nomessage)
       ;; Makes Emacs vertical divisor the symbol │ instead of |.
       ;; (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
@@ -621,7 +643,6 @@ You can also make the [[https://github.com/karthink/consult-dir][consult-dir]] p
       :config
       (projectile-mode)
       :custom
-      (projectile-cache-file "~/.cache/emacs/projectile/projectile-cache.eld")
       ;; (projectile-auto-discover nil) ;; Disable auto search for better startup times ;; Search with a keybind
       (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
       (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
