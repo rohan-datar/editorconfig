@@ -24,7 +24,7 @@
   - [[#fonts][Fonts]]
   - [[#doom-modeline][Doom Modeline]]
   - [[#nerd-icons][Nerd Icons]]
-  - [[#indent-guide][Indent Guide]]
+  - [[#indent-guides][Indent Guides]]
 - [[#development][Development]]
   - [[#projectile][Projectile]]
   - [[#lsp-mode][LSP Mode]]
@@ -574,21 +574,33 @@ Also Doom modeline requires nerd icons.
       :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
 #+end_src
 
-** Indent Guide
-The `indent-guide' package provides visual indicators for indentation levels
+** Indent Guides
+The `hightlight-indent-guides' package provides visual indicators for indentation levels
 in programming modes, making it easier to see code structure at a glance.
 It draws vertical lines (by default, a character of your choice) at each
 level of indentation, helping to improve readability and navigation within
 the code.
+
+This config mimics snacks.indent from Neovim: subtle guides with the current
+scope highlighted more prominently.
+
 #+begin_src emacs-lisp
-(use-package indent-guide
-  :defer t
-  :ensure t
-  :hook
-  (prog-mode . indent-guide-mode)  ;; Activate indent-guide in programming modes.
-  :config
-  (setq indent-guide-char "│"))    ;; Set the character used for the indent guide.
+    (use-package highlight-indent-guides
+      :ensure t
+      :hook
+      (prog-mode . highlight-indent-guides-mode)
+      :custom
+      (highlight-indent-guides-method 'character)
+      (highlight-indent-guides-character ?│)  ;; Smooth box-drawing character
+      (highlight-indent-guides-responsive 'top)
+      (highlight-indent-guides-auto-enabled nil)
+      :config
+      (set-face-foreground 'highlight-indent-guides-character-face
+                           (catppuccin-get-color 'surface1))
+      (set-face-foreground 'highlight-indent-guides-top-character-face
+                           (catppuccin-get-color 'flamingo)))
 #+end_src
+
 * Development
 ** Projectile
 Project interaction library for Emacs.
@@ -609,10 +621,11 @@ You can also make the [[https://github.com/karthink/consult-dir][consult-dir]] p
       :config
       (projectile-mode)
       :custom
+      (projectile-cache-file "~/.cache/emacs/projectile/projectile-cache.eld")
       ;; (projectile-auto-discover nil) ;; Disable auto search for better startup times ;; Search with a keybind
       (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
       (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
-      (projectile-project-search-path '("~/Documents/" "~/Documents/UW-Classes/" "~/Documents/dev/" ("~/" . 1)))) ;; . 1 means only search the first subdirectory level for projects
+      (projectile-project-search-path '("~/Documents/" "~/Documents/UW-Classes/" "~/Documents/dev/" "~/nix" ("~/editorconfig" . 1)))) ;; . 1 means only search the first subdirectory level for projects
 #+end_src
 
 ** LSP Mode
@@ -894,6 +907,15 @@ A simple major mode to provide .env files with color highlighting
   :config)
 #+end_src
 *** Web Dev
+ The `add-node-modules-path' package ensures that Emacs uses the local
+ `node_modules/.bin' for a project rather than globally installed
+ binaries. This is essential in JavaScript/TypeScript projects where
+ different versions of tools like `eslint' and
+ `typescript-language-server' might be needed per project.
+
+ This setup helps prevent conflicts between global and local versions
+ of Node.js tools and ensures consistency across different
+ environments.
 #+begin_src emacs-lisp
 (use-package web-mode
   :ensure t
@@ -906,6 +928,20 @@ A simple major mode to provide .env files with color highlighting
    ("\\.erb\\'" . web-mode)
    ("\\.mustache\\'" . web-mode)
    ("\\.djhtml\\'" . web-mode)))
+
+(use-package add-node-modules-path
+  :ensure t
+  :custom
+  ;; makes sure you are using the local bin for your
+  ;; node project. local eslint, typescript server...
+  (eval-after-load 'typescript-ts-mode
+	'(add-hook 'typescript-ts-mode-hook #'add-node-modules-path))
+  (eval-after-load 'tsx-ts-mode
+	'(add-hook 'tsx-ts-mode-hook #'add-node-modules-path))
+  (eval-after-load 'typescriptreact-mode
+	'(add-hook 'typescriptreact-mode-hook #'add-node-modules-path))
+  (eval-after-load 'js-mode
+	'(add-hook 'js-mode-hook #'add-node-modules-path)))
 #+end_src
 ** Terminal
 *** Eat
@@ -936,8 +972,9 @@ Complete text-based user interface to Git.
     (use-package magit
       :defer
       :custom (magit-diff-refine-hunk (quote all)) ;; Shows inline diff
-      :config (define-key transient-map (kbd "<escape>") 'transient-quit-one) ;; Make escape quit magit prompts
-      )
+      :config
+      (define-key transient-map (kbd "<escape>") 'transient-quit-one) ;; Make escape quit magit prompts
+      (setopt magit-format-file-function #'magit-format-file-nerd-icons))
 #+end_src
 
 ** Diff-hl
@@ -970,8 +1007,8 @@ Blamer shows git blame info similar to gitlens.
 (use-package blamer
   :defer 20
   :custom
-  (blamer-idle-time 0.3)
-  (blamer-min-offset 70)
+  (blamer-idle-time 0.8)
+  (blamer-min-offset 40)
   :config
   (global-blamer-mode 1))
 #+end_src

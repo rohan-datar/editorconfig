@@ -23,6 +23,8 @@ in
       # general environment
       ripgrep
       fd
+      nix # needed for pcomplete/nix and general nix commands
+
       # Language servers
       clang-tools # clangd
       nil # Nix LSP
@@ -58,8 +60,8 @@ in
   emacsPackages =
     epkgs:
     values {
-      # Evil mode
       inherit (epkgs)
+        # Evil mode
         evil
         evil-collection
         evil-surround
@@ -77,7 +79,7 @@ in
         nerd-icons
         nerd-icons-dired
         nerd-icons-ibuffer
-        indent-guide
+        highlight-indent-guides
 
         # Development
         projectile
@@ -106,8 +108,9 @@ in
         web-mode
         nix-ts-mode
         markdown-mode
+		add-node-modules-path
 
-        # Terminal
+		# Terminal
         eat
         vterm
 
