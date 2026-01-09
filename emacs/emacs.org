@@ -744,8 +744,17 @@ This mirrors the nvim-dap setup with support for Go and C/C++ via GDB.
 ** Format-All
 Lets you auto-format source code in many languages using the same command for all languages, instead of learning a different Emacs package and formatting command for each language.
 #+begin_src emacs-lisp
-(use-package format-all
-   :hook (prog-mode . format-all-mode))
+    (use-package format-all
+       :hook ((prog-mode . format-all-mode)
+    		  (prog-mode . format-all-ensure-formatter))
+       :config
+       (setq-default format-all-formatters
+    				 '(("C" clang-format)
+    				   ("Shell" (shfmt "-i" "-w" "2" "-s"))
+    				   ("Nix" nixfmt)
+    				   ("Rust" rustfmt)
+    				   ("Lua" stylua)
+    				   ("Swift" swiftformat))))
 #+end_src
 ** Flymake
 Flymake is an on-the-fly syntax checking extension that provides real-time feedback

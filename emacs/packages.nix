@@ -39,6 +39,7 @@ in
       prettier
       swiftformat
       nixfmt
+	  shfmt
 
       # Linters (for flymake-collection)
       shellcheck
