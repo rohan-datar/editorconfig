@@ -124,6 +124,7 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
       (setq eshell-directory-name (expand-file-name "eshell/" cache-dir))
       ;; Bookmarks
       (setq bookmark-default-file (expand-file-name "bookmarks" cache-dir)))
+      (setq undo-fu-session-directory (expand-file-name "undo-fu-session/" cache-dir))
 #+end_src
 
 ** Auto-tangle Configuration file
@@ -139,7 +140,7 @@ To fix this, you need to find this file (C-x C-f), fix the error and press C-c C
 This snippet adds a hook to org-mode buffers so that rdmacs/org-babel-tangle-config gets executed each time such a buffer gets saved.
 This function checks to see if the file being saved is the init.org file you’re looking at right now, and if so,
 automatically exports the configuration here to the associated output files.
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (defun rdmacs/org-babel-tangle-config ()
   "Automatically tangle our init.org config file and refresh package-quickstart when we save it. Credit to Emacs From Scratch for this one!"
   (interactive)
@@ -1416,7 +1417,7 @@ Adds colors to brackets.
 Removes whitespace from the ends of lines.
 #+begin_src emacs-lisp
     (use-package ws-butler
-      :config 
+      :config
       (ws-butler-global-mode 1))
 #+end_src
 
