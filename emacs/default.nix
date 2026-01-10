@@ -68,6 +68,44 @@
           makeWrapper ${rdmacs}/bin/emacs $out/bin/emacs \
             --add-flags "--init-directory ${initDir}" \
             --prefix PATH : ${runtimePath}
+
+          # Create Emacsclient.app for Spotlight/Raycast
+          mkdir -p $out/Applications/Emacsclient.app/Contents/MacOS
+          mkdir -p $out/Applications/Emacsclient.app/Contents/Resources
+
+          # Copy icon from Emacs.app
+          cp ${rdmacs}/Applications/Emacs.app/Contents/Resources/Emacs.icns \
+            $out/Applications/Emacsclient.app/Contents/Resources/Emacsclient.icns
+
+          # Create Info.plist
+          cat > $out/Applications/Emacsclient.app/Contents/Info.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleExecutable</key>
+            <string>Emacsclient</string>
+            <key>CFBundleIconFile</key>
+            <string>Emacsclient</string>
+            <key>CFBundleIdentifier</key>
+            <string>org.gnu.Emacsclient</string>
+            <key>CFBundleName</key>
+            <string>Emacsclient</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleVersion</key>
+            <string>1.0</string>
+          </dict>
+          </plist>
+          EOF
+
+          # Create emacsclient wrapper that opens a new frame
+          makeWrapper ${rdmacs}/bin/emacsclient $out/Applications/Emacsclient.app/Contents/MacOS/Emacsclient \
+            --add-flags "-c"
+
+          # Also provide wrapped bin/emacsclient for CLI use
+          makeWrapper ${rdmacs}/bin/emacsclient $out/bin/emacsclient \
+            --add-flags "-c"
         '';
         installPhase = "true";
       };
@@ -103,11 +141,6 @@
         mv "$TANGLE_DIR/emacs.el" "$TANGLE_DIR/init.el"
         exec ${rdmacs}/bin/emacs --init-directory "$TANGLE_DIR" "$@"
       '';
-
-      # Emacsclient wrapper for connecting to the daemon
-      rdmacs-client = pkgs.writeShellScriptBin "emacsclient" ''
-        exec ${rdmacs}/bin/emacsclient -c "$@"
-      '';
     in
     {
       packages = {
@@ -116,7 +149,6 @@
           rdmacs-test
           rdmacs-service
           rdmacs-darwin
-          rdmacs-client
           ;
       };
       apps = {
