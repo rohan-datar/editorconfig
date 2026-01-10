@@ -112,7 +112,7 @@ in
       inherit (vp)
         lazydev-nvim
         obsidian-nvim
-        # go-nvim
+        go-nvim
         ;
     };
 
