@@ -104,6 +104,10 @@
         exec ${rdmacs}/bin/emacs --init-directory "$TANGLE_DIR" "$@"
       '';
 
+      # Emacsclient wrapper for connecting to the daemon
+      rdmacs-client = pkgs.writeShellScriptBin "emacsclient" ''
+        exec ${rdmacs}/bin/emacsclient -c "$@"
+      '';
     in
     {
       packages = {
@@ -112,6 +116,7 @@
           rdmacs-test
           rdmacs-service
           rdmacs-darwin
+          rdmacs-client
           ;
       };
       apps = {
