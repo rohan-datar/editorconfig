@@ -61,6 +61,7 @@
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
   - [[#center-org-buffers][Center Org Buffers]]
 - [[#other-packages][Other packages]]
+  - [[#undo][Undo]]
   - [[#markdown-mode][Markdown Mode]]
   - [[#consult][Consult]]
   - [[#helpful][Helpful]]
@@ -366,21 +367,22 @@ Note: The Leader key is what you will press when you want to access your keybind
 #+begin_src emacs-lisp
     (use-package general
       :config
-      (general-evil-setup) 
+      (general-evil-setup)
       ;; Set up 'C-SPC' as the leader key
       (general-create-definer rdmacs/leader-keys
-        :states '(normal insert visual motion emacs) 
+        :states '(normal insert visual motion emacs)
         :keymaps 'override
         :prefix "SPC"
         :global-prefix "C-SPC") ;; Set global leader key so we can access our keybindings from any state
 
       (rdmacs/leader-keys
         "." '(find-file :wk "Find file")
-        "TAB" '(comment-line :wk "Comment lines")
         "q" '(flymake-show-buffer-diagnostics :wk "Flymake buffer diagnostic")
         "t t" '(vterm :wk "vterm terminal")
         "p" '(projectile-command-map :wk "Projectile")
-        "s p" '(projectile-discover-projects-in-search-path :wk "Search for projects"))
+        "s p" '(projectile-discover-projects-in-search-path :wk "Search for projects")
+    	"u" '(vundo :wk "Vundo"))
+
 
       (rdmacs/leader-keys
         "s" '(:ignore t :wk "Search")
@@ -397,7 +399,7 @@ Note: The Leader key is what you will press when you want to access your keybind
         "f f" '(dired :wk "Open dired")
         "f e" '(dired-jump :wk "Dired jump to current")
         "f s" '(neotree-toggle :wk "Toggle neotree"))
-      
+
       (rdmacs/leader-keys
       "b" '(:ignore t :wk "Buffers")
       "b i" '(consult-buffer :wk "Switch buffer")
@@ -646,7 +648,11 @@ You can also make the [[https://github.com/karthink/consult-dir][consult-dir]] p
       ;; (projectile-auto-discover nil) ;; Disable auto search for better startup times ;; Search with a keybind
       (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
       (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
-      (projectile-project-search-path '("~/Documents/" "~/Documents/UW-Classes/" "~/Documents/dev/" "~/nix" ("~/editorconfig" . 1)))) ;; . 1 means only search the first subdirectory level for projects
+      (projectile-project-search-path '("~/Documents/"
+                                         "~/Documents/dev"
+                                         ("~/Documents/UW-Classes/" . 4)
+                                         ("~/nix" . 0)
+                                         ("~/editorconfig" . 0)))) ;; . 0 means only check the directory itself
 #+end_src
 
 ** LSP Mode
@@ -1278,6 +1284,26 @@ We use visual-fill-column to center org-mode buffers for a more pleasing writing
 
 * Other packages
 All the package setups that don't need much tweaking.
+
+** Undo
+Vundo: Visualizes undo history.
+Undo-fu-session: Persistent undo history
+#+begin_src emacs-lisp
+    (use-package undo-fu-session
+      :hook (after-init . undo-fu-session-global-mode)
+      :custom (undo-fu-session-incompatible-files '("\\.age$" "\\.gpg$" "/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+      :config
+      ;; Increase undo history limits to reduce likelihood of data loss
+      (setq undo-limit 256000           ;; 256kb (default is 160kb)
+            undo-strong-limit (* 1024 1024 2)   ;; 2mb   (default is 240kb)
+            undo-outer-limit (* 1024 1024 36))  ;; 36mb  (default is 24mb)
+      )
+
+    (use-package vundo
+      :defer
+      :custom
+      (vundo-glyph-alist vundo-unicode-symbols))
+#+end_src
 
 ** Markdown Mode
 Markdown mode with variable pitch fonts for prose and fixed pitch for code blocks.

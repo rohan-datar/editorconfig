@@ -39,7 +39,7 @@ in
       prettier
       swiftformat
       nixfmt
-	  shfmt
+      shfmt
 
       # Linters (for flymake-collection)
       shellcheck
@@ -50,8 +50,9 @@ in
 
       # Debuggers (for dap-mode)
       delve # Go debugger (dlv)
-      gdb # GDB for C/C++
-	  lldb
+      gdb
+      # GDB for C/C++
+      lldb
 
       claude-code
       ;
@@ -69,7 +70,7 @@ in
         evil-matchit
         evil-multiedit
         evil-mc
-		evil-nerd-commenter
+        evil-nerd-commenter
 
         # Keybindings
         general
@@ -109,9 +110,9 @@ in
         web-mode
         nix-ts-mode
         markdown-mode
-		add-node-modules-path
+        add-node-modules-path
 
-		# Terminal
+        # Terminal
         eat
         vterm
 
@@ -133,7 +134,7 @@ in
         # Org mode
         toc-org
         org-superstar
-		visual-fill-column
+        visual-fill-column
 
         #AI
         copilot-chat
@@ -145,6 +146,8 @@ in
         diminish
         rainbow-delimiters
         neotree
+        vundo
+        undo-fu-session
         ;
 
       # Custom package override (defined in let block)
