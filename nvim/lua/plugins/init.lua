@@ -95,6 +95,11 @@ require("lze").load({
 	{ import = "plugins.git" },
 	{ import = "plugins.compile" },
 	{ import = "plugins.debugger" },
+	{
+		"direnv",
+		for_cat = "extra",
+		event = "DeferredUIEnter",
+	},
 })
 
 if nixCats("lsp") then

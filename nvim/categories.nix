@@ -60,11 +60,10 @@ in
     };
 
     treesitter = [
-      (vp.nvim-treesitter.withPlugins (plugins: vp.nvim-treesitter.allGrammars))
+      vp.nvim-treesitter.withAllGrammars
     ]
     ++ values {
       inherit (vp) nvim-treesitter-context;
-      # Use flake input version to bypass nixpkgs require check issue
       inherit (np) nvim-treesitter-textobjects;
     };
 
@@ -113,6 +112,7 @@ in
         lazydev-nvim
         obsidian-nvim
         go-nvim
+        direnv-vim
         ;
     };
 
@@ -134,6 +134,7 @@ in
         fzf
         jq
         yq
+        tree-sitter
         ;
     };
 

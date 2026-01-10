@@ -7,18 +7,16 @@ return {
 	{
 		"nvim-treesitter",
 		for_cat = "treesitter",
-		event = "DeferredUIEnter",
-		load = function(name)
-			vim.cmd.packadd(name)
-			vim.cmd.packadd("nvim-treesitter-textobjects")
-		end,
+		branch = "main",
+		lazy = false,
 		after = function()
 			---@param buf integer
 			---@param language string
+			---@return boolean
 			local function treesitter_try_attach(buf, language)
 				-- check if parser exists and load it
 				if not vim.treesitter.language.add(language) then
-					return
+					return false
 				end
 				-- enables syntax highlighting and other treesitter features
 				vim.treesitter.start(buf, language)
@@ -31,6 +29,8 @@ return {
 				if filetype ~= "ruby" then
 					vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 				end
+
+				return true
 			end
 
 			local available_parsers = require("nvim-treesitter").get_available()
@@ -42,12 +42,12 @@ return {
 						return
 					end
 
-					local installed_parsers = require("nvim-treesitter").get_installed("parsers")
+					-- Prefer runtime/Nix-provided parsers before attempting install.
+					if treesitter_try_attach(buf, language) then
+						return
+					end
 
-					if vim.tbl_contains(installed_parsers, language) then
-						-- enable the parser if it is installed
-						treesitter_try_attach(buf, language)
-					elseif vim.tbl_contains(available_parsers, language) then
+					if vim.tbl_contains(available_parsers, language) then
 						-- if a parser is available in `nvim-treesitter` enable it after ensuring it is installed
 						require("nvim-treesitter").install(language):await(function()
 							treesitter_try_attach(buf, language)
@@ -58,6 +58,13 @@ return {
 					end
 				end,
 			})
+		end,
+	},
+	{
+		"nvim-treesitter-textobjects",
+		for_cat = "treesitter",
+		lazy = false,
+		after = function()
 
 			-- Setup textobjects
 			require("nvim-treesitter-textobjects").setup({
