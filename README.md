@@ -12,7 +12,7 @@ This repository is a Nix flake that builds my Neovim and Emacs configurations.
 - `.#nvim-full`: Full Neovim profile with all categories enabled.
 - `.#nvim-minimal`: Lean Neovim profile with core editing and git.
 - `.#nvim-test`: Neovim profile for live editing without rebuilds.
-- `.#rdmacs`: Emacs build with all configured packages.
+- `.#rdmacs`: Emacs with init-directory baked in. Provides `bin/emacs` and `bin/emacsclient` on all platforms; on Darwin also includes `Emacs.app` and `Emacsclient.app` bundles for Spotlight/Raycast.
 - `.#rdmacs-test`: Emacs build that tangles on launch for faster iteration.
 
 ## Non-Intuitive Bits
