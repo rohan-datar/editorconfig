@@ -123,8 +123,8 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
       ;; Eshell directory (history, aliases, etc.)
       (setq eshell-directory-name (expand-file-name "eshell/" cache-dir))
       ;; Bookmarks
-      (setq bookmark-default-file (expand-file-name "bookmarks" cache-dir)))
-      (setq undo-fu-session-directory (expand-file-name "undo-fu-session/" cache-dir))
+      (setq bookmark-default-file (expand-file-name "bookmarks" cache-dir))
+      (setq undo-fu-session-directory (expand-file-name "undo-fu-session/" cache-dir)))
 #+end_src
 
 ** Auto-tangle Configuration file
