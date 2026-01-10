@@ -1,6 +1,19 @@
 # Emacs packages and runtime dependencies for rdmacs
 { pkgs }:
 let
+  # Override ws-butler to fetch from GitHub instead of savannah.gnu.org
+  # Workaround for https://github.com/nix-community/emacs-overlay/issues/499
+  ws-butler-github = pkgs.emacs-pgtk.pkgs.trivialBuild {
+    pname = "ws-butler";
+    version = "20250613";
+    src = pkgs.fetchFromGitHub {
+      owner = "lewang";
+      repo = "ws-butler";
+      rev = "67c49cfdf5a5a9f28792c500c8eb0017cfe74a3a";
+      hash = "sha256-maOhnDkG3GibrbI1EuPRY+Ej4AZJgbFheu6lC72vZ4w=";
+    };
+  };
+
   values = builtins.attrValues;
 in
 {
@@ -136,9 +149,9 @@ in
         vundo
         undo-fu-session
         direnv
-        ws-butler
         ;
 
+      ws-butler = ws-butler-github;
       # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
       # Exclude broken grammars (tree-sitter-razor)
       treesit = epkgs.treesit-grammars.with-grammars (
