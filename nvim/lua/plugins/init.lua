@@ -96,7 +96,7 @@ require("lze").load({
 	{ import = "plugins.compile" },
 	{ import = "plugins.debugger" },
 	{
-		"direnv",
+		"direnv.vim",
 		for_cat = "extra",
 		event = "DeferredUIEnter",
 	},
