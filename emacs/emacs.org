@@ -69,6 +69,7 @@
   - [[#rainbow-delimiters][Rainbow Delimiters]]
   - [[#ws-butler][Ws-butler]]
   - [[#neotree][Neotree]]
+  - [[#direnv][Direnv]]
 - [[#runtime-performance][Runtime Performance]]
 - [[#multi-file-example][Multi File Example]]
   - [[#adding-the-lisp-directory-to-load-path][Adding the lisp directory to load-path]]
@@ -1433,6 +1434,14 @@ and integrates with version control to show file states.
   :defer t                                 ;; Load the package only when needed to improve startup time.
   :config
   (setq neo-theme 'nerd-icons))         ;; Set the theme to 'nerd-icons' if nerd fonts are available.
+#+end_src
+
+** Direnv
+#+begin_src emacs-lisp
+    (use-package direnv
+      :config
+      (direnv-mode))
+
 #+end_src
 
 * Runtime Performance
