@@ -1,9 +1,24 @@
 ---
+name: Check Nix Flake
 concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.ref }}
+
+'on':
+  push:
+    paths-ignore:
+      - '**/*.md'
+      - .github/**
+      - home/rdatar/assets/**
+  workflow_dispatch: {}
+  workflow_call:
+    inputs:
+      ref:
+        required: false
+        type: string
+
 jobs:
-  check-flake:
+  check-flake-linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -12,11 +27,12 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - name: Check flake evaluation
         run: nix -Lv flake check --all-systems
-name: check-nix
-'on':
-  push:
-    paths-ignore:
-      - '**/*.md'
-      - .github/**
-      - home/rdatar/assets/**
-  workflow_dispatch: {}
+  check-flake-darwin:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: DeterminateSystems/nix-installer-action@main
+      - name: Check flake evaluation
+        run: nix -Lv flake check
