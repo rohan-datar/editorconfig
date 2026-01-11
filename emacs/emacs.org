@@ -68,9 +68,11 @@
   - [[#helpful][Helpful]]
   - [[#diminish][Diminish]]
   - [[#rainbow-delimiters][Rainbow Delimiters]]
+  - [[#rainbow-mode][Rainbow Mode]]
   - [[#ws-butler][Ws-butler]]
   - [[#neotree][Neotree]]
   - [[#direnv][Direnv]]
+  - [[#hl-todo][Hl-Todo]]
 - [[#runtime-performance][Runtime Performance]]
 - [[#multi-file-example][Multi File Example]]
   - [[#adding-the-lisp-directory-to-load-path][Adding the lisp directory to load-path]]
@@ -1186,7 +1188,9 @@ One alternative is ivy and counsel, check out the [[https://github.com/MiniApoll
 #+begin_src emacs-lisp
     (use-package vertico
       :init
-      (vertico-mode))
+      (vertico-mode)
+      :custom
+      (vertico-cycle t))
 
     (savehist-mode) ;; Enables save history mode
 
@@ -1454,6 +1458,15 @@ Adds colors to brackets.
       :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
+** Rainbow Mode
+Adds colors to brackets.
+#+begin_src emacs-lisp
+(use-package rainbow-mode
+  :diminish
+  :hook
+  ((org-mode prog-mode) . rainbow-mode))
+#+end_src
+
 ** Ws-butler
 Removes whitespace from the ends of lines.
 #+begin_src emacs-lisp
@@ -1479,11 +1492,44 @@ and integrates with version control to show file states.
 #+end_src
 
 ** Direnv
+Integrate Direnv with Emacs
 #+begin_src emacs-lisp
     (use-package direnv
       :config
       (direnv-mode))
 
+#+end_src
+
+** Hl-Todo
+Hightlight TODO Keywords
+#+begin_src emacs-lisp
+    (use-package hl-todo
+      :hook
+      ((prog-mode yaml-ts-mode) . hl-todo-mode)
+      :config
+      ;; From doom emacs
+      (setq hl-todo-highlight-punctuation ":"
+            hl-todo-keyword-faces
+            '(;; For reminders to change or add something at a later date.
+              ("TODO" warning bold)
+              ;; For code (or code paths) that are broken, unimplemented, or slow,
+              ;; and may become bigger problems later.
+              ("FIXME" error bold)
+              ;; For code that needs to be revisited later, either to upstream it,
+              ;; improve it, or address non-critical issues.
+              ("REVIEW" font-lock-keyword-face bold)
+              ;; For code smells where questionable practices are used
+              ;; intentionally, and/or is likely to break in a future update.
+              ("HACK" font-lock-constant-face bold)
+              ;; For sections of code that just gotta go, and will be gone soon.
+              ;; Specifically, this means the code is deprecated, not necessarily
+              ;; the feature it enables.
+              ("DEPRECATED" font-lock-doc-face bold)
+              ;; Extra keywords commonly found in the wild, whose meaning may vary
+              ;; from project to project.
+              ("NOTE" success bold)
+              ("BUG" error bold)
+              ("XXX" font-lock-constant-face bold))))
 #+end_src
 
 * Runtime Performance

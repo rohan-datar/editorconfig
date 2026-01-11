@@ -150,6 +150,7 @@ in
         vundo
         undo-fu-session
         direnv
+        rainbow-mode
         ;
 
       ws-butler = ws-butler-github;
