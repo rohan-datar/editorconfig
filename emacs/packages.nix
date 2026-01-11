@@ -23,7 +23,9 @@ in
       # general environment
       ripgrep
       fd
-      nix # needed for pcomplete/nix and general nix commands
+      # needed for pcomplete/nix and general nix commands
+      nix
+      direnv
 
       # Language servers
       clang-tools # clangd
@@ -82,6 +84,8 @@ in
         nerd-icons-dired
         nerd-icons-ibuffer
         highlight-indent-guides
+        page-break-lines
+        dashboard
 
         # Development
         projectile
@@ -151,6 +155,7 @@ in
         undo-fu-session
         direnv
         rainbow-mode
+        hl-todo
         ;
 
       ws-butler = ws-butler-github;

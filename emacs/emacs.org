@@ -25,6 +25,8 @@
   - [[#doom-modeline][Doom Modeline]]
   - [[#nerd-icons][Nerd Icons]]
   - [[#indent-guides][Indent Guides]]
+  - [[#page-break-lines][Page Break Lines]]
+  - [[#dashboard][Dashboard]]
 - [[#development][Development]]
   - [[#projectile][Projectile]]
   - [[#lsp-mode][LSP Mode]]
@@ -310,74 +312,75 @@ Notes:
 
 *To use it, remove :tangle no from the beginning of the source code block.*
 #+begin_src emacs-lisp
-        (use-package evil
-            :init
-            (evil-mode)
-            :config
-            (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
-            (evil-set-initial-state 'vterm-mode 'insert) ;; Set initial state in vterm terminal to insert mode
-        	;; normalize some emacs and vim keybindings
-            (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-            (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
-        	;; fix jumplist
-            (evil-define-key 'normal 'global (kbd "C-i") 'evil-jump-forward)
-        	;; diagnostic keybindings
-            (evil-define-key 'normal 'global (kbd "] d") 'flymake-goto-next-error) ;; Go to next Flymake error
-            (evil-define-key 'normal 'global (kbd "[ d") 'flymake-goto-prev-error) ;; Go to previous Flymake error
+    (use-package evil
+        :init
+        (evil-mode)
+        :config
+        (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
+        (evil-set-initial-state 'vterm-mode 'insert) ;; Set initial state in vterm terminal to insert mode
+        (evil-set-initial-state 'dashboard-mode 'insert) ;; Set initial state in vterm terminal to insert mode
+    	;; normalize some emacs and vim keybindings
+        (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+        (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+    	;; fix jumplist
+        (evil-define-key 'normal 'global (kbd "C-i") 'evil-jump-forward)
+    	;; diagnostic keybindings
+        (evil-define-key 'normal 'global (kbd "] d") 'flymake-goto-next-error) ;; Go to next Flymake error
+        (evil-define-key 'normal 'global (kbd "[ d") 'flymake-goto-prev-error) ;; Go to previous Flymake error
 
-            (evil-define-key 'normal 'global (kbd "K") 'eldoc-box-help-at-point)
+        (evil-define-key 'normal 'global (kbd "K") 'eldoc-box-help-at-point)
 
-            ;; Diff-HL navigation for version control
-            (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
-            (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
-            :custom
-            (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
-            (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
-            (evil-want-C-i-jump nil)      ;; Disables C-i jump
-            (evil-undo-system 'undo-redo) ;; C-r to redo
-            (evil-want-fine-undo t)
-            ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
-            :bind (:map evil-motion-state-map
-                        ("SPC" . nil)
-                        ("RET" . nil)
-                        ("TAB" . nil)))
+        ;; Diff-HL navigation for version control
+        (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
+        (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
+        :custom
+        (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
+        (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
+        (evil-want-C-i-jump nil)      ;; Disables C-i jump
+        (evil-undo-system 'undo-redo) ;; C-r to redo
+        (evil-want-fine-undo t)
+        ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
+        :bind (:map evil-motion-state-map
+                    ("SPC" . nil)
+                    ("RET" . nil)
+                    ("TAB" . nil)))
 
-        (use-package evil-collection
-            :after evil
-            :config
-        	;; setting where to use evil-collection
-        	(setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult info neotree))
-            (setq evil-collection-want-find-usages-bindings t)
-            (evil-collection-init))
+    (use-package evil-collection
+        :after evil
+        :config
+    	;; setting where to use evil-collection
+    	(setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult info neotree))
+        (setq evil-collection-want-find-usages-bindings t)
+        (evil-collection-init))
 
-        (use-package evil-surround
-            :ensure t
-            :after evil-collection
-            :config
-            (global-evil-surround-mode 1))
+    (use-package evil-surround
+        :ensure t
+        :after evil-collection
+        :config
+        (global-evil-surround-mode 1))
 
-        (use-package evil-matchit
-            :ensure t
-            :after evil-collection
-            :config
-            (global-evil-matchit-mode 1))
+    (use-package evil-matchit
+        :ensure t
+        :after evil-collection
+        :config
+        (global-evil-matchit-mode 1))
 
-        (use-package evil-multiedit
-            :ensure t
-            :after evil-collection
-            :config
-            (evil-multiedit-default-keybinds))
+    (use-package evil-multiedit
+        :ensure t
+        :after evil-collection
+        :config
+        (evil-multiedit-default-keybinds))
 
-        (use-package evil-mc
-          :ensure t
-          :after evil-multiedit
-          :config
-          (global-evil-mc-mode 1))
+    (use-package evil-mc
+      :ensure t
+      :after evil-multiedit
+      :config
+      (global-evil-mc-mode 1))
 
-        (use-package evil-nerd-commenter
-    	  :config
-    	  (evil-define-key 'normal 'global (kbd "gcc")  'evilnc-comment-or-uncomment-lines)
-    	  (evil-define-key 'visual 'global (kbd "gc") 'evilnc-comment-or-uncomment-lines))
+    (use-package evil-nerd-commenter
+      :config
+      (evil-define-key 'normal 'global (kbd "gcc")  'evilnc-comment-or-uncomment-lines)
+      (evil-define-key 'visual 'global (kbd "gc") 'evilnc-comment-or-uncomment-lines))
 #+end_src
 
 ** General Keybindings
@@ -625,8 +628,7 @@ Don't forget nerd-icons-install-fonts to install the resource fonts.
 We use nerd-icons because it supports both GUI and TUI unlike all-the-icons.
 Also Doom modeline requires nerd icons.
 #+begin_src emacs-lisp
-    (use-package nerd-icons
-      :if (display-graphic-p))
+    (use-package nerd-icons)
 
     (use-package nerd-icons-dired
       :hook (dired-mode . (lambda () (nerd-icons-dired-mode t))))
@@ -660,6 +662,40 @@ scope highlighted more prominently.
                            (catppuccin-get-color 'surface1))
       (set-face-foreground 'highlight-indent-guides-top-character-face
                            (catppuccin-get-color 'flamingo)))
+#+end_src
+
+** Page Break Lines
+This Emacs library provides a global mode which displays ugly form feed characters as tidy horizontal rules.
+#+begin_src emacs-lisp
+    (use-package page-break-lines
+      :config
+      (global-page-break-lines-mode))
+#+end_src
+
+** Dashboard
+Set the startup screen similar to Doom emacs
+#+begin_src emacs-lisp
+    (use-package dashboard
+      :ensure t
+      :demand t
+      :after (projectile nerd-icons)
+      :custom
+      (dashboard-banner-logo-title "")
+      (dashboard-startup-banner 'logo)
+      (dashboard-center-content t)
+      (dashboard-show-shortcuts t)
+      (dashboard-projects-backend 'projectile) ;; Use projectile for project list
+      (dashboard-items '((recents . 5)
+                         (projects . 5)))
+      (dashboard-display-icons-p t)      ;; Display icons on both GUI and terminal
+      (dashboard-icon-type 'nerd-icons)  ;; Use `nerd-icons' package
+      (dashboard-set-heading-icons t)    ;; Show icons for headings
+      (dashboard-set-file-icons t)       ;; Show icons for files/projects
+      :config
+      ;; Use initial-buffer-choice for both daemon and non-daemon modes
+      (setq initial-buffer-choice (lambda ()
+                                    (dashboard-open)
+                                    (get-buffer-create dashboard-buffer-name))))
 #+end_src
 
 * Development
@@ -1155,7 +1191,8 @@ Read the [[https://github.com/minad/cape#configuration][configuration section]] 
       (add-hook 'completion-at-point-functions #'cape-dict) ;; Dictionary completion
       (add-hook 'completion-at-point-functions #'cape-file) ;; Path completion
       (add-hook 'completion-at-point-functions #'cape-elisp-block) ;; Complete elisp in Org or Markdown mode
-      (add-hook 'completion-at-point-functions #'cape-elisp-symbol) ;; Complete Elisp symbol
+      ;; NOTE: cape-elisp-symbol removed - it was adding ~~ around completions in org-mode
+      ;; Use cape-elisp-block for elisp completion in source blocks instead
      (add-hook 'completion-at-point-functions #'cape-keyword) ;; Keyword completion
 
       ;;(add-hook 'completion-at-point-functions #'cape-abbrev) ;; Complete abbreviation
