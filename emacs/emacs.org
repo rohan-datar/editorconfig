@@ -339,6 +339,7 @@ Notes:
         (evil-want-C-i-jump nil)      ;; Disables C-i jump
         (evil-undo-system 'undo-redo) ;; C-r to redo
         (evil-want-fine-undo t)
+    	(evil-insert-state-cursor 'box)
         ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
         :bind (:map evil-motion-state-map
                     ("SPC" . nil)
