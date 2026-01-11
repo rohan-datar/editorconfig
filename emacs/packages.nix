@@ -85,6 +85,7 @@ in
 
         # Development
         projectile
+        consult-dir
         sideline
         sideline-flymake
         flymake-collection

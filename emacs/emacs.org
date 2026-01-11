@@ -64,6 +64,7 @@
   - [[#undo][Undo]]
   - [[#markdown-mode][Markdown Mode]]
   - [[#consult][Consult]]
+  - [[#consult-dir][Consult-dir]]
   - [[#helpful][Helpful]]
   - [[#diminish][Diminish]]
   - [[#rainbow-delimiters][Rainbow Delimiters]]
@@ -84,8 +85,27 @@ They impact the entire configuration, skipping these could result in significant
 Make startup faster by reducing the frequency of garbage collection. This will be set back when startup finishes.
 Also set the maximum output size for reading process output, allowing for larger data transfers.
 #+begin_src emacs-lisp
-    ;; The default is 800 kilobytes. Measured in bytes.
-    (setq gc-cons-threshold (* 50 1000 1000))
+       ;; Make startup faster by reducing the frequency of garbage collection. This will be set back when startup finishes.
+       ;; We also increase Read Process Output Max so Emacs can read more data.
+       ;; Set garbage collector (from doom emacs)
+       ;; About 0.02 faster
+       (setq gc-cons-threshold (* 1024 1024 128)  ;; 128mb
+                      	  gc-cons-percentage 1.0) ;; Disable the dynamic percentage trigger to ensure GC frequency is fixed.
+
+       ;; Unset file-name-handler-alist
+       ;; About 0.07 faster
+       (defvar last-file-name-handler-alist file-name-handler-alist)
+       (setq file-name-handler-alist nil)
+       (add-hook 'after-init-hook
+              	  (lambda ()
+              		(setq file-name-handler-alist last-file-name-handler-alist)))
+
+
+    ;; Fix white flash on startup
+    ;; Don't do it when using daemon or terminal, because it messes up the background color.
+    (unless (or (daemonp) (not initial-window-system))
+      (setq default-frame-alist '((foreground-color . "white")
+    							  (background-color . "#181818"))))
 #+end_src
 
 ** Nix Store Compatibility
@@ -203,61 +223,64 @@ If you plan to use a different package manager, remember to remove this section 
 
 ** Defaults
 #+begin_src emacs-lisp
-    (use-package emacs
-      :custom
-      (auto-save-default nil)     ;; Stop creating # auto save files
-      (column-number-mode t)      ;; Display the column number in the mode line.
-      (create-lockfiles nil)      ;; Prevent the creation of lock files when editing.
-      (menu-bar-mode nil)         ;; Disable the menu bar
-      (scroll-bar-mode nil)       ;; Disable the scroll bar
-      (tool-bar-mode nil)         ;; Disable the tool bar
-      (inhibit-startup-screen t)  ;; Disable welcome screen
+        (use-package emacs
+          :custom
+          (auto-save-default nil)     ;; Stop creating # auto save files
+          (column-number-mode t)      ;; Display the column number in the mode line.
+          (create-lockfiles nil)      ;; Prevent the creation of lock files when editing.
+          (menu-bar-mode nil)         ;; Disable the menu bar
+          (scroll-bar-mode nil)       ;; Disable the scroll bar
+          (tool-bar-mode nil)         ;; Disable the tool bar
+          (inhibit-startup-screen t)  ;; Disable welcome screen
 
-      (delete-by-moving-to-trash t) ;; Move deleted files to the trash instead of permanently deleting them.
-      (delete-selection-mode 1)     ;; Enable replacing selected text with typed text.
+          (delete-by-moving-to-trash t) ;; Move deleted files to the trash instead of permanently deleting them.
+          (delete-selection-mode 1)     ;; Enable replacing selected text with typed text.
 
-      (electric-indent-mode nil)  ;; Turn off the weird indenting that Emacs does by default.
-      (electric-pair-mode t)      ;; Turns on automatic parens pairing
+          (electric-indent-mode nil)  ;; Turn off the weird indenting that Emacs does by default.
+          (electric-pair-mode t)      ;; Turns on automatic parens pairing
 
-      (blink-cursor-mode nil)     ;; Don't blink cursor
-      (global-auto-revert-mode t) ;; Automatically reload file and show changes if the file has changed
+          (blink-cursor-mode nil)     ;; Don't blink cursor
+          (global-auto-revert-mode t) ;; Automatically reload file and show changes if the file has changed
 
-      (recentf-mode t) ;; Enable recent file mode
+          (recentf-mode t) ;; Enable recent file mode
 
-      (global-visual-line-mode t)           ;; Enable truncated lines
-      (display-line-numbers-type 'relative) ;; Relative line numbers
-      (global-display-line-numbers-mode t)  ;; Display line numbers
-      (global-hl-line-mode t)               ;; Highlights the current line
+          (global-visual-line-mode t)           ;; Enable truncated lines
+          (display-line-numbers-type 'relative) ;; Relative line numbers
+          (global-display-line-numbers-mode t)  ;; Display line numbers
+          (global-hl-line-mode t)               ;; Highlights the current line
 
-      (mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
-      (scroll-conservatively 10) ;; Smooth scrolling
-      (scroll-margin 8)
+          (mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
+          (scroll-conservatively 10) ;; Smooth scrolling
+          (scroll-margin 8)
 
-      (tab-always-indent 'complete) ;; Make the TAB key complete text instead of just indenting.
-      (tab-width 4)                 ;; Set the tab width to 4 spaces.
-      (treesit-font-lock-level 4)   ;; Use advanced font locking for Treesit mode.
+          (tab-always-indent 'complete) ;; Make the TAB key complete text instead of just indenting.
+          (tab-width 4)                 ;; Set the tab width to 4 spaces.
+          (treesit-font-lock-level 4)   ;; Use advanced font locking for Treesit mode.
+    	  (sgml-basic-offset 4) ;; Set Html mode indentation to 4
+    	  (c-ts-mode-indent-offset 4) ;; Fix weird indentation in c-ts (C, C++)
+    	  (go-ts-mode-indent-offset 4) ;; Fix weird indentation in go-ts
 
-      (make-backup-files nil) ;; Stop creating ~ backup files
-      (use-short-answers t)   ;; Use short answers in prompts for quicker responses (y instead of yes)
+    	  (make-backup-files nil) ;; Stop creating ~ backup files
+          (use-short-answers t)   ;; Use short answers in prompts for quicker responses (y instead of yes)
 
-      (warning-minimum-level :emergency) ;; Set the minimum level of warnings to display.
+          (warning-minimum-level :emergency) ;; Set the minimum level of warnings to display.
 
-      :hook
-      (prog-mode . (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
-      :config
-      ;; Load custom file (path set in Nix Store Compatibility section)
-      (load custom-file 'noerror 'nomessage)
-      ;; Makes Emacs vertical divisor the symbol │ instead of |.
-      ;; (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+          :hook
+          (prog-mode . (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
+          :config
+          ;; Load custom file (path set in Nix Store Compatibility section)
+          (load custom-file 'noerror 'nomessage)
+          ;; Makes Emacs vertical divisor the symbol │ instead of |.
+          ;; (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
 
-      :bind (
-             ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
-             ;; Zooming In/Out
-             ("C-+" . text-scale-increase)
-             ("C--" . text-scale-decrease)
-             ("<C-wheel-up>" . text-scale-increase)
-             ("<C-wheel-down>" . text-scale-decrease))
-)
+          :bind (
+                 ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
+                 ;; Zooming In/Out
+                 ("C-+" . text-scale-increase)
+                 ("C--" . text-scale-decrease)
+                 ("<C-wheel-up>" . text-scale-increase)
+                 ("<C-wheel-down>" . text-scale-decrease))
+    )
 #+end_src
 
 
@@ -379,10 +402,10 @@ Note: The Leader key is what you will press when you want to access your keybind
 
       (rdmacs/leader-keys
         "." '(find-file :wk "Find file")
+    	"SPC" '(consult-dir :wk "Consult-Dir")
         "q" '(flymake-show-buffer-diagnostics :wk "Flymake buffer diagnostic")
         "t t" '(vterm :wk "vterm terminal")
         "p" '(projectile-command-map :wk "Projectile")
-        "s p" '(projectile-discover-projects-in-search-path :wk "Search for projects")
     	"u" '(vundo :wk "Vundo"))
 
 
@@ -555,23 +578,33 @@ We already enabled line numbers globally, but we want to turn them off in some p
 
 ** Fonts
 #+begin_src emacs-lisp
-    (set-face-attribute 'default nil
-                        :font "Maple Mono NF"
-                        :height 140
-                        :weight 'medium)
-    (set-face-attribute 'fixed-pitch nil
-                        :font "Maple Mono NF"
-                        :height 140
-                        :weight 'medium)
-    (set-face-attribute 'variable-pitch nil
-                        :font "SFProDisplay Nerd Font"
-                        :height 140
-                        :weight 'medium)
-    ;; This sets the default font on all graphical frames created after restarting Emacs.
-    ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
-    ;; are not right unless I also add this method of setting the default font.
-    (add-to-list 'default-frame-alist '(font . "Maple Mono NF")) ;; Set your favorite font
+    (defun rdmacs/set-frame-fonts (&optional frame)
+      "Set fonts for FRAME (or current frame if nil).
+    Ensures fonts are set correctly for both daemon and non-daemon Emacs."
+      (with-selected-frame (or frame (selected-frame))
+        (set-face-attribute 'default nil
+                            :font "Maple Mono NF"
+                            :height 140
+                            :weight 'medium)
+        (set-face-attribute 'fixed-pitch nil
+                            :font "Maple Mono NF"
+                            :height 140
+                            :weight 'medium)
+        (set-face-attribute 'variable-pitch nil
+                            :font "SFProDisplay Nerd Font"
+                            :height 140
+                            :weight 'medium)))
+
+    ;; Set fonts for new frames created by emacsclient
+    (add-hook 'after-make-frame-functions #'rdmacs/set-frame-fonts)
+
+    ;; Set fonts immediately if not running as daemon (or if frames already exist)
+    (if (daemonp)
+        (add-hook 'server-after-make-frame-hook #'rdmacs/set-frame-fonts)
+      (rdmacs/set-frame-fonts))
+
     (setq-default line-spacing 0.12)
+    (prefer-coding-system 'utf-8)
 #+end_src
 
 ** Doom Modeline
@@ -641,13 +674,11 @@ We use projectile because it:
 - is developed faster.
 More [[https://docs.projectile.mx/projectile/projectile_vs_project.html][reasons]] to use projectile.
 
-You can also make the [[https://github.com/karthink/consult-dir][consult-dir]] package list all the directories you [[https://github.com/MiniApollo/config/blob/main/emacs/init.org#consult-dir][specified]] and search from them like in tmux-sessionizer.
 #+begin_src emacs-lisp
     (use-package projectile
       :config
       (projectile-mode)
       :custom
-      ;; (projectile-auto-discover nil) ;; Disable auto search for better startup times ;; Search with a keybind
       (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
       (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
       (projectile-project-search-path '("~/Documents/"
@@ -656,6 +687,7 @@ You can also make the [[https://github.com/karthink/consult-dir][consult-dir]] p
                                          ("~/nix" . 0)
                                          ("~/editorconfig" . 0)))) ;; . 0 means only check the directory itself
 #+end_src
+
 
 ** LSP Mode
 LSP Mode is a client for the Language Server Protocol.
@@ -1084,9 +1116,6 @@ Notes:
 
       (corfu-preview-current 'insert) ;; Auto-insert when navigating (like blink.cmp auto_insert)
       (corfu-preselect 'first)        ;; Preselect first candidate so TAB selects it immediately
-      ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-      ;; be used globally (M-/).  See also the customization variable
-      ;; `global-corfu-modes' to exclude certain modes.
       :bind
       (:map corfu-map
             ("TAB" . corfu-next)
@@ -1124,12 +1153,12 @@ Read the [[https://github.com/minad/cape#configuration][configuration section]] 
       (add-hook 'completion-at-point-functions #'cape-dict) ;; Dictionary completion
       (add-hook 'completion-at-point-functions #'cape-file) ;; Path completion
       (add-hook 'completion-at-point-functions #'cape-elisp-block) ;; Complete elisp in Org or Markdown mode
-      (add-hook 'completion-at-point-functions #'cape-keyword) ;; Keyword completion
+      (add-hook 'completion-at-point-functions #'cape-elisp-symbol) ;; Complete Elisp symbol
+     (add-hook 'completion-at-point-functions #'cape-keyword) ;; Keyword completion
 
       ;;(add-hook 'completion-at-point-functions #'cape-abbrev) ;; Complete abbreviation
       ;;(add-hook 'completion-at-point-functions #'cape-history) ;; Complete from Eshell, Comint or minibuffer history
       ;;(add-hook 'completion-at-point-functions #'cape-line) ;; Complete entire line from current buffer
-      ;;(add-hook 'completion-at-point-functions #'cape-elisp-symbol) ;; Complete Elisp symbol
       ;;(add-hook 'completion-at-point-functions #'cape-tex) ;; Complete Unicode char from TeX command, e.g. \hbar
       ;;(add-hook 'completion-at-point-functions #'cape-sgml) ;; Complete Unicode char from SGML entity, e.g., &alpha
       ;;(add-hook 'completion-at-point-functions #'cape-rfc1345) ;; Complete Unicode char using RFC 1345 mnemonics
@@ -1197,35 +1226,35 @@ We use an Org mode document for our Emacs configuration because it provides:
 ** Better Fonts
 #+begin_src emacs-lisp
 
-(defun rdmacs/org-font-setup ()
-  ;; Replace list hyphen with dot
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    (defun rdmacs/org-font-setup ()
+      ;; Replace list hyphen with dot
+      (font-lock-add-keywords 'org-mode
+                              '(("^ *\\([-]\\) "
+                                 (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-  ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "SFProDisplay Nerd Font" :weight 'regular :height (cdr face)))
+      ;; Set faces for heading levels
+      (dolist (face '((org-level-1 . 1.2)
+                      (org-level-2 . 1.1)
+                      (org-level-3 . 1.05)
+                      (org-level-4 . 1.0)
+                      (org-level-5 . 1.1)
+                      (org-level-6 . 1.1)
+                      (org-level-7 . 1.1)
+                      (org-level-8 . 1.1)))
+        (set-face-attribute (car face) nil :font "SFProDisplay Nerd Font" :weight 'regular :height (cdr face)))
 
-  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
-  (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
-  (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
-  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
+      ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+      (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
+      (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
+      (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+      (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
+      (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
+      (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+      (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+      (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+      (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
+      (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
+      (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
 #+end_src
 
 ** Basic Config
@@ -1384,6 +1413,18 @@ Check out their [[https://github.com/minad/consult][git repository]] for more aw
       )
 #+end_src
 
+** Consult-dir
+Consult-dir allows you to easily insert directory paths into the minibuffer prompt in Emacs.
+
+When using the minibuffer, you can switch - with completion and filtering provided by your completion setup - to any directory you’ve visited recently, or to a project, a bookmarked directory or even a remote host via tramp. The minibuffer prompt will be replaced with the directory you choose.
+#+begin_src emacs-lisp
+    (use-package consult-dir
+      :defer
+      :custom
+      (consult-dir-default-command #'consult-dir-dired)
+      (consult-dir-project-list-function #'consult-dir-projectile-dirs))
+#+end_src
+
 ** Helpful
 An alternative to the built-in Emacs help that provides much more contextual information.
 #+begin_src emacs-lisp
@@ -1449,8 +1490,13 @@ and integrates with version control to show file states.
 Dial the GC threshold back down so that garbage collection happens more frequently but in less time.
 We also increase Read Process Output Max so Emacs can read more data.
 #+begin_src emacs-lisp
-    ;; Make gc pauses faster by decreasing the threshold.
-    (setq gc-cons-threshold (* 2 1000 1000))
+        ;; Dial the GC threshold back down so that garbage collection happens more frequently but in less time.
+        ;; Make gc pauses faster by decreasing the threshold.
+        ;; About 0.02 faster
+        (add-hook 'emacs-startup-hook (lambda ()
+        								(setq gc-cons-threshold (* 1024 1024 2) ;; 2mb
+        									  gc-cons-percentage 0.2)))
+
     ;; Increase the amount of data which Emacs reads from the process
     (setq read-process-output-max (* 1024 1024)) ;; 1mb
 #+end_src
