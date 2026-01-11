@@ -2,7 +2,7 @@
 name: Update Flake Inputs
 'on':
   schedule:
-    - cron: 0 21 * * 2,4
+    - cron: 0 20 * * 2,4
   workflow_dispatch: {}
 jobs:
   update-flake-lock:
