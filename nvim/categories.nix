@@ -113,6 +113,7 @@ in
         obsidian-nvim
         go-nvim
         direnv-vim
+        golden-ratio
         ;
     };
 

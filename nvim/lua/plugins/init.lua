@@ -100,6 +100,11 @@ require("lze").load({
 		for_cat = "extra",
 		event = "DeferredUIEnter",
 	},
+	{
+		"golden-ratio",
+		for_cat = "extra",
+		event = "DeferredUIEnter",
+	},
 })
 
 if nixCats("lsp") then

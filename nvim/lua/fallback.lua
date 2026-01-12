@@ -61,4 +61,5 @@ require("nixCatsUtils.catPacker").setup({
 	{ "MysticalDevil/inlay-hints.nvim", opt = true },
 	{ "pohlrabi404/compile.nvim", opt = true },
 	{ "direnv/direnv.vim", opt = true },
+	{ "roman/golden-ratio", opt = true },
 })

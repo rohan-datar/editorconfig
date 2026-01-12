@@ -86,6 +86,7 @@ in
         highlight-indent-guides
         page-break-lines
         dashboard
+        golden-ratio
 
         # Development
         projectile
