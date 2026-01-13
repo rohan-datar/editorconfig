@@ -716,7 +716,14 @@ golden-ratio helps on this issue by resizing automatically the windows you are w
 #+begin_src emacs-lisp
     (use-package golden-ratio
       :ensure t
-      :hook (after-init . golden-ratio-mode))
+      :hook (after-init . golden-ratio-mode)
+      :custom
+      (golden-ratio-extra-commands '(evil-window-left
+    								 evil-window-right
+    								 evil-window-up
+    								 evil-window-down
+    								 evil-window-next
+    								 evil-window-prev)))
 #+end_src
 
 * Development
@@ -773,55 +780,16 @@ We register LSP clients explicitly to use PATH lookup, since Nix provides the se
       (lsp-enable-symbol-highlighting t)    ;; Highlight references
       (lsp-enable-snippet t)                ;; Enable snippet support (yasnippet)
       (lsp-modeline-diagnostics-enable t)   ;; Show diagnostics in modeline
+      (lsp-inlay-hint-enable t)             ;; Enable inlay hints
+      ;; Async/performance settings
+      (lsp-enable-file-watchers nil)        ;; Disable file watchers (big perf improvement)
+      (lsp-enable-folding nil)              ;; Disable folding if not used (use treesit-fold)
+      (lsp-enable-text-document-color nil)  ;; Disable document colors if not needed
+      (lsp-warn-no-matched-clients nil)     ;; Don't warn when no clients match
       :init
       (defun rdmacs/lsp-mode-setup-completion ()
         (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-              '(orderless)))
-      :config
-      ;; Register LSP clients with PATH lookup (Nix provides the servers)
-      ;; Use :priority 1 to override built-in lsp-mode clients that prompt for downloads
-      ;; nil - Nix
-      (lsp-register-client
-       (make-lsp-client
-        :new-connection (lsp-stdio-connection "nil")
-        :major-modes '(nix-mode nix-ts-mode)
-        :server-id 'nil-ls
-        :priority 1))
-      ;; lua-language-server - Lua
-      (lsp-register-client
-       (make-lsp-client
-        :new-connection (lsp-stdio-connection "lua-language-server")
-        :major-modes '(lua-mode lua-ts-mode)
-        :server-id 'lua-ls
-        :priority 1))
-      ;; clangd - C/C++
-      (lsp-register-client
-       (make-lsp-client
-        :new-connection (lsp-stdio-connection "clangd")
-        :major-modes '(c-mode c-ts-mode c++-mode c++-ts-mode)
-        :server-id 'clangd
-        :priority 1))
-      ;; gopls - Go
-      (lsp-register-client
-       (make-lsp-client
-        :new-connection (lsp-stdio-connection "gopls")
-        :major-modes '(go-mode go-ts-mode)
-        :server-id 'gopls
-        :priority 1))
-      ;; rust-analyzer - rust
-      (lsp-register-client
-       (make-lsp-client
-        :new-connection (lsp-stdio-connection "rust-analyzer")
-        :major-modes '(rust-mode rust-ts-mode)
-        :server-id 'rust-analyzer
-        :priority 1))
-      ;; superhtml - HTML
-      (lsp-register-client
-       (make-lsp-client
-        :new-connection (lsp-stdio-connection "superhtml")
-        :major-modes '(html-mode html-ts-mode mhtml-mode web-mode)
-        :server-id 'superhtml
-        :priority 1)))
+              '(orderless))))
 
     (use-package lsp-ui
       :after lsp-mode
@@ -1017,31 +985,71 @@ These packages are often necessary for features like syntax highlighting, code f
 *** Nix
 #+begin_src emacs-lisp
 (use-package nix-mode
-  :mode "\\.nix\\'")
+  :mode "\\.nix\\'"
+  :init
+  (with-eval-after-load 'lsp-mode
+    (lsp-register-client
+     (make-lsp-client
+      :new-connection (lsp-stdio-connection "nil")
+      :major-modes '(nix-mode nix-ts-mode)
+      :server-id 'nil-ls
+      :priority 1))))
 #+end_src
 *** Lua
 #+begin_src emacs-lisp
     (use-package lua-mode
-      :mode "\\.lua\\'") ;; Only start in a lua file
+      :mode "\\.lua\\'"
+      :init
+      (with-eval-after-load 'lsp-mode
+        (lsp-register-client
+         (make-lsp-client
+          :new-connection (lsp-stdio-connection "lua-language-server")
+          :major-modes '(lua-mode lua-ts-mode)
+          :server-id 'lua-ls
+          :priority 1
+          :initialization-options
+          '((Lua . ((hint . ((enable . t))))))))))
 #+end_src
 *** Rust
 #+begin_src emacs-lisp
     (use-package rust-mode
-      :mode "\\.rs\\'")
+      :mode "\\.rs\\'"
+      :init
+      (with-eval-after-load 'lsp-mode
+        (lsp-register-client
+         (make-lsp-client
+          :new-connection (lsp-stdio-connection "rust-analyzer")
+          :major-modes '(rust-mode rust-ts-mode)
+          :server-id 'rust-analyzer
+          :priority 1))))
 #+end_src
+
 *** Go
 #+begin_src emacs-lisp
     (use-package go-mode
-      :mode "\\.go\\'")
+      :mode "\\.go\\'"
+      :init
+      (with-eval-after-load 'lsp-mode
+        (lsp-register-client
+         (make-lsp-client
+          :new-connection (lsp-stdio-connection "gopls")
+          :major-modes '(go-mode go-ts-mode)
+          :server-id 'gopls
+          :priority 1))))
 #+end_src
-*** Dotenv
-A simple major mode to provide .env files with color highlighting
+
+*** C/C++
+C and C++ modes are built-in. Register clangd as the LSP server.
 #+begin_src emacs-lisp
-(use-package dotenv-mode
-  :defer t
-  :ensure t
-  :config)
+(with-eval-after-load 'lsp-mode
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection "clangd")
+    :major-modes '(c-mode c-ts-mode c++-mode c++-ts-mode)
+    :server-id 'clangd
+    :priority 1)))
 #+end_src
+
 *** Web Dev
  The `add-node-modules-path' package ensures that Emacs uses the local
  `node_modules/.bin' for a project rather than globally installed
@@ -1053,32 +1061,50 @@ A simple major mode to provide .env files with color highlighting
  of Node.js tools and ensures consistency across different
  environments.
 #+begin_src emacs-lisp
-(use-package web-mode
-  :ensure t
-  :mode
-  (("\\.phtml\\'" . web-mode)
-   ("\\.php\\'" . web-mode)
-   ("\\.tpl\\'" . web-mode)
-   ("\\.[agj]sp\\'" . web-mode)
-   ("\\.as[cp]x\\'" . web-mode)
-   ("\\.erb\\'" . web-mode)
-   ("\\.mustache\\'" . web-mode)
-   ("\\.djhtml\\'" . web-mode)))
+    (use-package web-mode
+      :ensure t
+      :mode
+      (("\\.phtml\\'" . web-mode)
+       ("\\.php\\'" . web-mode)
+       ("\\.tpl\\'" . web-mode)
+       ("\\.[agj]sp\\'" . web-mode)
+       ("\\.as[cp]x\\'" . web-mode)
+       ("\\.erb\\'" . web-mode)
+       ("\\.mustache\\'" . web-mode)
+       ("\\.djhtml\\'" . web-mode))
+      :init
+      (with-eval-after-load 'lsp-mode
+        (lsp-register-client
+         (make-lsp-client
+          :new-connection (lsp-stdio-connection "superhtml")
+          :major-modes '(html-mode html-ts-mode mhtml-mode web-mode)
+          :server-id 'superhtml
+          :priority 1))))
 
-(use-package add-node-modules-path
-  :ensure t
-  :custom
-  ;; makes sure you are using the local bin for your
-  ;; node project. local eslint, typescript server...
-  (eval-after-load 'typescript-ts-mode
-	'(add-hook 'typescript-ts-mode-hook #'add-node-modules-path))
-  (eval-after-load 'tsx-ts-mode
-	'(add-hook 'tsx-ts-mode-hook #'add-node-modules-path))
-  (eval-after-load 'typescriptreact-mode
-	'(add-hook 'typescriptreact-mode-hook #'add-node-modules-path))
-  (eval-after-load 'js-mode
-	'(add-hook 'js-mode-hook #'add-node-modules-path)))
+    (use-package add-node-modules-path
+      :ensure t
+      :custom
+      ;; makes sure you are using the local bin for your
+      ;; node project. local eslint, typescript server...
+      (eval-after-load 'typescript-ts-mode
+    	'(add-hook 'typescript-ts-mode-hook #'add-node-modules-path))
+      (eval-after-load 'tsx-ts-mode
+    	'(add-hook 'tsx-ts-mode-hook #'add-node-modules-path))
+      (eval-after-load 'typescriptreact-mode
+    	'(add-hook 'typescriptreact-mode-hook #'add-node-modules-path))
+      (eval-after-load 'js-mode
+    	'(add-hook 'js-mode-hook #'add-node-modules-path)))
 #+end_src
+
+*** Dotenv
+A simple major mode to provide .env files with color highlighting
+#+begin_src emacs-lisp
+(use-package dotenv-mode
+  :defer t
+  :ensure t
+  :config)
+#+end_src
+
 ** Terminal
 *** Eat
 Eat(Emulate A Terminal) is a terminal emulator within Emacs.
