@@ -13,6 +13,7 @@
   - [[#package-manager][Package manager]]
   - [[#defaults][Defaults]]
   - [[#dired][Dired]]
+  - [[#isearch][ISearch]]
 - [[#keymaps][Keymaps]]
   - [[#evil-mode][Evil Mode]]
   - [[#general-keybindings][General Keybindings]]
@@ -284,10 +285,8 @@ If you plan to use a different package manager, remember to remove this section 
                  ("C-+" . text-scale-increase)
                  ("C--" . text-scale-decrease)
                  ("<C-wheel-up>" . text-scale-increase)
-                 ("<C-wheel-down>" . text-scale-decrease))
-    )
+                 ("<C-wheel-down>" . text-scale-decrease)))
 #+end_src
-
 
 ** Dired
 #+begin_src emacs-lisp
@@ -304,6 +303,22 @@ If you plan to use a different package manager, remember to remove this section 
   (when (eq system-type 'darwin)
     (setq insert-directory-program "/run/current-system/sw/bin/ls")))
 #+end_src
+
+** ISearch
+Improve emacs ISearch
+#+begin_src emacs-lisp
+    (use-package isearch
+      :ensure nil                                  ;; This is built-in, no need to fetch it.
+      :config
+      (setq isearch-lazy-count t)                  ;; Enable lazy counting to show current match information.
+      (setq lazy-count-prefix-format "(%s/%s) ")   ;; Format for displaying current match count.
+      (setq lazy-count-suffix-format nil)          ;; Disable suffix formatting for match count.
+      (setq search-whitespace-regexp ".*?")        ;; Allow searching across whitespace.
+      :bind (("C-s" . isearch-forward)             ;; Bind C-s to forward isearch.
+             ("C-r" . isearch-backward)))          ;; Bind C-r to backward isearch.
+
+#+end_src
+
 * Keymaps
 Packages that we want to load first so we have them as soon as possible if something breaks.
 ** Evil Mode
@@ -311,7 +326,6 @@ Notes:
 - You can toggle evil mode with C-z.
 - To paste without yank select the text and use P.
 
-*To use it, remove :tangle no from the beginning of the source code block.*
 #+begin_src emacs-lisp
     (use-package evil
         :init
@@ -413,6 +427,7 @@ Note: The Leader key is what you will press when you want to access your keybind
         "q" '(flymake-show-buffer-diagnostics :wk "Flymake buffer diagnostic")
         "t t" '(vterm :wk "vterm terminal")
         "p" '(projectile-command-map :wk "Projectile")
+    	"l" '(:keymap lsp-command-map :package lsp-mode :wk "LSP")
     	"u" '(vundo :wk "Vundo"))
 
 
@@ -444,17 +459,11 @@ Note: The Leader key is what you will press when you want to access your keybind
       "b r" '(revert-buffer :wk "Reload buffer"))
 
       (rdmacs/leader-keys
-        "e" '(:ignore t :wk "Languages/LSP")
-        "e e" '(lsp-restart-workspace :wk "LSP Restart")
+        "e" '(:ignore t :wk "Languages")
         "e d" '(eldoc-doc-buffer :wk "Eldoc Buffer")
-        "e f" '(lsp-format-buffer :wk "LSP Format")
         "e l" '(consult-flymake :wk "Consult Flymake")
-        "e r" '(lsp-rename :wk "LSP Rename")
-        "e i" '(lsp-find-definition :wk "Find definition")
-        "e R" '(lsp-find-references :wk "Find references")
-        "e a" '(lsp-execute-code-action :wk "Code action")
-        "e h" '(lsp-ui-doc-glance :wk "Hover doc")
         "e v" '(:ignore t :wk "Elisp")
+    	"e v s" '(eval-last-sexp :wk "Evaluate sexp")
         "e v b" '(eval-buffer :wk "Evaluate elisp in buffer")
         "e v r" '(eval-region :wk "Evaluate elisp in region"))
 
@@ -748,15 +757,15 @@ We register LSP clients explicitly to use PATH lookup, since Nix provides the se
 #+begin_src emacs-lisp
     (use-package lsp-mode
       :commands (lsp lsp-deferred)
-      :hook (((c-mode c++-mode
-               lua-mode
+      :hook (((c-mode c-ts-mode c++-mode c++-ts-mode
+               lua-mode lua-ts-mode
                nix-mode nix-ts-mode
                go-mode go-ts-mode
-               html-mode mhtml-mode web-mode)
+               rust-mode rust-ts-mode
+               html-mode html-ts-mode mhtml-mode web-mode)
               . lsp-deferred)
              (lsp-completion-mode . rdmacs/lsp-mode-setup-completion))
       :custom
-      (lsp-keymap-prefix "C-c l")           ;; Set prefix for lsp-command-keymap
       (lsp-idle-delay 0.500)                ;; Debounce timer for server communication
       (lsp-log-io nil)                      ;; Disable logging for better performance
       (lsp-completion-provider :none)       ;; Use corfu instead of lsp's completion
@@ -770,42 +779,49 @@ We register LSP clients explicitly to use PATH lookup, since Nix provides the se
               '(orderless)))
       :config
       ;; Register LSP clients with PATH lookup (Nix provides the servers)
+      ;; Use :priority 1 to override built-in lsp-mode clients that prompt for downloads
       ;; nil - Nix
       (lsp-register-client
        (make-lsp-client
         :new-connection (lsp-stdio-connection "nil")
         :major-modes '(nix-mode nix-ts-mode)
-        :server-id 'nil-ls))
+        :server-id 'nil-ls
+        :priority 1))
       ;; lua-language-server - Lua
       (lsp-register-client
        (make-lsp-client
         :new-connection (lsp-stdio-connection "lua-language-server")
-        :major-modes '(lua-mode)
-        :server-id 'lua-ls))
+        :major-modes '(lua-mode lua-ts-mode)
+        :server-id 'lua-ls
+        :priority 1))
       ;; clangd - C/C++
       (lsp-register-client
        (make-lsp-client
         :new-connection (lsp-stdio-connection "clangd")
-        :major-modes '(c-mode c++-mode)
-        :server-id 'clangd))
+        :major-modes '(c-mode c-ts-mode c++-mode c++-ts-mode)
+        :server-id 'clangd
+        :priority 1))
       ;; gopls - Go
       (lsp-register-client
        (make-lsp-client
         :new-connection (lsp-stdio-connection "gopls")
         :major-modes '(go-mode go-ts-mode)
-        :server-id 'gopls))
+        :server-id 'gopls
+        :priority 1))
       ;; rust-analyzer - rust
       (lsp-register-client
        (make-lsp-client
         :new-connection (lsp-stdio-connection "rust-analyzer")
         :major-modes '(rust-mode rust-ts-mode)
-        :server-id 'rust-analyzer))
+        :server-id 'rust-analyzer
+        :priority 1))
       ;; superhtml - HTML
       (lsp-register-client
        (make-lsp-client
         :new-connection (lsp-stdio-connection "superhtml")
-        :major-modes '(html-mode mhtml-mode web-mode)
-        :server-id 'superhtml)))
+        :major-modes '(html-mode html-ts-mode mhtml-mode web-mode)
+        :server-id 'superhtml
+        :priority 1)))
 
     (use-package lsp-ui
       :after lsp-mode
