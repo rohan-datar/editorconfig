@@ -39,7 +39,7 @@ in
       stylua
       rustfmt
       prettier
-      swiftformat
+      # swiftformat
       nixfmt
       shfmt
 
