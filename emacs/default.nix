@@ -95,6 +95,7 @@
 
           ${pkgs.lib.optionalString (!isDarwin) ''
             # Copy .desktop files and icons from base emacs for Linux launchers
+            mkdir -p $out/share
             cp -r ${rdmacs-unwrapped}/share/applications $out/share/
             cp -r ${rdmacs-unwrapped}/share/icons $out/share/
           ''}
