@@ -103,6 +103,7 @@ in
         format-all
         treesit-fold
         treesit-auto
+        fancy-compilation
 
         # LSP
         lsp-mode

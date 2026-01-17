@@ -44,6 +44,7 @@
   - [[#eldoc-box][Eldoc-Box]]
   - [[#language-modes][Language modes]]
   - [[#terminal][Terminal]]
+  - [[#compilation-mode][Compilation Mode]]
 - [[#version-control][Version Control]]
   - [[#magit][Magit]]
   - [[#diff-hl][Diff-hl]]
@@ -322,6 +323,7 @@ Improve emacs ISearch
              ("C-r" . isearch-backward)))          ;; Bind C-r to backward isearch.
 
 #+end_src
+
 
 * Keymaps
 Packages that we want to load first so we have them as soon as possible if something breaks.
@@ -1097,6 +1099,25 @@ vterm is an improved terminal emulator package which uses a compiled native modu
 
 #+end_src
 
+** Compilation Mode
+Configure and enhance Emacs' compilation mode
+#+begin_src emacs-lisp
+    (use-package compile
+      :ensure nil
+      :defer
+      :custom
+      (compilation-scroll-output t)
+      (compilation-max-output-line-length nil))
+
+    (use-package fancy-compilation
+      :ensure t
+      :after compile
+      :config
+      (fancy-compilation-mode)
+      :custom
+      (fancy-compilation-override-colors nil)
+      (fancy-compilation-scroll-output t))
+#+end_src
 * Version Control
 ** Magit
 Complete text-based user interface to Git.
