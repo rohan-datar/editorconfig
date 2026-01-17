@@ -55,6 +55,7 @@
   - [[#orderless][Orderless]]
   - [[#vertico-and-marginalia][Vertico and Marginalia]]
 - [[#ai][AI]]
+  - [[#agent-shell][Agent Shell]]
   - [[#copilot-chat][Copilot Chat]]
   - [[#claude-code][Claude Code]]
 - [[#org-mode][Org Mode]]
@@ -1268,6 +1269,11 @@ One alternative is ivy and counsel, check out the [[https://github.com/MiniApoll
 #+end_src
 
 * AI
+** Agent Shell
+A more emacs-native way of interacting with AI CLIs
+#+begin_src emacs-lisp
+(use-package agent-shell)
+#+end_src
 ** Copilot Chat
 #+begin_src emacs-lisp
 (use-package copilot-chat)
