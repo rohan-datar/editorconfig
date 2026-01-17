@@ -998,9 +998,15 @@ These packages are often necessary for features like syntax highlighting, code f
       :mode "\\.lua\\'"
       :init
       (with-eval-after-load 'lsp-mode
+        ;; lsp-mode's lua client tests for both binary AND main.lua file,
+        ;; but Nix-provided lua-language-server is self-contained.
+        ;; Override the test to just check if the binary exists.
+        (advice-add 'lsp-clients-lua-language-server-test
+                    :override (lambda () (executable-find "lua-language-server")))
+        ;; Set the binary path for the actual command
         (setq lsp-clients-lua-language-server-bin (executable-find "lua-language-server"))
-        (setq lsp-clients-lua-language-server-main-location nil)
-        (setq lsp-clients-lua-language-server-args nil))
+        (setq lsp-clients-lua-language-server-main-location "")
+        (setq lsp-clients-lua-language-server-args '()))
       :custom
       (lsp-lua-hint-enable t))
 #+end_src
