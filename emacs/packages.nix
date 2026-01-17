@@ -31,7 +31,7 @@ in
       clang-tools # clangd
       nil # Nix LSP
       lua-language-server
-      superhtml
+      vscode-langservers-extracted
       gopls
       rust-analyzer
 

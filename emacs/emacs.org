@@ -151,6 +151,9 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
       ;; Bookmarks
       (setq bookmark-default-file (expand-file-name "bookmarks" cache-dir))
       (setq undo-fu-session-directory (expand-file-name "undo-fu-session/" cache-dir)))
+
+    ;; Sync exec-path with PATH so Emacs finds Nix-provided binaries (LSPs, formatters, etc.)
+    (setq exec-path (append (split-string (getenv "PATH") path-separator) exec-path))
 #+end_src
 
 ** Auto-tangle Configuration file
@@ -985,15 +988,7 @@ These packages are often necessary for features like syntax highlighting, code f
 *** Nix
 #+begin_src emacs-lisp
 (use-package nix-mode
-  :mode "\\.nix\\'"
-  :init
-  (with-eval-after-load 'lsp-mode
-    (lsp-register-client
-     (make-lsp-client
-      :new-connection (lsp-stdio-connection "nil")
-      :major-modes '(nix-mode nix-ts-mode)
-      :server-id 'nil-ls
-      :priority 1))))
+  :mode "\\.nix\\'")
 #+end_src
 *** Lua
 #+begin_src emacs-lisp
@@ -1001,54 +996,26 @@ These packages are often necessary for features like syntax highlighting, code f
       :mode "\\.lua\\'"
       :init
       (with-eval-after-load 'lsp-mode
-        (lsp-register-client
-         (make-lsp-client
-          :new-connection (lsp-stdio-connection "lua-language-server")
-          :major-modes '(lua-mode lua-ts-mode)
-          :server-id 'lua-ls
-          :priority 1
-          :initialization-options
-          '((Lua . ((hint . ((enable . t))))))))))
+        (setq lsp-clients-lua-language-server-bin (executable-find "lua-language-server"))
+        (setq lsp-clients-lua-language-server-main-location nil)
+        (setq lsp-clients-lua-language-server-args nil))
+      :custom
+      (lsp-lua-hint-enable t))
 #+end_src
 *** Rust
 #+begin_src emacs-lisp
     (use-package rust-mode
-      :mode "\\.rs\\'"
-      :init
-      (with-eval-after-load 'lsp-mode
-        (lsp-register-client
-         (make-lsp-client
-          :new-connection (lsp-stdio-connection "rust-analyzer")
-          :major-modes '(rust-mode rust-ts-mode)
-          :server-id 'rust-analyzer
-          :priority 1))))
+      :mode "\\.rs\\'")
 #+end_src
 
 *** Go
 #+begin_src emacs-lisp
     (use-package go-mode
-      :mode "\\.go\\'"
-      :init
-      (with-eval-after-load 'lsp-mode
-        (lsp-register-client
-         (make-lsp-client
-          :new-connection (lsp-stdio-connection "gopls")
-          :major-modes '(go-mode go-ts-mode)
-          :server-id 'gopls
-          :priority 1))))
+      :mode "\\.go\\'")
 #+end_src
 
 *** C/C++
-C and C++ modes are built-in. Register clangd as the LSP server.
-#+begin_src emacs-lisp
-(with-eval-after-load 'lsp-mode
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-stdio-connection "clangd")
-    :major-modes '(c-mode c-ts-mode c++-mode c++-ts-mode)
-    :server-id 'clangd
-    :priority 1)))
-#+end_src
+C and C++ modes are built-in. lsp-mode's built-in clangd client is used automatically.
 
 *** Web Dev
  The `add-node-modules-path' package ensures that Emacs uses the local
@@ -1071,15 +1038,7 @@ C and C++ modes are built-in. Register clangd as the LSP server.
        ("\\.as[cp]x\\'" . web-mode)
        ("\\.erb\\'" . web-mode)
        ("\\.mustache\\'" . web-mode)
-       ("\\.djhtml\\'" . web-mode))
-      :init
-      (with-eval-after-load 'lsp-mode
-        (lsp-register-client
-         (make-lsp-client
-          :new-connection (lsp-stdio-connection "superhtml")
-          :major-modes '(html-mode html-ts-mode mhtml-mode web-mode)
-          :server-id 'superhtml
-          :priority 1))))
+       ("\\.djhtml\\'" . web-mode)))
 
     (use-package add-node-modules-path
       :ensure t
