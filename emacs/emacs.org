@@ -784,11 +784,13 @@ We register LSP clients explicitly to use PATH lookup, since Nix provides the se
       (lsp-enable-snippet t)                ;; Enable snippet support (yasnippet)
       (lsp-modeline-diagnostics-enable t)   ;; Show diagnostics in modeline
       (lsp-inlay-hint-enable t)             ;; Enable inlay hints
+      (lsp-inlay-hints-mode 1)
       ;; Async/performance settings
       (lsp-enable-file-watchers nil)        ;; Disable file watchers (big perf improvement)
       (lsp-enable-folding nil)              ;; Disable folding if not used (use treesit-fold)
       (lsp-enable-text-document-color nil)  ;; Disable document colors if not needed
       (lsp-warn-no-matched-clients nil)     ;; Don't warn when no clients match
+
       :init
       (defun rdmacs/lsp-mode-setup-completion ()
         (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
