@@ -92,6 +92,12 @@
             makeWrapper ${rdmacs-unwrapped}/bin/emacsclient $out/Applications/Emacsclient.app/Contents/MacOS/Emacsclient \
               --add-flags "-c"
           ''}
+
+          ${pkgs.lib.optionalString (!isDarwin) ''
+            # Copy .desktop files and icons from base emacs for Linux launchers
+            cp -r ${rdmacs-unwrapped}/share/applications $out/share/
+            cp -r ${rdmacs-unwrapped}/share/icons $out/share/
+          ''}
         '';
         installPhase = "true";
       };
