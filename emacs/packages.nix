@@ -57,6 +57,9 @@ in
       lldb
 
       claude-code
+      claude-code-acp
+      codex
+      codex-acp
       ;
   };
 
@@ -143,6 +146,7 @@ in
         visual-fill-column
 
         #AI
+        agent-shell
         copilot-chat
         claude-code
 
