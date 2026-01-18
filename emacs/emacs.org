@@ -35,7 +35,7 @@
   - [[#dap-mode][Dap Mode]]
   - [[#format-all][Format-All]]
   - [[#flymake][Flymake]]
-  - [[#sideline-flymake][Sideline-flymake]]
+  - [[#flyover][Flyover]]
   - [[#flymake-collection][Flymake-collection]]
   - [[#yasnippet][Yasnippet]]
   - [[#tree-sitter][Tree-Sitter]]
@@ -879,14 +879,15 @@ Flymake mode in programming buffers.
      (note "»" compilation-info))))
 #+end_src
 
-** Sideline-flymake
-Show flymake errors with sideline.
+** Flyover
+Show flymake errors in a nice virtual text interface
 #+begin_src emacs-lisp
-    (use-package sideline-flymake
-      :hook (flymake-mode . sideline-mode)
+    (use-package flyover
+      :hook (flymake-mode . flyover-mode)
       :custom
-      (sideline-flymake-display-mode 'line) ;; Show errors on the current line
-      (sideline-backends-right '(sideline-flymake)))
+      (flyover-checkers '(flymake))
+      (flyover-levels '(error warning info))
+      (flyover-use-theme-colors t))
 #+end_src
 
 ** Flymake-collection

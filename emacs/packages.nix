@@ -83,8 +83,9 @@ in
         projectile
         consult-dir
         sideline
-        sideline-flymake
+        flyover
         flymake-collection
+
         yasnippet
         yasnippet-snippets
         eldoc-box

@@ -45,7 +45,6 @@
       url = "github:lewang/ws-butler";
       flake = false;
     };
-
   };
 
   outputs =
