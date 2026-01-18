@@ -108,6 +108,9 @@ Also set the maximum output size for reading process output, allowing for larger
               	  (lambda ()
               		(setq file-name-handler-alist last-file-name-handler-alist)))
 
+    ;; Fix seq library compatibility issue in Emacs 30.2
+    ;; Must be loaded early to prevent cl-no-applicable-method errors
+    (require 'seq)
 
     ;; Fix white flash on startup
     ;; Don't do it when using daemon or terminal, because it messes up the background color.
@@ -888,6 +891,7 @@ Show flymake errors in a nice virtual text interface
       (flyover-checkers '(flymake))
       (flyover-levels '(error warning info))
       (flyover-use-theme-colors t)
+      (flyover-border-style 'pill)
       (flyover-wrap-messages t)
       (flyover-line-position-offset 0)
       (flyover-hide-during-completion t))
@@ -1081,6 +1085,73 @@ A simple major mode to provide .env files with color highlighting
   :defer t
   :ensure t
   :config)
+#+end_src
+
+*** Swift (Darwin only)
+Swift development setup for iOS/tvOS development.
+Uses the system Swift toolchain for LSP and build tools since nixpkgs Swift (5.10) is outdated compared to current (6.2).
+This configuration only loads on Darwin (macOS) systems.
+
+*Installation Notes:*
+- =swift-mode= and =swift-ts-mode= are provided by Nix (syntax highlighting, basic support)
+- =swift-development= is installed via the custom overlay from GitHub
+  - Provides Xcode-like IDE features: simulator support, device management, project creation
+  - Repository: https://github.com/konrad1977/swift-development
+- All Swift tooling (sourcekit-lsp, swift, xcodebuild) uses system installations (via Xcode)
+
+*System Requirements:*
+- Xcode (full installation required, not just Command Line Tools)
+- =xcode-select --install= for command-line tools
+- =brew install xcode-build-server= for LSP integration
+
+#+begin_src emacs-lisp
+(when (eq system-type 'darwin)
+  ;; Swift mode for syntax highlighting
+  (use-package swift-mode
+    :mode "\\.swift\\'"
+    :hook (swift-mode . (lambda ()
+                          ;; Use system Swift tools (newer than nixpkgs)
+                          ;; LSP will be handled by lsp-mode using system sourcekit-lsp
+                          (setq-local lsp-sourcekit-executable
+                                      (or (executable-find "sourcekit-lsp")
+                                          "/usr/bin/sourcekit-lsp"))))
+    :custom
+    (swift-mode:basic-offset 4))
+
+  ;; swift-development: Xcode-like IDE features for Swift development
+  ;; https://github.com/konrad1977/swift-development
+  ;; Installed via custom overlay from flake input
+  (use-package swift-development
+    :demand nil  ;; Don't load immediately, only when needed
+    :after swift-mode
+    :custom
+    ;; Use system Swift tools for iOS/tvOS development
+    (swift-development:use-sourcekit-lsp t)
+    (swift-development:simulator-app-path "/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app")
+    :config
+    ;; Ensure we use system tools, not nix-provided ones
+    (when (executable-find "swift")
+      (setq swift-development:swift-executable (executable-find "swift")))
+    (when (executable-find "xcodebuild")
+      (setq swift-development:xcodebuild-executable (executable-find "xcodebuild")))
+    (when (executable-find "xcrun")
+      (setq swift-development:xcrun-executable (executable-find "xcrun")))
+    (when (executable-find "sourcekit-lsp")
+      (setq swift-development:sourcekit-lsp-executable (executable-find "sourcekit-lsp"))))
+
+  ;; Format-All integration for Swift (Darwin only)
+  (with-eval-after-load 'format-all
+    ;; Use system swiftformat if available, otherwise fall back to nix-provided one
+    (setq format-all-formatters
+          (cons '("Swift" (swiftformat))
+                (assq-delete-all 'Swift format-all-formatters))))
+
+  ;; LSP configuration for Swift
+  (with-eval-after-load 'lsp-mode
+    ;; Register sourcekit-lsp for Swift files
+    (when (require 'lsp-sourcekit nil 'noerror)
+      (setq lsp-sourcekit-executable (or (executable-find "sourcekit-lsp")
+                                         "/usr/bin/sourcekit-lsp")))))
 #+end_src
 
 ** Terminal

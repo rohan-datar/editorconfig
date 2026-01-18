@@ -21,6 +21,22 @@
         "type": "github"
       }
     },
+    "emacs-swift-development": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1768156532,
+        "narHash": "sha256-PmDiFHC36TMfBMlIwBHYU2q+JlikZ03o/15uMkkHVqk=",
+        "owner": "konrad1977",
+        "repo": "swift-development",
+        "rev": "8e7a9db59816ed3e9f9e75cfca651c8d05fe8da5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "konrad1977",
+        "repo": "swift-development",
+        "type": "github"
+      }
+    },
     "emacs-ws-butler": {
       "flake": false,
       "locked": {
@@ -171,6 +187,7 @@
     "root": {
       "inputs": {
         "emacs-overlay": "emacs-overlay",
+        "emacs-swift-development": "emacs-swift-development",
         "emacs-ws-butler": "emacs-ws-butler",
         "flake-parts": "flake-parts",
         "nixCats": "nixCats",
