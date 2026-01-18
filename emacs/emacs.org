@@ -152,7 +152,9 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
       (setq eshell-directory-name (expand-file-name "eshell/" cache-dir))
       ;; Bookmarks
       (setq bookmark-default-file (expand-file-name "bookmarks" cache-dir))
-      (setq undo-fu-session-directory (expand-file-name "undo-fu-session/" cache-dir)))
+      (setq undo-fu-session-directory (expand-file-name "undo-fu-session/" cache-dir))
+      ;; Shell-maker (used by agent-shell, chatgpt-shell, etc.)
+      (setq shell-maker-root-path (expand-file-name "shell-maker/" cache-dir)))
 
     ;; Sync exec-path with PATH so Emacs finds Nix-provided binaries (LSPs, formatters, etc.)
     (setq exec-path (append (split-string (getenv "PATH") path-separator) exec-path))
