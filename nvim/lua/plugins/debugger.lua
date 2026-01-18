@@ -1,24 +1,28 @@
 return {
 	{
 		"nvim-dap-go",
-		for_cat = "debugger",
+		for_cat = "debuggers",
 		dep_of = "nvim-dap",
 		after = function()
 			require("dap-go").setup()
 		end,
 	},
 	{
-		"nvim-dap-view",
-		for_cat = "debugger",
-		dep_of = "nvim-dap",
-		after = function()
-			require("dap-view").setup()
+		"debugmaster.nvim",
+		for_cat = "debuggers",
+		load = function()
+			vim.cmd.packadd("nvim-dap")
+			vim.cmd.packadd("debugmaster.nvim")
 		end,
-	},
-	{
-		"nvim-dap",
-		for_cat = "debugger",
 		after = function()
+			local dm = require("debugmaster")
+			vim.keymap.set(
+				{ "n", "v" },
+				"<leader>;",
+				dm.mode.toggle,
+				{ nowait = true, desc = "Debugmaster: Toggle UI" }
+			)
+
 			local dap = require("dap")
 			dap.adapters.gdb = {
 				type = "executable",
@@ -52,20 +56,5 @@ return {
 				},
 			}
 		end,
-		keys = {
-			{ "<leader>dt", "<cmd>DapViewToggle<cr>", mode = { "n" } },
-			{ "<leader>dc", "<cmd>DapContinue<cr>", mode = { "n" } },
-			{ "<leader>db", "<cmd>DapToggleBreakpoint<cr>", mode = { "n" } },
-			{ "<leader>dw", "<cmd>DapViewWatch<cr>", mode = { "n" } },
-			{ "<leader>dp", "<cmd>DapPause<cr>", mode = { "n" } },
-			{ "<leader>ds", "<cmd>DapStop<cr>", mode = { "n" } },
-			{ "<leader>de", "<cmd>DapEvaluate<cr>", mode = { "n" } },
-			{ "<leader>di", "<cmd>DapStepInto<cr>", mode = { "n" } },
-			{ "<leader>do", "<cmd>DapStepOver<cr>", mode = { "n" } },
-			{ "<leader>du", "<cmd>DapStepOut<cr>", mode = { "n" } },
-			{ "<leader>dbk", "<cmd>DapStepBack<cr>", mode = { "n" } },
-			{ "<leader>dr", "<cmd>DapRestart<cr>", mode = { "n" } },
-			{ "<leader>drc", "<cmd>DapRunToCursor<cr>", mode = { "n" } },
-		},
 	},
 }

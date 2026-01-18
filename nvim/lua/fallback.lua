@@ -43,7 +43,7 @@ require("nixCatsUtils.catPacker").setup({
 	{ "obsidian-nvim/obsidian.nvim", opt = true },
 	{ "rafamadriz/friendly-snippets", opt = true },
 	{ "mfussenegger/nvim-dap", opt = true },
-	{ "igorlfs/nvim-dap-view", opt = true },
+	{ "MironPascalCaseFan/debugmaster.nvim", opt = true },
 	{ "leoluz/nvim-dap-go", opt = true },
 	{
 		"L3MON4D3/LuaSnip",

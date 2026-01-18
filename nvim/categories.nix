@@ -120,7 +120,7 @@ in
     debuggers = values {
       inherit (vp)
         nvim-dap
-        nvim-dap-view
+        debugmaster-nvim
         nvim-dap-go
         ;
     };
