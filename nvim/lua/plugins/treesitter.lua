@@ -65,7 +65,6 @@ return {
 		for_cat = "treesitter",
 		lazy = false,
 		after = function()
-
 			-- Setup textobjects
 			require("nvim-treesitter-textobjects").setup({
 				select = {

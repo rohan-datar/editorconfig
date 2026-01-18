@@ -17,6 +17,8 @@
         overlays = [
           inputs.emacs-overlay.overlays.default
           inputs.org-babel.overlays.default
+          # Custom overlay to convert emacs-* inputs to packages
+          (import "${inputs.self}/emacs/overlay.nix" inputs)
         ];
       };
     };
