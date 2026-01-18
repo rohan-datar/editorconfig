@@ -887,7 +887,10 @@ Show flymake errors in a nice virtual text interface
       :custom
       (flyover-checkers '(flymake))
       (flyover-levels '(error warning info))
-      (flyover-use-theme-colors t))
+      (flyover-use-theme-colors t)
+      (flyover-wrap-messages t)
+      (flyover-line-position-offset 0)
+      (flyover-hide-during-completion t))
 #+end_src
 
 ** Flymake-collection
