@@ -22,15 +22,16 @@ return {
 			}
 		end
 
-		local copilot = {}
+		local providers = {}
 		if nixCats("ai") then
-			copilot = {
+			providers.copilot = {
 				name = "copilot",
 				module = "blink-copilot",
 				score_offset = 100,
 				async = true,
 			}
 		end
+
 		require("blink.cmp").setup({
 			-- 'default' for mappings similar to built-in completion
 			-- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
@@ -78,17 +79,10 @@ return {
 			-- default list of enabled providers defined so that you can extend it
 			-- elsewhere in your config, without redefining it, via `opts_extend`
 			sources = {
-				default = { "lsp", "path", "snippets", "buffer", "copilot" },
+				default = { "lsp", "path", "snippets", "buffer" },
 				-- optionally disable cmdline completions
 				-- cmdline = {},
-				providers = {
-					copilot = {
-						name = "copilot",
-						module = "blink-copilot",
-						score_offset = 100,
-						async = true,
-					},
-				},
+				providers = providers,
 			},
 
 			-- experimental signature help support
