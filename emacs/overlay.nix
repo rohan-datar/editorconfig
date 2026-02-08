@@ -13,6 +13,11 @@ let
     #   dashboard
     #   nerd-icons
     # ];
+
+    agent-shell = with epkgs; [
+      shell-maker
+      acp
+    ];
     swift-development = with epkgs; [
       # Built-in packages are automatically available, only need MELPA packages
       nerd-icons
