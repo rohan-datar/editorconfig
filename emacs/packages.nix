@@ -150,7 +150,7 @@ in
           visual-fill-column
 
           #AI
-          agent-shell
+          # agent-shell
           copilot-chat
           claude-code
 
@@ -168,7 +168,7 @@ in
           ;
 
         # Custom packages from overlay
-        inherit (ecpkgs) ws-butler;
+        inherit (ecpkgs) agent-shell ws-butler;
 
         # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
         # Exclude broken grammars (tree-sitter-razor)
