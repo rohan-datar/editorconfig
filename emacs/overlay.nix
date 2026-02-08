@@ -50,8 +50,8 @@ let
           if shouldSkipCompile then
             {
               buildPhase = ''
-                  runHook preBuild
-                runHook postBuild
+                				runHook preBuild
+                				runHook postBuild
               '';
             }
           else

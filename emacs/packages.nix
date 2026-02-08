@@ -48,8 +48,6 @@ in
 
         claude-code
         claude-code-acp
-        codex
-        codex-acp
         ;
     }
     // pkgs.lib.optionalAttrs isDarwin {
