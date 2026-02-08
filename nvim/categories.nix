@@ -166,7 +166,7 @@ in
         lua-language-server
         zls
         jdt-language-server
-        superhtml
+        # superhtml
         markdown-oxide
         clang-tools
         ;

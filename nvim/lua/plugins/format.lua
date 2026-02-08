@@ -29,7 +29,7 @@ return {
 				json = { "jq" },
 				swift = { "swiftformat" },
 				nix = { "nixfmt" },
-				html = { "superhtml" },
+				-- html = { "superhtml" },
 				["*"] = { "trim_newlines", "trim_whitespace" },
 			},
 		})
