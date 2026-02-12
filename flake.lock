@@ -3,11 +3,11 @@
     "emacs-agent-shell": {
       "flake": false,
       "locked": {
-        "lastModified": 1770748170,
-        "narHash": "sha256-VbHP74lt7cIbnFaJ5hZ64NaIqR+ZMEyfCRkZE383gb8=",
+        "lastModified": 1770902916,
+        "narHash": "sha256-pjAID4Sllf6LinLbTBjcFko9wjKw7TNxtCJ3Qbm2lg8=",
         "owner": "xenodium",
         "repo": "agent-shell",
-        "rev": "2e586f7039610425a709706a4c857a88cb328b96",
+        "rev": "9399bf2340bf0a4671ac34a4a11e94f4efe0bc66",
         "type": "github"
       },
       "original": {
@@ -106,11 +106,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1770537093,
-        "narHash": "sha256-pF1quXG5wsgtyuPOHcLfYg/ft/QMr8NnX0i6tW2187s=",
+        "lastModified": 1770843696,
+        "narHash": "sha256-LovWTGDwXhkfCOmbgLVA10bvsi/P8eDDpRudgk68HA8=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "fef9403a3e4d31b0a23f0bacebbec52c248fbb51",
+        "rev": "2343bbb58f99267223bc2aac4fc9ea301a155a16",
         "type": "github"
       },
       "original": {
