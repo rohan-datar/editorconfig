@@ -164,9 +164,9 @@ in
         rust-analyzer
         gopls
         lua-language-server
-        zls
+        # zls
         jdt-language-server
-        superhtml
+        # superhtml
         markdown-oxide
         clang-tools
         ;

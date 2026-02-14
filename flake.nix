@@ -45,6 +45,10 @@
       url = "github:lewang/ws-butler";
       flake = false;
     };
+    "emacs-agent-shell" = {
+      url = "github:xenodium/agent-shell";
+      flake = false;
+    };
     "emacs-swift-development" = {
       url = "github:konrad1977/swift-development";
       flake = false;
