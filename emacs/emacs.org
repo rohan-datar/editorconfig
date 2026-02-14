@@ -822,7 +822,7 @@ We register LSP clients explicitly to use PATH lookup, since Nix provides the se
 
 ** Dap Mode
 DAP (Debug Adapter Protocol) mode provides debugging support for Emacs.
-This mirrors the nvim-dap setup with support for Go and C/C++ via GDB.
+This mirrors the nvim-dap setup with support for Go and C/C++ via LLDB.
 
 #+begin_src emacs-lisp
     (use-package dap-mode
@@ -847,7 +847,6 @@ This mirrors the nvim-dap setup with support for Go and C/C++ via GDB.
 
       ;; Go debugging via delve
       (require 'dap-dlv-go)
-      (require 'dap-gdb)
       (require 'dap-lldb))
 #+end_src
 

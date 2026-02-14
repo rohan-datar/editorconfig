@@ -42,8 +42,6 @@ in
 
         # Debuggers (for dap-mode)
         delve # Go debugger (dlv)
-        gdb
-        # GDB for C/C++
         lldb
 
         claude-code
