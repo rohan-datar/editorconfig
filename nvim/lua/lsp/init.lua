@@ -203,11 +203,11 @@ require("lze").load({
 		for_cat = "lsp",
 		lsp = {},
 	},
-	-- {
-	-- 	"superhtml",
-	-- 	for_cat = "lsp",
-	-- 	lsp = {},
-	-- },
+	{
+		"superhtml",
+		for_cat = "lsp",
+		lsp = {},
+	},
 	{
 		"jdtls",
 		for_cat = "lsp",
