@@ -153,7 +153,7 @@ in
     debuggers = values {
       inherit (pkgs)
         lldb
-        gdb
+        # gdb
         delve
         ;
     };
