@@ -164,7 +164,10 @@ in
           ;
 
         # Custom packages from overlay
-        inherit (ecpkgs) agent-shell ws-butler;
+        inherit (ecpkgs)
+          agent-shell
+          ws-butler
+          ;
 
         # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
         # Exclude broken grammars (tree-sitter-razor)

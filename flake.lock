@@ -3,11 +3,11 @@
     "emacs-agent-shell": {
       "flake": false,
       "locked": {
-        "lastModified": 1770902916,
-        "narHash": "sha256-pjAID4Sllf6LinLbTBjcFko9wjKw7TNxtCJ3Qbm2lg8=",
+        "lastModified": 1771095861,
+        "narHash": "sha256-F9u1HWeJClLQHenjgNGizp738t75vU8wbpYLVz6OtC0=",
         "owner": "xenodium",
         "repo": "agent-shell",
-        "rev": "9399bf2340bf0a4671ac34a4a11e94f4efe0bc66",
+        "rev": "c9bcfef5643b2f5f62ffb82767b7f6450df3939c",
         "type": "github"
       },
       "original": {
