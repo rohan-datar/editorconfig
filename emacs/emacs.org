@@ -434,7 +434,7 @@ Note: The Leader key is what you will press when you want to access your keybind
 
       (rdmacs/leader-keys
         "." '(find-file :wk "Find file")
-    	"SPC" '(consult-dir :wk "Consult-Dir")
+    	"SPC" '(consult-buffer :wk "Consult Buffer")
         "q" '(flymake-show-buffer-diagnostics :wk "Flymake buffer diagnostic")
         "t t" '(vterm :wk "vterm terminal")
         "p" '(projectile-command-map :wk "Projectile")
@@ -460,8 +460,8 @@ Note: The Leader key is what you will press when you want to access your keybind
 
       (rdmacs/leader-keys
       "b" '(:ignore t :wk "Buffers")
-      "b i" '(consult-buffer :wk "Switch buffer")
-      "b b" '(ibuffer :wk "Ibuffer")
+      "b b" '(consult-buffer :wk "Switch buffer")
+      "b i" '(ibuffer :wk "Ibuffer")
       "b d" '(kill-current-buffer :wk "Kill current buffer")
       "b k" '(kill-current-buffer :wk "Kill current buffer")
       "b x" '(kill-current-buffer :wk "Kill current buffer")

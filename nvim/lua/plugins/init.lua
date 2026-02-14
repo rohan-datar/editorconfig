@@ -61,7 +61,7 @@ require("lze").load({
 			{ "<c-w>j", "<cmd><C-U>TmuxNavigateDown<cr>", mode = { "n" } },
 			{ "<c-w>k", "<cmd><C-U>TmuxNavigateUp<cr>", mode = { "n" } },
 			{ "<c-w>l", "<cmd><C-U>TmuxNavigateRight<cr>", mode = { "n" } },
-			{ "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>", mode = { "n" } },
+			{ "<c-w>\\", "<cmd><C-U>TmuxNavigatePrevious<cr>", mode = { "n" } },
 		},
 	},
 	{ import = "plugins.treesitter" },
