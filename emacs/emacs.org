@@ -161,6 +161,7 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
 
     ;; Sync exec-path with PATH so Emacs finds Nix-provided binaries (LSPs, formatters, etc.)
     (setq exec-path (append (split-string (getenv "PATH") path-separator) exec-path))
+    (setq magit-git-executable "/run/current-system/sw/bin/git")
 #+end_src
 
 ** Auto-tangle Configuration file
