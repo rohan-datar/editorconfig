@@ -1529,45 +1529,46 @@ Provides search and navigation commands based on the Emacs completion function.
 Check out their [[https://github.com/minad/consult][git repository]] for more awesome functions.
 
 #+begin_src emacs-lisp
-    (use-package consult
-      ;; Enable automatic preview at point in the *Completions* buffer. This is
-      ;; relevant when you use the default completion UI.
-      :hook (completion-list-mode . consult-preview-at-point-mode)
-      :init
-      ;; Optionally configure the register formatting. This improves the register
-      ;; preview for `consult-register', `consult-register-load',
-      ;; `consult-register-store' and the Emacs built-ins.
-      (setq register-preview-delay 0.5
-            register-preview-function #'consult-register-format)
+     (use-package consult
+       ;; Enable automatic preview at point in the *Completions* buffer. This is
+       ;; relevant when you use the default completion UI.
+       :hook (completion-list-mode . consult-preview-at-point-mode)
+       :init
+       ;; Optionally configure the register formatting. This improves the register
+       ;; preview for `consult-register', `consult-register-load',
+       ;; `consult-register-store' and the Emacs built-ins.
+       (setq register-preview-delay 0.5
+             register-preview-function #'consult-register-format)
 
-      ;; Optionally tweak the register preview window.
-      ;; This adds thin lines, sorting and hides the mode line of the window.
-      (advice-add #'register-preview :override #'consult-register-window)
+       ;; Optionally tweak the register preview window.
+       ;; This adds thin lines, sorting and hides the mode line of the window.
+       (advice-add #'register-preview :override #'consult-register-window)
 
-      ;; Use Consult to select xref locations with preview
-      (setq xref-show-xrefs-function #'consult-xref
-            xref-show-definitions-function #'consult-xref)
-      :config
-      (autoload 'projectile-project-root "projectile")
-      (autoload 'projectile-project-files "projectile")
-      (setq consult-project-function (lambda (_) (projectile-project-root)))
-      ;; Make consult buffer aware of project files as a fallback
-    	(defvar consult--source-projectile-file
+       ;; Use Consult to select xref locations with preview
+       (setq xref-show-xrefs-function #'consult-xref
+             xref-show-definitions-function #'consult-xref)
+       :config
+       (autoload 'projectile-project-root "projectile")
+       (autoload 'projectile-project-files "projectile")
+       (setq consult-project-function (lambda (_) (projectile-project-root)))
+       ;; Make consult buffer aware of project files as a fallback
+     	(defvar consult--source-projectile-file
     	  `(:name "Project File"
-    		:narrow ?f
-    		:category file
-    		:face consult-file
-    		:history file-name-history
-    		:action ,#'consult--file-action
-    		:enabled ,(lambda () (projectile-project-root))
-    		:items
-    		,(lambda ()
-    		   (projectile-project-files (projectile-project-root))))
-    	  "Projectile file source for `consult-buffer'.")
-
-    	(add-to-list
-    	 'consult-buffer-sources
-    	 'consult--source-projectile-file :append))
+    			  :narrow ?f
+    			  :category file
+    			  :face consult-file
+    			  :history file-name-history
+    			  :action ,#'consult--file-action
+    			  :enabled ,(lambda () (projectile-project-root))
+    			  :items
+    			  ,(lambda ()
+    				 (let ((root (projectile-project-root)))
+    				   (mapcar (lambda (f) (expand-file-name f root))
+    						   (projectile-project-files root))))
+    			  "Projectile file source for `consult-buffer'."))
+    	  (add-to-list
+    	   'consult-buffer-sources
+    	   'consult--source-projectile-file :append))
 
 #+end_src
 
