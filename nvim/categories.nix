@@ -63,8 +63,10 @@ in
       vp.nvim-treesitter.withAllGrammars
     ]
     ++ values {
-      inherit (vp) nvim-treesitter-context;
-      inherit (np) nvim-treesitter-textobjects;
+      inherit (vp)
+        nvim-treesitter-context
+        nvim-treesitter-textobjects
+        ;
     };
 
     lsp = values {

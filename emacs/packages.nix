@@ -146,7 +146,7 @@ in
           visual-fill-column
 
           #AI
-          # agent-shell
+          agent-shell
           copilot-chat
           claude-code
 
@@ -165,7 +165,7 @@ in
 
         # Custom packages from overlay
         inherit (ecpkgs)
-          agent-shell
+          # agent-shell
           ws-butler
           ;
 
