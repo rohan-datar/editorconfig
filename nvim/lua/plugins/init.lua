@@ -1,4 +1,16 @@
-require("lze").register_handlers(require("nixCatsUtils.lzUtils").for_cat)
+require("lze").register_handlers({
+	spec_field = "for_cat",
+	set_lazy = false,
+	modify = function(plugin)
+		if vim.g.nix_info_plugin_name then
+			if type(plugin.for_cat) == "table" then
+				plugin.enabled = nixInfo(plugin.for_cat.default, "info", "cats", plugin.for_cat.cat)
+			elseif type(plugin.for_cat) == "string" then
+				plugin.enabled = nixInfo(false, "info", "cats", plugin.for_cat)
+			end
+		end
+	end,
+})
 require("lze").register_handlers(require("lzextras").lsp)
 
 require("lze").load({
@@ -97,16 +109,16 @@ require("lze").load({
 	{ import = "plugins.debugger" },
 	{
 		"direnv.vim",
-		for_cat = "extra",
+		for_cat = "extras",
 		event = "DeferredUIEnter",
 	},
 	{
 		"golden-ratio",
-		for_cat = "extra",
+		for_cat = "extras",
 		event = "DeferredUIEnter",
 	},
 })
 
-if nixCats("lsp") then
+if nixInfo(false, "info", "cats", "lsp") then
 	require("lsp")
 end

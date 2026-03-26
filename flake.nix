@@ -22,8 +22,12 @@
       url = "github:emacs-twist/org-babel";
     };
 
-    # NixCats for Neovim configuration
-    nixCats.url = "github:BirdeeHub/nixCats-nvim";
+    # Nix Wrapper modules for wrapping editor config
+    nix-wrapper-modules = {
+      url = "github:BirdeeHub/nix-wrapper-modules";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     "plugins-inlay-hints" = {
       url = "github:MysticalDevil/inlay-hints.nvim";
       flake = false;
@@ -55,35 +59,12 @@
         ./formatter.nix
         ./nvim
         ./emacs
+        inputs.nix-wrapper-modules.flakeModules.wrappers
       ];
 
       # Combine homeModules from different sources
       flake.homeModules = {
-        nixCats = inputs.nixCats.utils.mkHomeModules {
-          inherit (inputs) nixpkgs;
-          inherit (inputs.nixCats) utils;
-          luaPath = ./nvim;
-          categoryDefinitions = import ./nvim/categories.nix inputs;
-          packageDefinitions = import ./nvim/packages.nix inputs;
-          dependencyOverlays = [
-            (inputs.nixCats.utils.standardPluginOverlay inputs)
-          ];
-        };
         rdmacs = import ./emacs/home-module.nix;
       };
-
-      flake.nixosModules = {
-        nixCats = inputs.nixCats.utils.mkNixosModules {
-          inherit (inputs) nixpkgs;
-          inherit (inputs.nixCats) utils;
-          luaPath = ./nvim;
-          categoryDefinitions = import ./nvim/categories.nix inputs;
-          packageDefinitions = import ./nvim/packages.nix inputs;
-          dependencyOverlays = [
-            (inputs.nixCats.utils.standardPluginOverlay inputs)
-          ];
-        };
-      };
     };
-
 }

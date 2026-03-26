@@ -5,7 +5,7 @@ return {
 	on_require = "blink.cmp",
 	after = function()
 		local snips = {}
-		if nixCats("snippets") then
+		if nixInfo(false, "info", "cats", "snippets") then
 			snips = {
 				expand = function(snippet)
 					require("luasnip").lsp_expand(snippet)
@@ -23,7 +23,7 @@ return {
 		end
 
 		local providers = {}
-		if nixCats("ai") then
+		if nixInfo(false, "info", "cats", "ai") then
 			providers.copilot = {
 				name = "copilot",
 				module = "blink-copilot",

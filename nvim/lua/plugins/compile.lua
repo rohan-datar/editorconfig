@@ -1,6 +1,6 @@
 return {
 	"compile.nvim",
-	for_cat = "extra",
+	for_cat = "compile",
 	event = "DeferredUIEnter",
 	after = function()
 		local C = require("compile")
