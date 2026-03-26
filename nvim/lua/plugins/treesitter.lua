@@ -1,12 +1,12 @@
 return {
 	{
 		"nvim-treesitter-context",
-		for_cat = "treesitter",
+		for_cat = "editing",
 		dep_of = "nvim-treesitter",
 	},
 	{
 		"nvim-treesitter",
-		for_cat = "treesitter",
+		for_cat = "editing",
 		branch = "main",
 		lazy = false,
 		after = function()
@@ -62,7 +62,7 @@ return {
 	},
 	{
 		"nvim-treesitter-textobjects",
-		for_cat = "treesitter",
+		for_cat = "editing",
 		lazy = false,
 		after = function()
 			-- Setup textobjects

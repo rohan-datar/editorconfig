@@ -1,57 +1,86 @@
 {
-  self,
   inputs,
   ...
 }:
-let
-  inherit (inputs) nixpkgs;
-  inherit (inputs.nixCats) utils;
-
-  luaPath = ./.;
-  dependencyOverlays = [
-    (utils.standardPluginOverlay inputs)
-  ];
-
-  categoryDefinitions = import ./categories.nix inputs;
-  packageDefinitions = import ./packages.nix inputs;
-in
 {
+  flake.wrappers = {
+    nvim-full =
+      {
+        config,
+        pkgs,
+        wlib,
+        lib,
+        ...
+      }:
+      {
 
-  perSystem =
-    {
-      pkgs,
-      system,
-      ...
-    }:
-    let
-      build = utils.baseBuilder luaPath {
-        inherit nixpkgs system dependencyOverlays;
-      } categoryDefinitions packageDefinitions;
-    in
-    {
-      packages = {
-        nvim-full = build "full";
-        nvim-minimal = build "minimal";
-        nvim-test = build "test";
-        default = build "full";
-      };
-
-      apps = {
-        nvim-full = {
-          type = "app";
-          program = "${build "full"}/bin/nvim";
-          meta.description = "full nvim configuration";
-        };
-        nvim-minimal = {
-          type = "app";
-          program = "${build "minimal"}/bin/nvim";
-          meta.description = "minimal nvim configuration";
-        };
-        nvim-test = {
-          type = "app";
-          program = "${build "test"}/bin/nvim-test";
-          meta.description = "full nvim configuration with lua configuration that can be live edited and sourced";
+        imports = [
+          wlib.wrapperModules.neovim
+          (import ./specs.nix inputs)
+        ];
+        settings = {
+          config_directory = "${inputs.self}/nvim";
+          aliases = [
+            "nvim"
+            "rdvim"
+            "vim"
+          ];
         };
       };
-    };
+    nvim-minimal =
+      {
+        config,
+        pkgs,
+        wlib,
+        lib,
+        ...
+      }:
+      {
+
+        imports = [
+          wlib.wrapperModules.neovim
+          (import ./specs.nix inputs)
+        ];
+        settings = {
+          config_directory = "${inputs.self}/nvim";
+          aliases = [
+            "nvim"
+            "rdvim"
+            "vim"
+          ];
+        };
+        specs = {
+          snippets.enable = false;
+          lsp.enable = false;
+          ai.enable = false;
+          ui.enable = false;
+          debuggers.enable = false;
+          extras.enable = false;
+        };
+      };
+    nvim-test =
+      {
+        config,
+        pkgs,
+        wlib,
+        lib,
+        ...
+      }:
+      {
+
+        imports = [
+          wlib.wrapperModules.neovim
+          (import ./specs.nix inputs)
+        ];
+        settings = {
+          block_normal_config = false;
+          config_directory = lib.generators.mkLuaInline ''vim.fn.stdpath("config")'';
+          aliases = [
+            "nvim-test"
+            "rdvim-test"
+            "vim-test"
+          ];
+        };
+      };
+  };
 }

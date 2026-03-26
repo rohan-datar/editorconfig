@@ -1,13 +1,10 @@
-local catUtils = require("nixCatsUtils")
-
 -- NOTE: This file uses lzextras.lsp handler https://github.com/BirdeeHub/lzextras?tab=readme-ov-file#lsp-handler
 -- This is a slightly more performant fallback function
 -- for when you don't provide a filetype to trigger on yourself.
--- nixCats gives us the paths, which is faster than searching the rtp!
 local old_ft_fallback = require("lze").h.lsp.get_ft_fallback()
 require("lze").h.lsp.set_ft_fallback(function(name)
-	local lspcfg = nixCats.pawsible({ "allPlugins", "opt", "nvim-lspconfig" })
-		or nixCats.pawsible({ "allPlugins", "start", "nvim-lspconfig" })
+	local lspcfg = nixInfo(nil, "plugins", "lazy", "nvim-lspconfig")
+		or nixInfo(nil, "plugins", "start", "nvim-lspconfig")
 	if lspcfg then
 		local ok, cfg = pcall(dofile, lspcfg .. "/lsp/" .. name .. ".lua")
 		if not ok then
@@ -48,7 +45,7 @@ require("lze").load({
 	{
 		"mason.nvim",
 		-- only run it when not on nix
-		enabled = not catUtils.isNixCats,
+		enabled = vim.g.nix_info_plugin_name == nil,
 		on_plugin = { "nvim-lspconfig" },
 		load = function(name)
 			vim.cmd.packadd(name)
@@ -76,15 +73,11 @@ require("lze").load({
 	},
 	{
 		"lazydev.nvim",
-		for_cat = "lua",
+		for_cat = "extras",
 		cmd = { "LazyDev" },
 		ft = "lua",
 		after = function(_)
-			require("lazydev").setup({
-				library = {
-					{ words = { "nixCats" }, path = (nixCats.nixCatsPath or "") .. "/lua" },
-				},
-			})
+			require("lazydev").setup({})
 		end,
 	},
 	{
@@ -128,7 +121,7 @@ require("lze").load({
 	},
 	{
 		"go.nvim",
-		for_cat = "extra",
+		for_cat = "extras",
 		after = function()
 			require("go").setup()
 		end,
@@ -151,7 +144,7 @@ require("lze").load({
 					},
 					signatureHelp = { enabled = true },
 					diagnostics = {
-						globals = { "nixCats", "vim" },
+						globals = { "nixInfo", "vim" },
 						disable = { "missing-fields" },
 					},
 					telemetry = { enabled = false },
@@ -162,7 +155,7 @@ require("lze").load({
 	},
 	{
 		"clangd",
-		for_cat = "compilers",
+		for_cat = "compile",
 		lsp = {
 			filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
 			settings = {

@@ -1,21 +1,5 @@
 {
   "nodes": {
-    "emacs-agent-shell": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1773863450,
-        "narHash": "sha256-y3WKd7w9zNebNlP3phMLmMbrFd+MHqwwJH/dUP6VSlo=",
-        "owner": "xenodium",
-        "repo": "agent-shell",
-        "rev": "68b8c394a4838fb54f7dbfc70cee38e7310f03a3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "xenodium",
-        "repo": "agent-shell",
-        "type": "github"
-      }
-    },
     "emacs-overlay": {
       "inputs": {
         "nixpkgs": [
@@ -89,18 +73,23 @@
         "type": "github"
       }
     },
-    "nixCats": {
+    "nix-wrapper-modules": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
       "locked": {
-        "lastModified": 1770584904,
-        "narHash": "sha256-9Zaz8lbKF2W9pwXZEnbiGsicHdBoU+dHt3Wv3mCJoZ8=",
+        "lastModified": 1774400689,
+        "narHash": "sha256-hHABVYL0rxhVIzc7hZEpvE0eiCKPnevte73Tn6FRolo=",
         "owner": "BirdeeHub",
-        "repo": "nixCats-nvim",
-        "rev": "538fdde784d2909700d97a8ef307783b33a86fb1",
+        "repo": "nix-wrapper-modules",
+        "rev": "54645978682ff99594a1d1666dde6fac6a8134f2",
         "type": "github"
       },
       "original": {
         "owner": "BirdeeHub",
-        "repo": "nixCats-nvim",
+        "repo": "nix-wrapper-modules",
         "type": "github"
       }
     },
@@ -183,36 +172,17 @@
         "type": "github"
       }
     },
-    "plugins-nvim-treesitter-textobjects": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1773880651,
-        "narHash": "sha256-B5K7lZRJj5H5zBqNvg1kNYZ+G0+IOjLSslkmBw4Pbfg=",
-        "owner": "nvim-treesitter",
-        "repo": "nvim-treesitter-textobjects",
-        "rev": "7359dfcefa38db632541e1f9b5b5f291626a1d47",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nvim-treesitter",
-        "ref": "main",
-        "repo": "nvim-treesitter-textobjects",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
-        "emacs-agent-shell": "emacs-agent-shell",
         "emacs-overlay": "emacs-overlay",
         "emacs-swift-development": "emacs-swift-development",
         "emacs-ws-butler": "emacs-ws-butler",
         "flake-parts": "flake-parts",
-        "nixCats": "nixCats",
+        "nix-wrapper-modules": "nix-wrapper-modules",
         "nixpkgs": "nixpkgs",
         "org-babel": "org-babel",
         "plugins-compile-nvim": "plugins-compile-nvim",
         "plugins-inlay-hints": "plugins-inlay-hints",
-        "plugins-nvim-treesitter-textobjects": "plugins-nvim-treesitter-textobjects",
         "systems": "systems"
       }
     },
