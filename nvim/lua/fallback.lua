@@ -1,86 +1,76 @@
 if vim.g.nix_info_plugin_name == nil then
-	local function clone_paq()
-		local path = vim.fn.stdpath("data") .. "/site/pack/paqs/start/paq-nvim"
-		local is_installed = vim.fn.empty(vim.fn.glob(path)) == 0
-		if not is_installed then
-			vim.fn.system({ "git", "clone", "--depth=1", "https://github.com/savq/paq-nvim.git", path })
-		end
-	end
+	-- basic plugins
+	vim.pack.add({
+		"https://github.com/BirdeeHub/lze",
+		"https://github.com/BirdeeHub/lzextras",
+		"https://github.com/nvim-lua/plenary.nvim",
+		"https://github.com/nvim-mini/mini.nvim",
+		"https://github.com/folke/snacks.nvim",
+		"https://github.com/Saghen/blink.cmp",
+		{ "https://github.com/catppuccin/nvim", name = "catppuccin.nvim" },
+		"https://github.com/mfussenegger/nvim-lint",
+		"https://github.com/stevearc/conform.nvim",
+		"https://github.com/j-hui/fidget.nvim",
+		"https://github.com/asiryk/auto-hlsearch.nvim",
+		"https://github.com/kylechui/nvim-surround",
+		"https://github.com/neovim/nvim-lspconfig",
+		"https://github.com/williamboman/mason.nvim",
+		"https://github.com/williamboman/mason-lspconfig.nvim",
+		"https://github.com/stevearc/oil.nvim",
+		"https://github.com/tpope/vim-repeat",
+		"https://github.com/tpope/vim-abolish",
+		"https://github.com/tpope/vim-sleuth",
+		"https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
+		"https://github.com/christoomey/vim-tmux-navigator",
+		"https://github.com/folke/todo-comments.nvim",
+		"https://github.com/kevinhwang91/nvim-ufo",
+		"https://github.com/kevinhwang91/promise-async",
+		"https://github.com/luukvbaal/statuscol.nvim",
+		"https://github.com/MeanderingProgrammer/render-markdown.nvim",
+		"https://github.com/stevearc/quicker.nvim",
+		"https://github.com/rachartier/tiny-inline-diagnostic.nvim",
+		"https://github.com/zbirenbaum/copilot.lua",
+		"https://github.com/fang2hou/blink-copilot",
+		"https://github.com/CopilotC-Nvim/CopilotChat.nvim",
+		"https://github.com/lewis6991/gitsigns.nvim",
+		"https://github.com/NeogitOrg/neogit",
+		"https://github.com/folke/lazydev.nvim",
+		"https://github.com/ray-x/go.nvim",
+		"https://github.com/mrcjkb/rustaceanvim",
+		"https://github.com/obsidian-nvim/obsidian.nvim",
+		"https://github.com/rafamadriz/friendly-snippets",
+		"https://github.com/mfussenegger/nvim-dap",
+		"https://github.com/MironPascalCaseFan/debugmaster.nvim",
+		"https://github.com/leoluz/nvim-dap-go",
+		"https://github.com/MysticalDevil/inlay-hints.nvim",
+		"https://github.com/pohlrabi404/compile.nvim",
+		"https://github.com/direnv/direnv.vim",
+		"https://github.com/roman/golden-ratio",
+	})
 
-	local function bootstrap_paq(packages)
-		local first_install = clone_paq()
-		vim.cmd.packadd("paq-nvim")
-		local paq = require("paq")
-		if first_install then
-			vim.notify("Installing plugins... If prompted, press Enter to continue.")
-		end
-		paq(packages)
-		paq.install()
-	end
-
-	bootstrap_paq(vim.list_extend({ "savq/paq.nvim" }, {
-		-- non-lazy loaded
-		{ "BirdeeHub/lze" },
-		{ "BirdeeHub/lzextras" },
-		{ "nvim-lua/plenary.nvim" },
-		{ "nvim-mini/mini.nvim" },
-		{ "folke/snacks.nvim" },
-		{ "Saghen/blink.cmp" },
-		{ "catppuccin/nvim" },
-		{ "mfussenegger/nvim-lint" },
-		{ "stevearc/conform.nvim" },
-		{ "j-hui/fidget.nvim" },
-		{ "asiryk/auto-hlsearch.nvim" },
-		{ "kylechui/nvim-surround" },
-
-		-- lazy loaded
-		{ "neovim/nvim-lspconfig", opt = true },
-		{ "williamboman/mason.nvim", opt = true },
-		{ "williamboman/mason-lspconfig.nvim", opt = true },
-		{ "stevearc/oil.nvim", opt = true },
-		{ "tpope/vim-repeat", opt = true },
-		{ "tpope/vim-abolish", opt = true },
-		{ "tpope/vim-sleuth", opt = true },
-		{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate", opt = true },
-		{ "nvim-treesitter/nvim-treesitter-textobjects", opt = true },
-		{ "tope/vim-abolish", opt = true },
-		{ "christoomey/vim-tmux-navigator", opt = true },
-		{ "folke/todo-comments.nvim", opt = true },
-		{ "kevinhwang91/nvim-ufo", opt = true },
-		{ "kevinhwang91/promise-async", opt = true },
-		{ "luukvbaal/statuscol.nvim", opt = true },
-		{ "MeanderingProgrammer/render-markdown.nvim", opt = true },
-		{ "sevearc/quicker.nvim", opt = true },
-		{ "achartier/tiny-inline-diagnostic.nvim", opt = true },
-		{ "zbirenbaum/copilot.lua", opt = true },
-		{ "fang2hou/blink-copilot", opt = true },
-		{ "CopilotC-Nvim/CopilotChat.nvim", opt = true },
-		{ "lewis6991/gitsigns.nvim", opt = true },
-		{ "NeogitOrg/neogit", opt = true },
-		{ "folke/lazydev.nvim", opt = true },
-		{ "ray-x/go.nvim", opt = true },
-		{ "mrcjkb/rustaceanvim", opt = true },
-		{ "obsidian-nvim/obsidian.nvim", opt = true },
-		{ "rafamadriz/friendly-snippets", opt = true },
-		{ "mfussenegger/nvim-dap", opt = true },
-		{ "MironPascalCaseFan/debugmaster.nvim", opt = true },
-		{ "leoluz/nvim-dap-go", opt = true },
-		{
-			"L3MON4D3/LuaSnip",
-			opt = true,
-			build = (function()
-				-- Build Step is needed for regex support in snippets.
-				-- This step is not supported in many windows environments.
-				-- Remove the below condition to re-enable on windows.
-				if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
-					return
+	-- plugins with extra build steps
+	vim.api.nvim_create_autocmd("User", {
+		pattern = "PackChanged",
+		callback = function(ev)
+			if ev.data.spec.name == "nvim-treesitter" and (ev.data.kind == "install" or ev.data.kind == "update") then
+				if not ev.data.active then
+					vim.cmd.packadd("nvim-treesitter")
 				end
-				return "make install_jsregexp"
-			end)(),
-		},
-		{ "MysticalDevil/inlay-hints.nvim", opt = true },
-		{ "pohlrabi404/compile.nvim", opt = true },
-		{ "direnv/direnv.vim", opt = true },
-		{ "roman/golden-ratio", opt = true },
-	}))
+				vim.cmd("TSUpdate")
+			end
+		end,
+	})
+	vim.pack.add({ "https://github.com/nvim-treesitter/nvim-treesitter" })
+
+	vim.api.nvim_create_autocmd("User", {
+		pattern = "PackChanged",
+		callback = function(ev)
+			if ev.data.spec.name == "LuaSnip" and ev.data.kind == "install" then
+				if vim.fn.executable("make") == 1 and vim.fn.has("win32") == 0 then
+					vim.fn.system({ "make", "-C", ev.data.path, "install_jsregexp" })
+				end
+			end
+		end,
+	})
+	vim.pack.add({ "https://github.com/L3MON4D3/LuaSnip" })
 end
