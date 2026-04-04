@@ -45,7 +45,7 @@ in
         lldb
 
         claude-code
-        claude-code-acp
+        claude-agent-acp
         ;
     }
     // pkgs.lib.optionalAttrs isDarwin {

@@ -1,12 +1,16 @@
+{ inputs, ... }:
 {
-  perSystem =
+  flake.wrappers.rdmacs =
     {
+      config,
       pkgs,
-      system,
+      wlib,
+      lib,
       ...
     }:
     let
       inherit (pkgs.stdenv) isDarwin;
+      packages = import ./packages.nix { inherit pkgs; };
 
       # Tangle the org config to an elisp file
       # org-babel overlay provides tangleOrgBabelFile
@@ -16,92 +20,76 @@
           "elisp"
         ];
       };
+    in
+    {
+      imports = [ wlib.wrapperModules.emacs ];
 
+      package = pkgs.emacs-pgtk;
+      emacsPackages = packages.emacsPackages;
+      configFile = builtins.readFile initFile;
+      extraPackages = packages.runtimeDeps;
+      wrapperVariants.emacsclient = {
+        exePath = "bin/emacsclient";
+        addFlag = [ "-c" ];
+      };
+      buildCommand.fixDarwinApp = lib.mkIf isDarwin {
+        after = [
+          "symlinkScript"
+          "makeWrapper"
+        ];
+        data = ''
+          if [ -d "$out/Applications/Emacs.app" ]; then
+              rm "$out/Applications/Emacs.app/Contents/MacOS/Emacs"
+              ln -s "$out/bin/emacs" "$out/Applications/Emacs.app/Contents/MacOS/Emacs"
+          fi
+
+          # Create Emacsclient.app for Spotlight/Raycast
+          mkdir -p "$out/Applications/Emacsclient.app/Contents/MacOS"
+          mkdir -p "$out/Applications/Emacsclient.app/Contents/Resources"
+
+          # Reuse Emacs icon
+          cp "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" \
+             "$out/Applications/Emacsclient.app/Contents/Resources/Emacsclient.icns"
+
+          # Minimal Info.plist via heredoc
+          cat > "$out/Applications/Emacsclient.app/Contents/Info.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleExecutable</key>
+            <string>Emacsclient</string>
+            <key>CFBundleIconFile</key>
+            <string>Emacsclient</string>
+            <key>CFBundleIdentifier</key>
+            <string>org.gnu.Emacsclient</string>
+            <key>CFBundleName</key>
+            <string>Emacsclient</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleVersion</key>
+            <string>1.0</string>
+          </dict>
+          </plist>
+          PLIST
+
+          # Point binary at wrapped emacsclient
+          ln -s "$out/bin/emacsclient" "$out/Applications/Emacsclient.app/Contents/MacOS/Emacsclient"
+        '';
+      };
+
+    };
+
+  perSystem =
+    { pkgs, ... }:
+    let
       # Emacs packages and runtime dependencies imported from separate file
       packages = import ./packages.nix { inherit pkgs; };
 
-      # Build Emacs with packages using emacs-overlay's emacsWithPackages
-      rdmacs-unwrapped = pkgs.emacs-pgtk.pkgs.withPackages packages.emacsPackages;
-
-      # Runtime deps path for wrappers
       runtimePath = pkgs.lib.makeBinPath packages.runtimeDeps;
 
-      # Create an init directory with our tangled config
-      initDir = pkgs.runCommand "rdmacs-init-dir" { } ''
-        mkdir -p $out
-        cp ${initFile} $out/init.el
-      '';
-
-      # Wrapped rdmacs with init-directory baked in
-      # On Darwin, also creates Emacs.app and Emacsclient.app bundles
-      rdmacs = pkgs.stdenv.mkDerivation {
-        name = "rdmacs";
-        dontUnpack = true;
-        nativeBuildInputs = [ pkgs.makeWrapper ];
-        buildPhase = ''
-          mkdir -p $out/bin
-
-          # Wrapped bin/emacs for CLI and daemon use
-          makeWrapper ${rdmacs-unwrapped}/bin/emacs $out/bin/emacs \
-            --add-flags "--init-directory ${initDir}" \
-            --prefix PATH : ${runtimePath}
-
-          # Wrapped bin/emacsclient that opens a new frame
-          makeWrapper ${rdmacs-unwrapped}/bin/emacsclient $out/bin/emacsclient \
-            --add-flags "-c"
-
-          ${pkgs.lib.optionalString isDarwin ''
-            mkdir -p $out/Applications
-
-            # Copy and wrap Emacs.app
-            cp -r ${rdmacs-unwrapped}/Applications/Emacs.app $out/Applications/
-            chmod -R u+w $out/Applications/Emacs.app
-            rm $out/Applications/Emacs.app/Contents/MacOS/Emacs
-            makeWrapper ${rdmacs-unwrapped}/bin/emacs $out/Applications/Emacs.app/Contents/MacOS/Emacs \
-              --add-flags "--init-directory ${initDir}" \
-              --prefix PATH : ${runtimePath}
-
-            # Create Emacsclient.app for Spotlight/Raycast
-            mkdir -p $out/Applications/Emacsclient.app/Contents/MacOS
-            mkdir -p $out/Applications/Emacsclient.app/Contents/Resources
-
-            cp ${rdmacs-unwrapped}/Applications/Emacs.app/Contents/Resources/Emacs.icns \
-              $out/Applications/Emacsclient.app/Contents/Resources/Emacsclient.icns
-
-            cat > $out/Applications/Emacsclient.app/Contents/Info.plist <<EOF
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-            <plist version="1.0">
-            <dict>
-              <key>CFBundleExecutable</key>
-              <string>Emacsclient</string>
-              <key>CFBundleIconFile</key>
-              <string>Emacsclient</string>
-              <key>CFBundleIdentifier</key>
-              <string>org.gnu.Emacsclient</string>
-              <key>CFBundleName</key>
-              <string>Emacsclient</string>
-              <key>CFBundlePackageType</key>
-              <string>APPL</string>
-              <key>CFBundleVersion</key>
-              <string>1.0</string>
-            </dict>
-            </plist>
-            EOF
-
-            makeWrapper ${rdmacs-unwrapped}/bin/emacsclient $out/Applications/Emacsclient.app/Contents/MacOS/Emacsclient \
-              --add-flags "-c"
-          ''}
-
-          ${pkgs.lib.optionalString (!isDarwin) ''
-            # Copy .desktop files and icons from base emacs for Linux launchers
-            mkdir -p $out/share
-            cp -r ${rdmacs-unwrapped}/share/applications $out/share/
-            cp -r ${rdmacs-unwrapped}/share/icons $out/share/
-          ''}
-        '';
-        installPhase = "true";
-      };
+      # Build Emacs with packages using emacs-overlay's emacsWithPackages
+      rdmacs-unwrapped = pkgs.emacs-pgtk.pkgs.withPackages packages.emacsPackages;
 
       # Test wrapper for live config editing
       # Tangles your local emacs.org on the fly, so you can iterate without rebuilding
@@ -138,7 +126,6 @@
     {
       packages = {
         inherit
-          rdmacs
           rdmacs-test
           ;
       };
