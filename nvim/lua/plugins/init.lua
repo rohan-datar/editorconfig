@@ -9,6 +9,7 @@ require("lze").register_handlers({
 				plugin.enabled = nixInfo(false, "info", "cats", plugin.for_cat)
 			end
 		end
+		return plugin
 	end,
 })
 require("lze").register_handlers(require("lzextras").lsp)
@@ -116,6 +117,17 @@ require("lze").load({
 		"golden-ratio",
 		for_cat = "extras",
 		event = "DeferredUIEnter",
+	},
+	{
+		"eyeliner.nvim",
+		for_cat = "ui",
+		event = "DeferredUIEnter",
+		after = function()
+			require("eyeliner").setup({
+				highlight_on_key = true,
+				dim = true,
+			})
+		end,
 	},
 })
 
