@@ -10,86 +10,111 @@ let
   vp = pkgs.vimPlugins;
   values = builtins.attrValues;
   inherit (builtins) mapAttrs;
-  inherit (lib) mkDefault optionals;
+  inherit (lib)
+    mkOption
+    optionals
+    types
+    ;
   inherit (config.nvim-lib) mkPlugin;
+  full = config.profile != "minimal";
 in
 {
+  options.profile = mkOption {
+    type = types.enum [
+      "full"
+      "minimal"
+      "test"
+    ];
+    default = "full";
+    description = "Build profile controlling which specs are enabled";
+  };
   config.info.cats = mapAttrs (_: v: v.enable) config.specs;
 
   config.specs = {
     core = {
       enable = true;
       data = [
+        vp.lze
+        vp.lzextras
+        vp.vim-sleuth
+        vp.vim-repeat
+        vp.vim-abolish
         {
-          name = "startup";
-          lazy = false;
-          data = values {
-            inherit (vp)
-              lze
-              lzextras
-              catppuccin-nvim
-              vim-sleuth
-              vim-repeat
-              vim-abolish
-              fidget-nvim
-              ;
-          };
+          name = "catppuccin.nvim";
+          data = vp.catppuccin-nvim;
         }
         {
-          name = "deferred";
+          name = "fidget.nvim";
+          data = vp.fidget-nvim;
+        }
+        {
+          name = "mini.nvim";
           lazy = true;
-          data = values {
-            inherit (vp)
-              mini-nvim
-              snacks-nvim
-              blink-cmp
-              auto-hlsearch-nvim
-              vim-tmux-navigator
-              oil-nvim
-              nvim-surround
-              ;
-          };
+          data = vp.mini-nvim;
+        }
+        {
+          name = "snacks.nvim";
+          lazy = true;
+          data = vp.snacks-nvim;
+        }
+        {
+          name = "blink.cmp";
+          lazy = true;
+          data = vp.blink-cmp;
+        }
+        {
+          name = "auto-hlsearch.nvim";
+          lazy = true;
+          data = vp.auto-hlsearch-nvim;
+        }
+        {
+          name = "vim-tmux-navigator";
+          lazy = true;
+          data = vp.vim-tmux-navigator;
+        }
+        {
+          name = "oil.nvim";
+          lazy = true;
+          data = vp.oil-nvim;
+        }
+        {
+          name = "nvim-surround";
+          lazy = true;
+          data = vp.nvim-surround;
         }
       ];
     };
     compile = {
-      enable = mkDefault true;
-      data = mkPlugin "compile-nvim" inputs."plugins-compile-nvim";
+      enable = full;
+      data = mkPlugin "compile.nvim" inputs."plugins-compile-nvim";
     };
     editing = {
-      enable = mkDefault true;
+      enable = true;
       data = [
+        vp.nvim-lint
         {
-          name = "check";
-          data = values {
-            inherit (vp)
-              nvim-lint
-              conform-nvim
-              ;
-          };
+          name = "conform.nvim";
+          data = vp.conform-nvim;
         }
         {
-          name = "treesitter";
+          name = "nvim-treesitter";
           lazy = true;
-          data = [
-            {
-              name = "nvim-treesitter";
-              data = vp.nvim-treesitter.withAllGrammars;
-            }
-            {
-              name = "nvim-treesitter-context";
-              data = vp.nvim-treesitter-context;
-            }
-            {
-              name = "nvim-treesitter-textobjects";
-              data = vp.nvim-treesitter-textobjects;
-            }
-          ];
+          data = vp.nvim-treesitter.withAllGrammars;
+        }
+        {
+          name = "nvim-treesitter-context";
+          lazy = true;
+          data = vp.nvim-treesitter-context;
+        }
+        {
+          name = "nvim-treesitter-textobjects";
+          lazy = true;
+          data = vp.nvim-treesitter-textobjects;
         }
       ];
     };
     snippets = {
-      enable = mkDefault true;
+      enable = true;
       lazy = true;
       data = values {
         inherit (vp)
@@ -99,97 +124,132 @@ in
       };
     };
     lsp = {
-      enable = mkDefault true;
+      enable = full;
       data = [
         {
           name = "rustaceanvim";
           data = vp.rustaceanvim;
         }
         {
-          name = "lsp-helpers";
+          name = "nvim-lspconfig";
           lazy = true;
-          data = [
-            {
-              name = "nvim-lspconfig";
-              data = vp.nvim-lspconfig;
-            }
-            {
-              name = "inlay-hints";
-              data = mkPlugin "inlay-hints" inputs."plugins-inlay-hints";
-            }
-          ];
-
+          data = vp.nvim-lspconfig;
+        }
+        {
+          name = "inlay-hints";
+          lazy = true;
+          data = mkPlugin "inlay-hints" inputs."plugins-inlay-hints";
         }
       ];
     };
     ui = {
-      enable = mkDefault true;
+      enable = full;
       data = [
         {
-          name = "tiny-inline-diagnostic-nvim";
+          name = "tiny-inline-diagnostic.nvim";
           data = vp.tiny-inline-diagnostic-nvim;
         }
         {
-          name = "ui-deferred";
+          name = "todo-comments.nvim";
           lazy = true;
-          data = values {
-            inherit (vp)
-              todo-comments-nvim
-              nvim-ufo
-              statuscol-nvim
-              promise-async
-              render-markdown-nvim
-              quicker-nvim
-              golden-ratio
-              eyeliner-nvim
-              ;
-          };
+          data = vp.todo-comments-nvim;
+        }
+        {
+          name = "nvim-ufo";
+          lazy = true;
+          data = vp.nvim-ufo;
+        }
+        {
+          name = "statuscol.nvim";
+          lazy = true;
+          data = vp.statuscol-nvim;
+        }
+        {
+          name = "promise-async";
+          lazy = true;
+          data = vp.promise-async;
+        }
+        {
+          name = "render-markdown.nvim";
+          lazy = true;
+          data = vp.render-markdown-nvim;
+        }
+        {
+          name = "quicker.nvim";
+          lazy = true;
+          data = vp.quicker-nvim;
+        }
+        {
+          name = "golden-ratio";
+          lazy = true;
+          data = vp.golden-ratio;
+        }
+        {
+          name = "eyeliner.nvim";
+          lazy = true;
+          data = vp.eyeliner-nvim;
         }
       ];
     };
     ai = {
-      enable = mkDefault true;
+      enable = full;
       lazy = true;
-      data = values {
-        inherit (vp)
-          copilot-lua
-          blink-copilot
-          CopilotChat-nvim
-          ;
-      };
+      data = [
+        vp.blink-copilot
+        {
+          name = "copilot.lua";
+          data = vp.copilot-lua;
+        }
+        {
+          name = "CopilotChat.nvim";
+          data = vp.CopilotChat-nvim;
+        }
+      ];
     };
     git = {
-      enable = mkDefault true;
+      enable = true;
       lazy = true;
-      data = values {
-        inherit (vp)
-          neogit
-          gitsigns-nvim
-          ;
-      };
+      data = [
+        vp.neogit
+        {
+          name = "gitsigns.nvim";
+          data = vp.gitsigns-nvim;
+        }
+      ];
     };
     debuggers = {
-      enable = mkDefault true;
+      enable = full;
       lazy = true;
-      data = values {
-        inherit (vp)
-          nvim-dap
-          debugmaster-nvim
-          nvim-dap-go
-          ;
-      };
+      data = [
+        vp.nvim-dap
+        vp.nvim-dap-go
+        {
+          name = "debugmaster.nvim";
+          data = vp.debugmaster-nvim;
+        }
+      ];
     };
     extras = {
-      enable = mkDefault true;
+      enable = full;
       lazy = true;
-      data = values {
-        inherit (vp)
-          lazydev-nvim
-          obsidian-nvim
-          go-nvim
-          direnv-vim
-          ;
-      };
+      data = [
+        {
+          name = "lazydev.nvim";
+          data = vp.lazydev-nvim;
+        }
+        {
+          name = "obsidian.nvim";
+          data = vp.obsidian-nvim;
+        }
+        {
+          name = "go.nvim";
+          data = vp.go-nvim;
+        }
+        {
+          name = "direnv.vim";
+          data = vp.direnv-vim;
+        }
+      ];
     };
   };
 
@@ -218,7 +278,7 @@ in
     ++ optionals config.specs.debuggers.enable (values {
       inherit (pkgs)
         lldb
-        # gdb
+        gdb
         delve
         ;
     })
@@ -233,8 +293,8 @@ in
         superhtml
         markdown-oxide
         clang-tools
+        vscode-json-languageserver
         ;
-      inherit (pkgs.nodePackages) vscode-json-languageserver;
     })
     ++ optionals config.specs.editing.enable (values {
       inherit (pkgs)

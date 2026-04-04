@@ -21,7 +21,6 @@
         settings = {
           config_directory = "${inputs.self}/nvim";
           aliases = [
-            "nvim"
             "rdvim"
             "vim"
           ];
@@ -41,21 +40,13 @@
           wlib.wrapperModules.neovim
           (import ./specs.nix inputs)
         ];
+        profile = "minimal";
         settings = {
           config_directory = "${inputs.self}/nvim";
           aliases = [
-            "nvim"
             "rdvim"
             "vim"
           ];
-        };
-        specs = {
-          snippets.enable = false;
-          lsp.enable = false;
-          ai.enable = false;
-          ui.enable = false;
-          debuggers.enable = false;
-          extras.enable = false;
         };
       };
     nvim-test =
