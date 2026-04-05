@@ -69,7 +69,7 @@ vim.opt.undofile = true
 vim.opt.conceallevel = 1
 
 -- Experimental UI2: floating cmdline and messages
-o.cmdheight = 0
+vim.opt.cmdheight = 0
 require("vim._core.ui2").enable({
 	enable = true,
 	msg = {
