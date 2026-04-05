@@ -61,10 +61,5 @@
         ./emacs
         inputs.nix-wrapper-modules.flakeModules.wrappers
       ];
-
-      # Combine homeModules from different sources
-      flake.homeModules = {
-        rdmacs = import ./emacs/home-module.nix;
-      };
     };
 }
