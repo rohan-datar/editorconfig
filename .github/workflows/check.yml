@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 1
       - uses: DeterminateSystems/nix-installer-action@main
       - name: Check flake evaluation
-        run: nix -Lv flake check --all-systems
+        run: nix -Lv flake check
   check-flake-darwin:
     runs-on: macos-latest
     steps:
