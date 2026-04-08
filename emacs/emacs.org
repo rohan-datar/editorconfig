@@ -71,7 +71,9 @@
   - [[#markdown-mode][Markdown Mode]]
   - [[#consult][Consult]]
   - [[#consult-dir][Consult-dir]]
+  - [[#embark][Embark]]
   - [[#helpful][Helpful]]
+  - [[#wgrep][Wgrep]]
   - [[#diminish][Diminish]]
   - [[#rainbow-delimiters][Rainbow Delimiters]]
   - [[#rainbow-mode][Rainbow Mode]]
@@ -435,6 +437,7 @@ Note: The Leader key is what you will press when you want to access your keybind
 
       (rdmacs/leader-keys
         "." '(find-file :wk "Find file")
+    	"," '(embark-act :wk "Embark act")
     	"SPC" '(consult-buffer :wk "Consult Buffer")
         "q" '(flymake-show-buffer-diagnostics :wk "Flymake buffer diagnostic")
         "t t" '(vterm :wk "vterm terminal")
@@ -1584,6 +1587,17 @@ When using the minibuffer, you can switch - with completion and filtering provid
       (consult-dir-project-list-function #'consult-dir-projectile-dirs))
 #+end_src
 
+** Embark
+Emacs Mini-Buffer Actions Rooted in Keymaps. Right click like menu for Emacs.
+#+begin_src emacs-lisp
+    (use-package embark
+      :defer
+      :bind
+      ("C-q" . embark-act))
+    (use-package embark-consult
+      :after (embark consult))
+#+end_src
+
 ** Helpful
 An alternative to the built-in Emacs help that provides much more contextual information.
 #+begin_src emacs-lisp
@@ -1595,8 +1609,13 @@ An alternative to the built-in Emacs help that provides much more contextual inf
       ("C-h f" . helpful-callable)
       ("C-h v" . helpful-variable)
       ("C-h k" . helpful-key)
-      ("C-h x" . helpful-command)
-      )
+      ("C-h x" . helpful-command))
+#+end_src
+
+** Wgrep
+wgrep allows you to edit a grep buffer and apply those changes to the file buffer like sed interactively
+#+begin_src emacs-lisp
+    (use-package wgrep)
 #+end_src
 
 ** Diminish
