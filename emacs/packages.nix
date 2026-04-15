@@ -162,13 +162,16 @@ in
           direnv
           rainbow-mode
           hl-todo
+          ws-butler
+          wgrep
+          embark
+          embark-consult
           ;
 
         # Custom packages from overlay
-        inherit (ecpkgs)
-          # agent-shell
-          ws-butler
-          ;
+        # inherit (ecpkgs)
+        #   ghostel
+        #   ;
 
         # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
         # Exclude broken grammars (tree-sitter-razor)

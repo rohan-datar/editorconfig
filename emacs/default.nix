@@ -30,6 +30,7 @@
       extraPackages = packages.runtimeDeps;
       wrapperVariants.emacsclient = {
         exePath = "bin/emacsclient";
+        mirror = false; # Don't inherit --init-directory from emacs (emacsclient doesn't support it)
         addFlag = [ "-c" ];
       };
       buildCommand.fixDarwinApp = lib.mkIf isDarwin {

@@ -50,11 +50,6 @@
     };
 
     # Emacs packages not in nixpkgs
-    "emacs-ws-butler" = {
-      url = "github:lewang/ws-butler";
-      flake = false;
-    };
-
     "emacs-swift-development" = {
       url = "github:konrad1977/swift-development";
       flake = false;
