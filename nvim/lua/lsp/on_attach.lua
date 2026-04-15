@@ -3,6 +3,13 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		-- we create a function that lets us more easily define mappings specific
 		-- for LSP related items. It sets the mode, buffer and description for us each time.
 
+		-- enable codelens for supported provideers
+		for _, c in ipairs(vim.lsp.get_clients()) do
+			if c.server_capabilities and c.server_capabilities.codeLensProvider then
+				vim.lsp.codelens.enable(true, { client_id = c.id })
+			end
+		end
+
 		local nmap = function(keys, func, desc)
 			if desc then
 				desc = "LSP: " .. desc
@@ -35,7 +42,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
 		-- Execute a code action, usually your cursor needs to be on top of an error
 		-- or a suggestion from your LSP for this to activate.
-		nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+		nmap("<leader>ca", function()
+			require("tiny-code-action").code_action()
+		end, "[C]ode [A]ction")
 
 		nmap("<leader>cl", vim.lsp.codelens.run, "[C]ode[L]ens")
 

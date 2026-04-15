@@ -82,6 +82,11 @@ in
           lazy = true;
           data = vp.nvim-surround;
         }
+        {
+          name = "tiny-code-action.nvim";
+          lazy = true;
+          data = mkPlugin "tiny-code-action.nvim" inputs."plugins-tiny-code-action-nvim";
+        }
       ];
     };
     compile = {
@@ -201,8 +206,9 @@ in
           data = vp.copilot-lua;
         }
         {
-          name = "CopilotChat.nvim";
-          data = vp.CopilotChat-nvim;
+          name = "agentic.nvim";
+          lazy = true;
+          data = mkPlugin "agentic.nvim" inputs."plugins-agentic-nvim";
         }
       ];
     };
@@ -310,6 +316,12 @@ in
     ++ optionals config.specs.git.enable (values {
       inherit (pkgs)
         lazygit
+        ;
+    })
+    ++ optionals config.specs.ai.enable (values {
+      inherit (pkgs)
+        claude-agent-acp
+        github-copilot-cli
         ;
     });
 

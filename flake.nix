@@ -39,6 +39,16 @@
       flake = false;
     };
 
+    "plugins-tiny-code-action-nvim" = {
+      url = "github:rachartier/tiny-code-action.nvim";
+      flake = false;
+    };
+
+    "plugins-agentic-nvim" = {
+      url = "github:carlos-algms/agentic.nvim";
+      flake = false;
+    };
+
     # Emacs packages not in nixpkgs
     "emacs-ws-butler" = {
       url = "github:lewang/ws-butler";

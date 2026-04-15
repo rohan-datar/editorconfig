@@ -104,6 +104,17 @@ require("lze").load({
 			})
 		end,
 	},
+	{
+		"tiny-code-action.nvim",
+		for_cat = "ui",
+		event = "LspAttach",
+		after = function()
+			require("tiny-code-action").setup({
+				picker = "snacks",
+				backend = "vim",
+			})
+		end,
+	},
 	{ import = "plugins.quickfix" },
 	{ import = "plugins.git" },
 	{ import = "plugins.compile" },
