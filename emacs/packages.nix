@@ -46,7 +46,7 @@ in
 
         claude-code
         claude-agent-acp
-        copilot-cli
+        github-copilot-cli
         ;
     }
     // pkgs.lib.optionalAttrs isDarwin {
