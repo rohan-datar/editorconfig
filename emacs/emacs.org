@@ -766,6 +766,7 @@ More [[https://docs.projectile.mx/projectile/projectile_vs_project.html][reasons
       (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
       (projectile-project-search-path '("~/Documents/"
                                          "~/Documents/dev"
+    									 "~/dev"
                                          ("~/Documents/UW-Classes/" . 4)
                                          ("~/nix" . 0)
                                          ("~/editorconfig" . 0)))) ;; . 0 means only check the directory itself
@@ -1580,11 +1581,14 @@ Consult-dir allows you to easily insert directory paths into the minibuffer prom
 
 When using the minibuffer, you can switch - with completion and filtering provided by your completion setup - to any directory you’ve visited recently, or to a project, a bookmarked directory or even a remote host via tramp. The minibuffer prompt will be replaced with the directory you choose.
 #+begin_src emacs-lisp
-    (use-package consult-dir
-      :defer
-      :custom
-      (consult-dir-default-command #'consult-dir-dired)
-      (consult-dir-project-list-function #'consult-dir-projectile-dirs))
+        (use-package consult-dir
+          :custom
+          (consult-dir-default-command #'consult-dir-dired)
+          (consult-dir-project-list-function #'consult-dir-projectile-dirs)
+    	  :config
+    	  (add-to-list 'consult-buffer-sources 'consult-dir--source-recentf 'append)
+    	  (add-to-list 'consult-buffer-sources 'consult-dir--source-bookmark 'append)
+    	  (add-to-list 'consult-buffer-sources 'consult-dir--source-project 'append))
 #+end_src
 
 ** Embark
