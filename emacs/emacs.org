@@ -628,7 +628,7 @@ We already enabled line numbers globally, but we want to turn them off in some p
                             :height 140
                             :weight 'medium)
         (set-face-attribute 'variable-pitch nil
-                            :font "SFProDisplay Nerd Font"
+                            :font "SFPro Nerd Font"
                             :height 140
                             :weight 'medium)))
 
@@ -1424,7 +1424,7 @@ We use an Org mode document for our Emacs configuration because it provides:
                       (org-level-6 . 1.1)
                       (org-level-7 . 1.1)
                       (org-level-8 . 1.1)))
-        (set-face-attribute (car face) nil :font "SFProDisplay Nerd Font" :weight 'regular :height (cdr face)))
+        (set-face-attribute (car face) nil :font "SFPro Nerd Font" :weight 'regular :height (cdr face)))
 
       ;; Ensure that anything that should be fixed-pitch in Org files appears that way
       (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
