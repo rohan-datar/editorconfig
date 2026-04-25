@@ -235,9 +235,7 @@ Avg:
 
 Package quickstart only works with package.el.
 If you plan to use a different package manager, remember to remove this section and the package-quickstart-refresh line in the Auto-tangle hook.
-#+begin_src emacs-lisp
-    (setq package-quickstart t) ;; For blazingly fast startup times, this line makes startup miles faster
-#+end_src
+Moved to =early-init.el= for proper effect before package initialization.
 
 ** Defaults
 #+begin_src emacs-lisp
@@ -246,10 +244,8 @@ If you plan to use a different package manager, remember to remove this section 
           (auto-save-default nil)     ;; Stop creating # auto save files
           (column-number-mode t)      ;; Display the column number in the mode line.
           (create-lockfiles nil)      ;; Prevent the creation of lock files when editing.
-          (menu-bar-mode nil)         ;; Disable the menu bar
-          (scroll-bar-mode nil)       ;; Disable the scroll bar
-          (tool-bar-mode nil)         ;; Disable the tool bar
           (inhibit-startup-screen t)  ;; Disable welcome screen
+          ;; menu-bar-mode, scroll-bar-mode, tool-bar-mode moved to early-init.el
 
           (delete-by-moving-to-trash t) ;; Move deleted files to the trash instead of permanently deleting them.
           (delete-selection-mode 1)     ;; Enable replacing selected text with typed text.
@@ -583,11 +579,7 @@ Which-key is a helper utility for keychords (which key to press).
 
 * Appearance
 ** Theme
-#+begin_src emacs-lisp
-    (use-package catppuccin-theme
-      :config
-      (load-theme 'catppuccin t)) ;; We need to add t to trust this package
-#+end_src
+Theme loading moved to =early-init.el= to avoid flash of default colors on startup.
 
 ** Transparency
 With Emacs version 29, true transparency has been added.

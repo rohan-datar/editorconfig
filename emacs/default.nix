@@ -28,9 +28,14 @@
       package = pkgs.emacs-pgtk;
       emacsPackages = packages.emacsPackages;
       configFile = "";
+      earlyConfigFile = "";
       constructFiles.init.builder = ''
-        mkdir -p "$(dirname $2)"
+        mkdir -p "$(dirname "$2")"
         cp "${initFile}" "$2"
+      '';
+      constructFiles.early-init.builder = ''
+        mkdir -p "$(dirname "$2")"
+        cp "${./early-init.el}" "$2"
       '';
       extraPackages = packages.runtimeDeps;
       wrapperVariants.emacsclient = {
