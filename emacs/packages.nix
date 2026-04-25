@@ -149,7 +149,6 @@ in
           #AI
           agent-shell
           copilot-chat
-          claude-code
 
           # Other packages
           consult
