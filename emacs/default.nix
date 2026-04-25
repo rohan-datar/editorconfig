@@ -37,6 +37,10 @@
         mkdir -p "$(dirname "$2")"
         cp "${./early-init.el}" "$2"
       '';
+      # The wrapper module only auto-adds --init-directory when configFile or
+      # earlyConfigFile is non-empty. We bypass those by writing the files via
+      # constructFiles.*.builder, so we need to add the flag ourselves.
+      flags."--init-directory" = dirOf config.constructFiles.init.path;
       extraPackages = packages.runtimeDeps;
       wrapperVariants.emacsclient = {
         exePath = "bin/emacsclient";
