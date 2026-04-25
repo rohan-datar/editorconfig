@@ -26,7 +26,11 @@
 
       package = pkgs.emacs-pgtk;
       emacsPackages = packages.emacsPackages;
-      configFile = builtins.readFile initFile;
+      configFile = "";
+      construcFiles.init.builder = ''
+        mkdir -p "$(dirname $2)"
+        cp "${initFile}" "$2"
+      '';
       extraPackages = packages.runtimeDeps;
       wrapperVariants.emacsclient = {
         exePath = "bin/emacsclient";
