@@ -25,15 +25,7 @@
     {
       imports = [ wlib.wrapperModules.emacs ];
 
-      # emacs-overlay swaps in tree-sitter 0.26.x when building emacs-pgtk, but
-      # Emacs 30.2's bundled rust-ts-mode (and others) generate queries with
-      # bare `#match` predicates that 0.26 rejects as syntax errors -- 0.26
-      # made the trailing `?`/`!` on predicate names mandatory. Pin emacs-pgtk
-      # to the nixpkgs tree-sitter (currently 0.25.10) until either Emacs
-      # upstream migrates its queries or nixpkgs's tree-sitter-0.26.patch
-      # extends to cover the predicate-syntax change.
-      # See: https://github.com/NixOS/nixpkgs/issues/513404
-      package = pkgs.emacs-pgtk.override { tree-sitter = pkgs.tree-sitter; };
+      package = pkgs.emacs-pgtk;
       emacsPackages = packages.emacsPackages;
       configFile = "";
       earlyConfigFile = "";
