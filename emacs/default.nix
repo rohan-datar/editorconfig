@@ -11,10 +11,11 @@
     let
       inherit (pkgs.stdenv) isDarwin;
       packages = import ./packages.nix { inherit pkgs; };
+      tangle = (pkgs.extend inputs.org-babel.overlays.default).tangleOrgBabelFile;
 
       # Tangle the org config to an elisp file
       # org-babel overlay provides tangleOrgBabelFile
-      initFile = pkgs.tangleOrgBabelFile "init.el" ./emacs.org {
+      initFile = tangle "init.el" ./emacs.org {
         languages = [
           "emacs-lisp"
           "elisp"
@@ -27,7 +28,7 @@
       package = pkgs.emacs-pgtk;
       emacsPackages = packages.emacsPackages;
       configFile = "";
-      construcFiles.init.builder = ''
+      constructFiles.init.builder = ''
         mkdir -p "$(dirname $2)"
         cp "${initFile}" "$2"
       '';
