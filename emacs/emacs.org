@@ -373,9 +373,8 @@ Notes:
     (use-package evil-collection
         :after evil
         :config
-    	;; setting where to use evil-collection
-    	(setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult info neotree))
         (setq evil-collection-want-find-usages-bindings t)
+    	(setq evil-collection-setup-minibuffer t)
         (evil-collection-init))
 
     (use-package evil-surround
