@@ -169,9 +169,9 @@ in
           ;
 
         # Custom packages from overlay
-        # inherit (ecpkgs)
-        #   ghostel
-        #   ;
+        inherit (ecpkgs)
+          claude-code
+          ;
 
         # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
         # Exclude broken grammars (tree-sitter-razor)

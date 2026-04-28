@@ -59,6 +59,7 @@
 - [[#ai][AI]]
   - [[#agent-shell][Agent Shell]]
   - [[#copilot-chat][Copilot Chat]]
+  - [[#claude-code][Claude Code]]
 - [[#org-mode][Org Mode]]
   - [[#better-fonts][Better Fonts]]
   - [[#basic-config][Basic Config]]
@@ -1380,6 +1381,15 @@ A more emacs-native way of interacting with AI CLIs
 ** Copilot Chat
 #+begin_src emacs-lisp
 (use-package copilot-chat)
+#+end_src
+
+** Claude Code
+Better native claude code integration into emacs
+#+begin_src emacs-lisp
+    (use-package claude-code
+      :config
+      (setq claude-code-terminal-backend 'vterm) ;;TODO: switch this to ghostel once it's in nixpkgs
+      (claude-code-mode))
 #+end_src
 
 * Org Mode
