@@ -1073,6 +1073,15 @@ A simple major mode to provide .env files with color highlighting
   :config)
 #+end_src
 
+*** Pkl
+For .pkl files
+#+begin_src emacs-lisp
+    (use-package pkl-mode
+      :mode
+      (("\\.pkl\\'" . pkl-mode)
+       ("PklProject" . pkl-mode)))
+#+end_src
+
 *** Swift (Darwin only)
 Swift development setup for iOS/tvOS development.
 Uses the system Swift toolchain for LSP and build tools since nixpkgs Swift (5.10) is outdated compared to current (6.2).

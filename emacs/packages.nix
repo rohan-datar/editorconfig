@@ -120,6 +120,7 @@ in
           web-mode
           nix-ts-mode
           markdown-mode
+          pkl-mode
           add-node-modules-path
 
           # Terminal
