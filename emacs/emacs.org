@@ -410,142 +410,146 @@ And it is also really customizable.
 
 Note: The Leader key is what you will press when you want to access your keybindings: C-SPC + .  Find file
 #+begin_src emacs-lisp
-            (use-package general
-              :config
-        	  (general-evil-setup)
-              ;; Set up 'C-SPC' as the leader key
-              (general-create-definer rdmacs/leader-keys
-                :states '(normal insert visual motion emacs)
-                :keymaps 'override
-    			:prefix "SPC"
-                :global-prefix "C-SPC") ;; Set global leader key so we can access our keybindings from any state
+    (use-package general
+      :config
+      (general-evil-setup)
+      ;; Set up 'C-SPC' as the leader key
+      (general-create-definer rdmacs/leader-keys
+        :states '(normal insert visual motion emacs)
+        :keymaps 'override
+                :prefix "SPC"
+        :global-prefix "C-SPC") ;; Set global leader key so we can access our keybindings from any state
 
-              (rdmacs/leader-keys
-                "." '(find-file :wk "Find file")
-    			"," '(embark-act :wk "Embark act")
-    			"SPC" '(consult-buffer :wk "Consult Buffer")
-                "q" '(flymake-show-buffer-diagnostics :wk "Flymake buffer diagnostic")
-                "t t" '(vterm :wk "vterm terminal")
-                "p" '(projectile-command-map :wk "Projectile")
-    			"l" '(:keymap lsp-command-map :package lsp-mode :wk "LSP")
-    			"u" '(vundo :wk "Vundo"))
+      (rdmacs/leader-keys
+        "." '(find-file :wk "Find file")
+    	"," '(embark-act :wk "Embark act")
+    	"SPC" '(consult-buffer :wk "Consult Buffer")
+        "q" '(flymake-show-buffer-diagnostics :wk "Flymake buffer diagnostic")
+        "t t" '(vterm :wk "vterm terminal")
+        "p" '(projectile-command-map :wk "Projectile")
+    	"l" '(:keymap lsp-command-map :package lsp-mode :wk "LSP")
+    	"u" '(universal-argument :wk "Universal argument"))
 
-    		  (rdmacs/leader-keys
-    			"a" '(:ignore t :wk "AI")
-    			"a s" '(agent-shell :wk "Toggle agent-shell")
-    			"a c" '(copilot-chat :wk "Copilot Chat")
-    			"a v" '(agent-shell-other-buffer :wk "Agent shell toggle viewport")
-    			"a n" '(agent-shell-new-shell :wk "Start new agent-shell")
-    )
+      (rdmacs/leader-keys
+    	"v" '(:ignore t :wk "Vundo")
+    	"v u" '(vundo :wk "Vundo"))
 
-              (rdmacs/leader-keys
-                "s" '(:ignore t :wk "Search")
-                "s c" '((lambda () (interactive) (find-file "~/editorconfig/emacs/emacs.org")) :wk "Find emacs Config")
-                "s r" '(consult-recent-file :wk "Search recent files")
-                "s f" '(consult-fd :wk "Search files with fd")
-                "s g" '(consult-ripgrep :wk "Search with ripgrep")
-                "s l" '(consult-line :wk "Search line")
-        		"s h" '(consult-info :wk "Search help")
-                "s i" '(consult-imenu :wk "Search Imenu buffer locations")) ;; This one is really cool
+      (rdmacs/leader-keys
+    	"a" '(:ignore t :wk "AI")
+    	"a s" '(agent-shell :wk "Toggle agent-shell")
+    	"a c" '(copilot-chat :wk "Copilot Chat")
+    	"a v" '(agent-shell-other-buffer :wk "Agent shell toggle viewport")
+    	"a n" '(agent-shell-new-shell :wk "Start new agent-shell")
+    	)
 
-              (rdmacs/leader-keys
-                "f" '(:ignore t :wk "Files")
-                "f f" '(dired :wk "Open dired")
-                "f e" '(dired-jump :wk "Dired jump to current")
-                "f s" '(neotree-toggle :wk "Toggle neotree"))
+      (rdmacs/leader-keys
+        "s" '(:ignore t :wk "Search")
+        "s c" '((lambda () (interactive) (find-file "~/editorconfig/emacs/emacs.org")) :wk "Find emacs Config")
+        "s r" '(consult-recent-file :wk "Search recent files")
+        "s f" '(consult-fd :wk "Search files with fd")
+        "s g" '(consult-ripgrep :wk "Search with ripgrep")
+        "s l" '(consult-line :wk "Search line")
+        "s h" '(consult-info :wk "Search help")
+        "s i" '(consult-imenu :wk "Search Imenu buffer locations")) ;; This one is really cool
 
-              (rdmacs/leader-keys
-              "b" '(:ignore t :wk "Buffers")
-              "b b" '(consult-buffer :wk "Switch buffer")
-              "b i" '(ibuffer :wk "Ibuffer")
-              "b d" '(kill-current-buffer :wk "Kill current buffer")
-              "b k" '(kill-current-buffer :wk "Kill current buffer")
-              "b x" '(kill-current-buffer :wk "Kill current buffer")
-              "b n" '(next-buffer :wk "Next buffer")
-              "b p" '(previous-buffer :wk "Previous buffer")
-              "b r" '(revert-buffer :wk "Reload buffer"))
+      (rdmacs/leader-keys
+        "f" '(:ignore t :wk "Files")
+        "f f" '(dired :wk "Open dired")
+        "f e" '(dired-jump :wk "Dired jump to current")
+        "f s" '(neotree-toggle :wk "Toggle neotree"))
 
-              (rdmacs/leader-keys
-                "e" '(:ignore t :wk "Languages")
-                "e d" '(eldoc-doc-buffer :wk "Eldoc Buffer")
-                "e l" '(consult-flymake :wk "Consult Flymake")
-                "e v" '(:ignore t :wk "Elisp")
-        		"e v s" '(eval-last-sexp :wk "Evaluate sexp")
-                "e v b" '(eval-buffer :wk "Evaluate elisp in buffer")
-                "e v r" '(eval-region :wk "Evaluate elisp in region"))
+      (rdmacs/leader-keys
+        "b" '(:ignore t :wk "Buffers")
+        "b b" '(consult-buffer :wk "Switch buffer")
+        "b i" '(ibuffer :wk "Ibuffer")
+        "b d" '(kill-current-buffer :wk "Kill current buffer")
+        "b k" '(kill-current-buffer :wk "Kill current buffer")
+        "b x" '(kill-current-buffer :wk "Kill current buffer")
+        "b n" '(next-buffer :wk "Next buffer")
+        "b p" '(previous-buffer :wk "Previous buffer")
+        "b r" '(revert-buffer :wk "Reload buffer"))
 
-              (rdmacs/leader-keys
-                "g" '(:ignore t :wk "Git")
-                "g g" '(magit-status :wk "Magit status")
-                "g l" '(magit-log-current :wk "Show current log")
-                "g d" '(magit-diff-buffer-file :wk "Show diff for the current file")
-                "g D" '(diff-hl-show-hunk :wk "Show diff for hunk")
-                "g b" '(magit-blame :wk "Git blame"))
+      (rdmacs/leader-keys
+        "e" '(:ignore t :wk "Languages")
+        "e d" '(eldoc-doc-buffer :wk "Eldoc Buffer")
+        "e l" '(consult-flymake :wk "Consult Flymake")
+        "e v" '(:ignore t :wk "Elisp")
+        "e v s" '(eval-last-sexp :wk "Evaluate sexp")
+        "e v b" '(eval-buffer :wk "Evaluate elisp in buffer")
+        "e v r" '(eval-region :wk "Evaluate elisp in region"))
 
-              (rdmacs/leader-keys
-                "d" '(:ignore t :wk "Debug")
-                "d d" '(dap-debug :wk "Start debugging")
-                "d t" '(dap-ui-sessions :wk "Toggle DAP UI")
-                "d c" '(dap-continue :wk "Continue")
-                "d b" '(dap-breakpoint-toggle :wk "Toggle breakpoint")
-                "d B" '(dap-breakpoint-condition :wk "Conditional breakpoint")
-                "d p" '(dap-pause :wk "Pause")
-                "d s" '(dap-stop-thread :wk "Stop")
-                "d q" '(dap-disconnect :wk "Quit/Disconnect")
-                "d e" '(dap-eval :wk "Evaluate expression")
-                "d E" '(dap-eval-region :wk "Evaluate region")
-                "d i" '(dap-step-in :wk "Step into")
-                "d o" '(dap-step-out :wk "Step out")
-                "d n" '(dap-next :wk "Step over/next")
-                "d r" '(dap-restart-frame :wk "Restart")
-                "d R" '(dap-ui-repl :wk "Open REPL")
-                "d l" '(dap-ui-locals :wk "Show locals")
-                "d w" '(dap-ui-expressions-add :wk "Add watch expression"))
+      (rdmacs/leader-keys
+        "g" '(:ignore t :wk "Git")
+        "g g" '(magit-status :wk "Magit status")
+        "g l" '(magit-log-current :wk "Show current log")
+        "g d" '(magit-diff-buffer-file :wk "Show diff for the current file")
+        "g D" '(diff-hl-show-hunk :wk "Show diff for hunk")
+        "g b" '(magit-blame :wk "Git blame"))
 
-              (rdmacs/leader-keys
-                "h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
-                "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
-        		"h m" '(describe-mode :wk "Describe mode")
-        		"h k" '(helpful-key :wk "Describe keybinding")
-        		"h f" '(helpful-function :wk "Describe function")
-        		"h v" '(helpful-variable :wk "Describe variable"))
+      (rdmacs/leader-keys
+        "d" '(:ignore t :wk "Debug")
+        "d d" '(dap-debug :wk "Start debugging")
+        "d t" '(dap-ui-sessions :wk "Toggle DAP UI")
+        "d c" '(dap-continue :wk "Continue")
+        "d b" '(dap-breakpoint-toggle :wk "Toggle breakpoint")
+        "d B" '(dap-breakpoint-condition :wk "Conditional breakpoint")
+        "d p" '(dap-pause :wk "Pause")
+        "d s" '(dap-stop-thread :wk "Stop")
+        "d q" '(dap-disconnect :wk "Quit/Disconnect")
+        "d e" '(dap-eval :wk "Evaluate expression")
+        "d E" '(dap-eval-region :wk "Evaluate region")
+        "d i" '(dap-step-in :wk "Step into")
+        "d o" '(dap-step-out :wk "Step out")
+        "d n" '(dap-next :wk "Step over/next")
+        "d r" '(dap-restart-frame :wk "Restart")
+        "d R" '(dap-ui-repl :wk "Open REPL")
+        "d l" '(dap-ui-locals :wk "Show locals")
+        "d w" '(dap-ui-expressions-add :wk "Add watch expression"))
 
-              (rdmacs/leader-keys
-                "t" '(:ignore t :wk "Toggle")
-                "t v" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
-                "t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
+      (rdmacs/leader-keys
+        "h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
+        "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
+        "h m" '(describe-mode :wk "Describe mode")
+        "h k" '(helpful-key :wk "Describe keybinding")
+        "h f" '(helpful-function :wk "Describe function")
+        "h v" '(helpful-variable :wk "Describe variable"))
 
-             (defun rdmacs/smart-compile ()
-               "Run `projectile-compile-project' if in a project, otherwise `compile'."
-               (interactive)
-               (if (projectile-project-p)
-                   (call-interactively #'projectile-compile-project)
-                 (call-interactively #'compile)))
+      (rdmacs/leader-keys
+        "t" '(:ignore t :wk "Toggle")
+        "t v" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
+        "t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
 
-             (rdmacs/leader-keys
-              "c" '(:ignore t :wk "Compile")
-              "c c" '(rdmacs/smart-compile :wk "Run compile command")
-              "c r" '(recompile :wk "Recompile"))
+      (defun rdmacs/smart-compile ()
+        "Run `projectile-compile-project' if in a project, otherwise `compile'."
+        (interactive)
+        (if (projectile-project-p)
+            (call-interactively #'projectile-compile-project)
+          (call-interactively #'compile)))
 
-             (rdmacs/leader-keys
-               :keymaps '(markdown-mode-map markdown-view-mode-map)
-               "m" '(:ignore t :wk "Markdown")
-               "m t" '((lambda ()
-                         (interactive)
-                         (if (eq major-mode 'markdown-view-mode)
-                             (markdown-mode)
-                           (markdown-view-mode)))
-                       :wk "Toggle view mode")))
+      (rdmacs/leader-keys
+        "c" '(:ignore t :wk "Compile")
+        "c c" '(rdmacs/smart-compile :wk "Run compile command")
+        "c r" '(recompile :wk "Recompile"))
+
+      (rdmacs/leader-keys
+        :keymaps '(markdown-mode-map markdown-view-mode-map)
+        "m" '(:ignore t :wk "Markdown")
+        "m t" '((lambda ()
+                  (interactive)
+                  (if (eq major-mode 'markdown-view-mode)
+                      (markdown-mode)
+                    (markdown-view-mode)))
+                :wk "Toggle view mode")))
 
 
-            ;; Fix general.el leader key not working instantly in messages buffer with evil mode
-            (use-package emacs
-              :ghook ('after-init-hook
-                       (lambda (&rest _)
-        				 (when-let ((messages-buffer (get-buffer "*Messages*")))
-                           (with-current-buffer messages-buffer
-                             (evil-normalize-keymaps))))
-                       nil nil t))
+    ;; Fix general.el leader key not working instantly in messages buffer with evil mode
+    (use-package emacs
+      :ghook ('after-init-hook
+              (lambda (&rest _)
+        		(when-let ((messages-buffer (get-buffer "*Messages*")))
+                  (with-current-buffer messages-buffer
+                    (evil-normalize-keymaps))))
+              nil nil t))
 #+end_src
 
 ** Which-Key
