@@ -37,6 +37,10 @@
         mkdir -p "$(dirname "$2")"
         cp "${./early-init.el}" "$2"
       '';
+      # The wrapper module only auto-adds --init-directory when configFile or
+      # earlyConfigFile is non-empty. We bypass those by writing the files via
+      # constructFiles.*.builder, so we need to add the flag ourselves.
+      flags."--init-directory" = dirOf config.constructFiles.init.path;
       extraPackages = packages.runtimeDeps;
       wrapperVariants.emacsclient = {
         exePath = "bin/emacsclient";
@@ -131,6 +135,14 @@
         # Run Emacs with tangled config as init directory
         # (emacs.el gets renamed to init.el for Emacs to find it)
         mv "$TANGLE_DIR/emacs.el" "$TANGLE_DIR/init.el"
+
+        # Copy early-init.el alongside it so early initialization (UI chrome,
+        # frame colors, GC tuning) runs the same way it does in the built package.
+        EARLY_INIT="$(dirname "$EMACS_ORG")/early-init.el"
+        if [ -f "$EARLY_INIT" ]; then
+          cp "$EARLY_INIT" "$TANGLE_DIR/early-init.el"
+        fi
+
         exec ${rdmacs-unwrapped}/bin/emacs --init-directory "$TANGLE_DIR" "$@"
       '';
     in

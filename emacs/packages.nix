@@ -121,6 +121,7 @@ in
           web-mode
           nix-ts-mode
           markdown-mode
+          pkl-mode
           add-node-modules-path
 
           # Terminal
@@ -169,9 +170,9 @@ in
           ;
 
         # Custom packages from overlay
-        # inherit (ecpkgs)
-        #   ghostel
-        #   ;
+        inherit (ecpkgs)
+          claude-code
+          ;
 
         # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
         # Exclude broken grammars (tree-sitter-razor)

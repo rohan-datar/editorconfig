@@ -6,7 +6,8 @@
 
 * Table Of Contents :toc:
 - [[#core-setup--performance][Core Setup & Performance]]
-  - [[#startup-performance][Startup Performance]]
+  - [[#lexical-bindings][Lexical Bindings]]
+  - [[#early-initel][Early-Init.el]]
   - [[#nix-store-compatibility][Nix Store Compatibility]]
   - [[#auto-tangle-configuration-file][Auto-tangle Configuration file]]
   - [[#show-startup-time][Show startup time]]
@@ -58,6 +59,7 @@
 - [[#ai][AI]]
   - [[#agent-shell][Agent Shell]]
   - [[#copilot-chat][Copilot Chat]]
+  - [[#claude-code][Claude Code]]
 - [[#org-mode][Org Mode]]
   - [[#better-fonts][Better Fonts]]
   - [[#basic-config][Basic Config]]
@@ -91,35 +93,15 @@
 These are essential settings and small tweaks that must load before any packages.
 They impact the entire configuration, skipping these could result in significantly slower configuration and potential breakage of your setup.
 
-** Startup Performance
-Make startup faster by reducing the frequency of garbage collection. This will be set back when startup finishes.
-Also set the maximum output size for reading process output, allowing for larger data transfers.
+** Lexical Bindings
+Gives better performance, lexical closures, and code safety, allowing local variables to remain truly local.
 #+begin_src emacs-lisp
-       ;; Make startup faster by reducing the frequency of garbage collection. This will be set back when startup finishes.
-       ;; We also increase Read Process Output Max so Emacs can read more data.
-       ;; Set garbage collector (from doom emacs)
-       ;; About 0.02 faster
-       (setq gc-cons-threshold (* 1024 1024 128)  ;; 128mb
-                      	  gc-cons-percentage 1.0) ;; Disable the dynamic percentage trigger to ensure GC frequency is fixed.
-
-       ;; Unset file-name-handler-alist
-       ;; About 0.07 faster
-       (defvar last-file-name-handler-alist file-name-handler-alist)
-       (setq file-name-handler-alist nil)
-       (add-hook 'after-init-hook
-              	  (lambda ()
-              		(setq file-name-handler-alist last-file-name-handler-alist)))
-
-    ;; Fix seq library compatibility issue in Emacs 30.2
-    ;; Must be loaded early to prevent cl-no-applicable-method errors
-    (require 'seq)
-
-    ;; Fix white flash on startup
-    ;; Don't do it when using daemon or terminal, because it messes up the background color.
-    (unless (or (daemonp) (not initial-window-system))
-      (setq default-frame-alist '((foreground-color . "white")
-    							  (background-color . "#181818"))))
+;; -*- lexical-binding: t; -*-
 #+end_src
+
+
+** Early-Init.el
+This file is loaded before anything else. Most of the performance tweaks are there. We can configure things before the GUI or other packages are loaded.
 
 ** Nix Store Compatibility
 When running from Nix, the init directory is in the read-only Nix store.
@@ -135,7 +117,6 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
       ;; Yasnippet snippets directory
       (setq yas-snippet-dirs (list (expand-file-name "snippets/" cache-dir)))
       ;; Package quickstart cache
-      (setq package-quickstart-file (expand-file-name "package-quickstart.el" cache-dir))
       ;; Recent files list
       (setq recentf-save-file (expand-file-name "recentf" cache-dir))
       ;; Custom file for customize settings
@@ -240,61 +221,64 @@ Moved to =early-init.el= for proper effect before package initialization.
 
 ** Defaults
 #+begin_src emacs-lisp
-        (use-package emacs
-          :custom
-          (auto-save-default nil)     ;; Stop creating # auto save files
-          (column-number-mode t)      ;; Display the column number in the mode line.
-          (create-lockfiles nil)      ;; Prevent the creation of lock files when editing.
-          (inhibit-startup-screen t)  ;; Disable welcome screen
-          ;; menu-bar-mode, scroll-bar-mode, tool-bar-mode moved to early-init.el
+    (use-package emacs
+      :custom
+      (auto-save-default nil)     ;; Stop creating # auto save files
+      (column-number-mode t)      ;; Display the column number in the mode line.
+      (create-lockfiles nil)      ;; Prevent the creation of lock files when editing.
+      (inhibit-startup-screen t)  ;; Disable welcome screen
+      ;; still needed for terminals
+      (menu-bar-mode nil)
+      (scroll-bar-mode nil)
+      (tool-bar-mode nil)
 
-          (delete-by-moving-to-trash t) ;; Move deleted files to the trash instead of permanently deleting them.
-          (delete-selection-mode 1)     ;; Enable replacing selected text with typed text.
+      (delete-by-moving-to-trash t) ;; Move deleted files to the trash instead of permanently deleting them.
+      (delete-selection-mode 1)     ;; Enable replacing selected text with typed text.
 
-          (electric-indent-mode nil)  ;; Turn off the weird indenting that Emacs does by default.
-          (electric-pair-mode t)      ;; Turns on automatic parens pairing
+      (electric-indent-mode nil)  ;; Turn off the weird indenting that Emacs does by default.
+      (electric-pair-mode t)      ;; Turns on automatic parens pairing
 
-          (blink-cursor-mode nil)     ;; Don't blink cursor
-          (global-auto-revert-mode t) ;; Automatically reload file and show changes if the file has changed
+      (blink-cursor-mode nil)     ;; Don't blink cursor
+      (global-auto-revert-mode t) ;; Automatically reload file and show changes if the file has changed
 
-          (recentf-mode t) ;; Enable recent file mode
+      (recentf-mode t) ;; Enable recent file mode
 
-          (global-visual-line-mode t)           ;; Enable truncated lines
-          (display-line-numbers-type 'relative) ;; Relative line numbers
-          (global-display-line-numbers-mode t)  ;; Display line numbers
-          (global-hl-line-mode t)               ;; Highlights the current line
+      (global-visual-line-mode t)           ;; Enable truncated lines
+      (display-line-numbers-type 'relative) ;; Relative line numbers
+      (global-display-line-numbers-mode t)  ;; Display line numbers
+      (global-hl-line-mode t)               ;; Highlights the current line
 
-          (mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
-          (scroll-conservatively 10) ;; Smooth scrolling
-          (scroll-margin 8)
+      (mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
+      (scroll-conservatively 10) ;; Smooth scrolling
+      (scroll-margin 8)
 
-          (tab-always-indent 'complete) ;; Make the TAB key complete text instead of just indenting.
-          (tab-width 4)                 ;; Set the tab width to 4 spaces.
-          (treesit-font-lock-level 4)   ;; Use advanced font locking for Treesit mode.
-    	  (sgml-basic-offset 4) ;; Set Html mode indentation to 4
-    	  (c-ts-mode-indent-offset 4) ;; Fix weird indentation in c-ts (C, C++)
-    	  (go-ts-mode-indent-offset 4) ;; Fix weird indentation in go-ts
+      (tab-always-indent 'complete) ;; Make the TAB key complete text instead of just indenting.
+      (tab-width 4)                 ;; Set the tab width to 4 spaces.
+      (treesit-font-lock-level 4)   ;; Use advanced font locking for Treesit mode.
+      (sgml-basic-offset 4) ;; Set Html mode indentation to 4
+      (c-ts-mode-indent-offset 4) ;; Fix weird indentation in c-ts (C, C++)
+      (go-ts-mode-indent-offset 4) ;; Fix weird indentation in go-ts
 
-    	  (make-backup-files nil) ;; Stop creating ~ backup files
-          (use-short-answers t)   ;; Use short answers in prompts for quicker responses (y instead of yes)
+      (make-backup-files nil) ;; Stop creating ~ backup files
+      (use-short-answers t)   ;; Use short answers in prompts for quicker responses (y instead of yes)
 
-          (warning-minimum-level :emergency) ;; Set the minimum level of warnings to display.
+      (warning-minimum-level :emergency) ;; Set the minimum level of warnings to display.
 
-          :hook
-          (prog-mode . (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
-          :config
-          ;; Load custom file (path set in Nix Store Compatibility section)
-          (load custom-file 'noerror 'nomessage)
-          ;; Makes Emacs vertical divisor the symbol │ instead of |.
-          ;; (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+      :hook
+      (prog-mode . (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
+      :config
+      ;; Load custom file (path set in Nix Store Compatibility section)
+      (load custom-file 'noerror 'nomessage)
+      ;; Makes Emacs vertical divisor the symbol │ instead of |.
+      ;; (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
 
-          :bind (
-                 ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
-                 ;; Zooming In/Out
-                 ("C-+" . text-scale-increase)
-                 ("C--" . text-scale-decrease)
-                 ("<C-wheel-up>" . text-scale-increase)
-                 ("<C-wheel-down>" . text-scale-decrease)))
+      :bind (
+             ([escape] . keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
+             ;; Zooming In/Out
+             ("C-+" . text-scale-increase)
+             ("C--" . text-scale-decrease)
+             ("<C-wheel-up>" . text-scale-increase)
+             ("<C-wheel-down>" . text-scale-decrease)))
 #+end_src
 
 ** Dired
@@ -585,7 +569,11 @@ Which-key is a helper utility for keychords (which key to press).
 
 * Appearance
 ** Theme
-Theme loading moved to =early-init.el= to avoid flash of default colors on startup.
+#+begin_src emacs-lisp
+    (use-package catppuccin-theme
+      :config
+      (load-theme 'catppuccin t)) ;; We need to add t to trust this package
+#+end_src
 
 ** Transparency
 With Emacs version 29, true transparency has been added.
@@ -1094,6 +1082,15 @@ A simple major mode to provide .env files with color highlighting
   :config)
 #+end_src
 
+*** Pkl
+For .pkl files
+#+begin_src emacs-lisp
+    (use-package pkl-mode
+      :mode
+      (("\\.pkl\\'" . pkl-mode)
+       ("PklProject" . pkl-mode)))
+#+end_src
+
 *** Swift (Darwin only)
 Swift development setup for iOS/tvOS development.
 Uses the system Swift toolchain for LSP and build tools since nixpkgs Swift (5.10) is outdated compared to current (6.2).
@@ -1392,6 +1389,15 @@ A more emacs-native way of interacting with AI CLIs
 ** Copilot Chat
 #+begin_src emacs-lisp
 (use-package copilot-chat)
+#+end_src
+
+** Claude Code
+Better native claude code integration into emacs
+#+begin_src emacs-lisp
+    (use-package claude-code
+      :config
+      (setq claude-code-terminal-backend 'vterm) ;;TODO: switch this to ghostel once it's in nixpkgs
+      (claude-code-mode))
 #+end_src
 
 * Org Mode

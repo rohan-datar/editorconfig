@@ -54,6 +54,12 @@
       url = "github:konrad1977/swift-development";
       flake = false;
     };
+
+    "emacs-claude-code" = {
+      url = "github:stevemolitor/claude-code.el";
+      flake = false;
+    };
+
   };
 
   outputs =

@@ -14,6 +14,8 @@ let
     #   nerd-icons
     # ];
 
+    claude-code = with epkgs; [ inheritenv ];
+
     swift-development = with epkgs; [
       # Built-in packages are automatically available, only need MELPA packages
       nerd-icons
