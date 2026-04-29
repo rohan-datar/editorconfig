@@ -66,6 +66,7 @@
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
   - [[#center-org-buffers][Center Org Buffers]]
 - [[#other-packages][Other packages]]
+  - [[#move-text][Move Text]]
   - [[#undo][Undo]]
   - [[#markdown-mode][Markdown Mode]]
   - [[#consult][Consult]]
@@ -337,63 +338,68 @@ Notes:
 
 #+begin_src emacs-lisp
     (use-package evil
-        :init
-        (evil-mode)
-        :config
-        (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
-        (evil-set-initial-state 'vterm-mode 'insert) ;; Set initial state in vterm terminal to insert mode
-        (evil-set-initial-state 'dashboard-mode 'insert) ;; Set initial state in vterm terminal to insert mode
-    	;; normalize some emacs and vim keybindings
-        (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-        (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
-    	;; fix jumplist
-        (evil-define-key 'normal 'global (kbd "C-i") 'evil-jump-forward)
-    	;; diagnostic keybindings
-        (evil-define-key 'normal 'global (kbd "] d") 'flymake-goto-next-error) ;; Go to next Flymake error
-        (evil-define-key 'normal 'global (kbd "[ d") 'flymake-goto-prev-error) ;; Go to previous Flymake error
+      :init
+      (evil-mode)
+      :config
+      (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
+      (evil-set-initial-state 'vterm-mode 'insert) ;; Set initial state in vterm terminal to insert mode
+      (evil-set-initial-state 'dashboard-mode 'insert) ;; Set initial state in vterm terminal to insert mode
+      ;; normalize some emacs and vim keybindings
+      (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+      (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+      ;; fix jumplist
+      (evil-define-key 'normal 'global (kbd "C-i") 'evil-jump-forward)
+      ;; diagnostic keybindings
+      (evil-define-key 'normal 'global (kbd "] d") 'flymake-goto-next-error) ;; Go to next Flymake error
+      (evil-define-key 'normal 'global (kbd "[ d") 'flymake-goto-prev-error) ;; Go to previous Flymake error
 
-        (evil-define-key 'normal 'global (kbd "K") 'eldoc-box-help-at-point)
+      (evil-define-key 'normal 'global (kbd "K") 'eldoc-box-help-at-point)
 
-        ;; Diff-HL navigation for version control
-        (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
-        (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
-        :custom
-        (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
-        (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
-        (evil-want-C-i-jump nil)      ;; Disables C-i jump
-        (evil-undo-system 'undo-redo) ;; C-r to redo
-        (evil-want-fine-undo t)
-    	(evil-insert-state-cursor 'box)
-        ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
-        :bind (:map evil-motion-state-map
-                    ("SPC" . nil)
-                    ("RET" . nil)
-                    ("TAB" . nil)))
+      ;; Diff-HL navigation for version control
+      (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
+      (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
+
+      ;; move text up/down
+      (evil-define-key 'visual 'global (kbd "K") 'move-text-up)
+      (evil-define-key 'visual 'global (kbd "J") 'move-text-down)
+
+      :custom
+      (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
+      (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
+      (evil-want-C-i-jump nil)      ;; Disables C-i jump
+      (evil-undo-system 'undo-redo) ;; C-r to redo
+      (evil-want-fine-undo t)
+      (evil-insert-state-cursor 'box)
+      ;; Unmap keys in 'evil-maps. If not done, org-return-follows-link will not work
+      :bind (:map evil-motion-state-map
+                  ("SPC" . nil)
+                  ("RET" . nil)
+                  ("TAB" . nil)))
 
     (use-package evil-collection
-        :after evil
-        :config
-        (setq evil-collection-want-find-usages-bindings t)
-    	(setq evil-collection-setup-minibuffer t)
-        (evil-collection-init))
+      :after evil
+      :config
+      (setq evil-collection-want-find-usages-bindings t)
+      (setq evil-collection-setup-minibuffer t)
+      (evil-collection-init))
 
     (use-package evil-surround
-        :ensure t
-        :after evil-collection
-        :config
-        (global-evil-surround-mode 1))
+      :ensure t
+      :after evil-collection
+      :config
+      (global-evil-surround-mode 1))
 
     (use-package evil-matchit
-        :ensure t
-        :after evil-collection
-        :config
-        (global-evil-matchit-mode 1))
+      :ensure t
+      :after evil-collection
+      :config
+      (global-evil-matchit-mode 1))
 
     (use-package evil-multiedit
-        :ensure t
-        :after evil-collection
-        :config
-        (evil-multiedit-default-keybinds))
+      :ensure t
+      :after evil-collection
+      :config
+      (evil-multiedit-default-keybinds))
 
     (use-package evil-mc
       :ensure t
@@ -405,6 +411,7 @@ Notes:
       :config
       (evil-define-key 'normal 'global (kbd "gcc")  'evilnc-comment-or-uncomment-lines)
       (evil-define-key 'visual 'global (kbd "gc") 'evilnc-comment-or-uncomment-lines))
+
 #+end_src
 
 ** General Keybindings
@@ -800,6 +807,7 @@ We register LSP clients explicitly to use PATH lookup, since Nix provides the se
       (lsp-enable-folding nil)              ;; Disable folding if not used (use treesit-fold)
       (lsp-enable-text-document-color nil)  ;; Disable document colors if not needed
       (lsp-warn-no-matched-clients nil)     ;; Don't warn when no clients match
+      (lsp-eldoc-render-all t)              ;; Render full documentation, not just signature
 
       :init
       (defun rdmacs/lsp-mode-setup-completion ()
@@ -1489,6 +1497,23 @@ We use visual-fill-column to center org-mode buffers for a more pleasing writing
 
 * Other packages
 All the package setups that don't need much tweaking.
+
+** Move Text
+Move regions of text up/down as a group
+#+begin_src emacs-lisp
+    (use-package move-text
+      :after evil
+      :config
+      (defun rdmacs/indent-region-advice (&rest ignored)
+        (let ((deactivate deactivate-mark))
+          (if (region-active-p)
+              (indent-region (region-beginning) (region-end))
+            (indent-region (line-beginning-position) (line-end-position)))
+          (setq deactivate-mark deactivate)))
+
+      (advice-add 'move-text-up :after 'rdmacs/indent-region-advice)
+      (advice-add 'move-text-down :after 'rdmacs/indent-region-advice))
+#+end_src
 
 ** Undo
 Vundo: Visualizes undo history.
