@@ -122,6 +122,7 @@ in
           nix-ts-mode
           markdown-mode
           pkl-mode
+          kotlin-mode
           add-node-modules-path
 
           # Terminal

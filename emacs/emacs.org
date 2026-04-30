@@ -1,3 +1,4 @@
+
 #+Title: My Emacs Config
 #+Author: Rohan Datar
 #+PROPERTY: header-args:emacs-lisp :tangle emacs.el
@@ -1093,6 +1094,12 @@ For .pkl files
       :mode
       (("\\.pkl\\'" . pkl-mode)
        ("PklProject" . pkl-mode)))
+#+end_src
+
+*** Kotlin
+#+begin_src emacs-lisp
+    (use-package kotlin-mode
+      :mode "\\.kt\\'")
 #+end_src
 
 *** Swift (Darwin only)
