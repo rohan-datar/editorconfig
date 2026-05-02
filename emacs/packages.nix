@@ -150,8 +150,8 @@ in
           visual-fill-column
 
           #AI
-          agent-shell
-          copilot-chat
+          gptel
+          ai-code
 
           # Other packages
           consult

@@ -58,9 +58,9 @@
   - [[#orderless][Orderless]]
   - [[#vertico-and-marginalia][Vertico and Marginalia]]
 - [[#ai][AI]]
-  - [[#agent-shell][Agent Shell]]
-  - [[#copilot-chat][Copilot Chat]]
+  - [[#gptel][GPTel]]
   - [[#claude-code][Claude Code]]
+  - [[#ai-code-interface][AI Code Interface]]
 - [[#org-mode][Org Mode]]
   - [[#better-fonts][Better Fonts]]
   - [[#basic-config][Basic Config]]
@@ -1382,24 +1382,12 @@ One alternative is ivy and counsel, check out the [[https://github.com/MiniApoll
 #+end_src
 
 * AI
-** Agent Shell
-A more emacs-native way of interacting with AI CLIs
+** GPTel
 #+begin_src emacs-lisp
-(use-package agent-shell
-  :config
-  ;; Evil state-specific RET behavior: insert mode = newline, normal mode = send
-  (evil-define-key 'insert agent-shell-mode-map (kbd "RET") #'newline)
-  (evil-define-key 'normal agent-shell-mode-map (kbd "RET") #'comint-send-input)
-
-  ;; Configure *agent-shell-diff* buffers to start in Emacs state
-  (add-hook 'diff-mode-hook
-	    (lambda ()
-	      (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
-		(evil-emacs-state)))))
-#+end_src
-** Copilot Chat
-#+begin_src emacs-lisp
-(use-package copilot-chat)
+    (use-package gptel
+      :config
+      (setq gptel-model 'claude-4.5-opus
+            gptel-backend (gptel-make-gh-copilot "Copilot")))
 #+end_src
 
 ** Claude Code
@@ -1408,7 +1396,20 @@ Better native claude code integration into emacs
     (use-package claude-code
       :config
       (setq claude-code-terminal-backend 'vterm) ;;TODO: switch this to ghostel once it's in nixpkgs
-      (claude-code-mode))
+      (claude-code-mode)
+      :bind-keymap ("C-c c" . claude-code-command-map)
+
+      ;; Optionally define a repeat map so that "M" will cycle thru Claude auto-accept/plan/confirm modes after invoking claude-code-cycle-mode / C-c M.
+      :bind
+      (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode)))
+#+end_src
+
+** AI Code Interface
+#+begin_src emacs-lisp
+    (use-package ai-code
+      :config
+      (ai-code-set-backend 'github-copilot-cli)
+      (global-set-key (kbd "C-c a") #'ai-code-menu))
 #+end_src
 
 * Org Mode
