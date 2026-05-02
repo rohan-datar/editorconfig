@@ -81,7 +81,7 @@
   - [[#rainbow-mode][Rainbow Mode]]
   - [[#ws-butler][Ws-butler]]
   - [[#neotree][Neotree]]
-  - [[#direnv][Direnv]]
+  - [[#envrc][Envrc]]
   - [[#hl-todo][Hl-Todo]]
 - [[#runtime-performance][Runtime Performance]]
 
@@ -440,23 +440,7 @@ Note: The Leader key is what you will press when you want to access your keybind
 
       (rdmacs/leader-keys
         "." '(find-file :wk "Find file")
-    	"," '(embark-act :wk "Embark act")
-    	"SPC" '(consult-buffer :wk "Consult Buffer")
-        "q" '(flymake-show-buffer-diagnostics :wk "Flymake buffer diagnostic")
-        "p" '(projectile-command-map :wk "Projectile")
-    	"l" '(:keymap lsp-command-map :package lsp-mode :wk "LSP")
     	"u" '(universal-argument :wk "Universal argument"))
-
-
-      (rdmacs/leader-keys
-        "s" '(:ignore t :wk "Search")
-        "s c" '((lambda () (interactive) (find-file "~/editorconfig/emacs/emacs.org")) :wk "Find emacs Config")
-        "s r" '(consult-recent-file :wk "Search recent files")
-        "s f" '(consult-fd :wk "Search files with fd")
-        "s g" '(consult-ripgrep :wk "Search with ripgrep")
-        "s l" '(consult-line :wk "Search line")
-        "s h" '(consult-info :wk "Search help")
-        "s i" '(consult-imenu :wk "Search Imenu buffer locations")) ;; This one is really cool
 
       (rdmacs/leader-keys
         "f" '(:ignore t :wk "Files")
@@ -485,34 +469,6 @@ Note: The Leader key is what you will press when you want to access your keybind
         "e v r" '(eval-region :wk "Evaluate elisp in region"))
 
       (rdmacs/leader-keys
-        "g" '(:ignore t :wk "Git")
-        "g g" '(magit-status :wk "Magit status")
-        "g l" '(magit-log-current :wk "Show current log")
-        "g d" '(magit-diff-buffer-file :wk "Show diff for the current file")
-        "g D" '(diff-hl-show-hunk :wk "Show diff for hunk")
-        "g b" '(magit-blame :wk "Git blame"))
-
-      (rdmacs/leader-keys
-        "d" '(:ignore t :wk "Debug")
-        "d d" '(dap-debug :wk "Start debugging")
-        "d t" '(dap-ui-sessions :wk "Toggle DAP UI")
-        "d c" '(dap-continue :wk "Continue")
-        "d b" '(dap-breakpoint-toggle :wk "Toggle breakpoint")
-        "d B" '(dap-breakpoint-condition :wk "Conditional breakpoint")
-        "d p" '(dap-pause :wk "Pause")
-        "d s" '(dap-stop-thread :wk "Stop")
-        "d q" '(dap-disconnect :wk "Quit/Disconnect")
-        "d e" '(dap-eval :wk "Evaluate expression")
-        "d E" '(dap-eval-region :wk "Evaluate region")
-        "d i" '(dap-step-in :wk "Step into")
-        "d o" '(dap-step-out :wk "Step out")
-        "d n" '(dap-next :wk "Step over/next")
-        "d r" '(dap-restart-frame :wk "Restart")
-        "d R" '(dap-ui-repl :wk "Open REPL")
-        "d l" '(dap-ui-locals :wk "Show locals")
-        "d w" '(dap-ui-expressions-add :wk "Add watch expression"))
-
-      (rdmacs/leader-keys
         "h" '(:ignore t :wk "Help") ;; To get more help use C-h commands (describe variable, function, etc.)
         "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
         "h m" '(describe-mode :wk "Describe mode")
@@ -520,11 +476,6 @@ Note: The Leader key is what you will press when you want to access your keybind
         "h f" '(helpful-function :wk "Describe function")
         "h v" '(helpful-variable :wk "Describe variable"))
 
-      (rdmacs/leader-keys
-    	"o" '(:ignore t :wk "Open")
-    	"o t" '(ghostel :wk "Open terminal")
-    	"o t p" '(ghostel-project :wk "Open project terminal")
-    	"o o" '(ghostel-other :wk "Switch to other terminal"))
       (rdmacs/leader-keys
         "t" '(:ignore t :wk "Tabs")
         "t t" '(tab-bar-switch-to-tab :wk "Switch tab")
@@ -535,33 +486,18 @@ Note: The Leader key is what you will press when you want to access your keybind
     	"t p" '(tab-bar-switch-to-prev-tab :wk "Previous tab")
     	"t r" '(tab-bar-rename-tab :wk "Rename tab"))
 
-      (defun rdmacs/smart-compile ()
-        "Run `projectile-compile-project' if in a project, otherwise `compile'."
-        (interactive)
-        (if (projectile-project-p)
-            (call-interactively #'projectile-compile-project)
-          (call-interactively #'compile)))
-
       (rdmacs/leader-keys
-        "c" '(:ignore t :wk "Compile")
-        "c c" '(rdmacs/smart-compile :wk "Run compile command")
-        "c r" '(recompile :wk "Recompile"))
+    	"o" '(:ignore t :wk "Open")
+    	"o t" '(ghostel :wk "Open terminal")
+    	"o t p" '(ghostel-project :wk "Open project terminal")
+    	"o o" '(ghostel-other :wk "Switch to other terminal"))
 
-      (rdmacs/leader-keys
-        :keymaps '(markdown-mode-map markdown-view-mode-map)
-        "m" '(:ignore t :wk "Markdown")
-        "m t" '((lambda ()
-                  (interactive)
-                  (if (eq major-mode 'markdown-view-mode)
-                      (markdown-mode)
-                    (markdown-view-mode)))
-                :wk "Toggle view mode")))
 
       (rdmacs/leader-keys
     	"v" '(:ignore t :wk "Visual")
-    	"v v" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
+    	"v l" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
     	"v n" '(display-line-numbers-mode :wk "Toggle line numbers")
-    	"v u" '(vundo :wk "Vundo"))
+    	"v u" '(vundo :wk "Vundo")))
 
     ;; Fix general.el leader key not working instantly in messages buffer with evil mode
     (use-package emacs
@@ -774,6 +710,8 @@ More [[https://docs.projectile.mx/projectile/projectile_vs_project.html][reasons
 #+begin_src emacs-lisp
     (use-package projectile
       :config
+      (rdmacs/leader-keys
+        "p" '(projectile-command-map :wk "Projectile"))
       (projectile-mode)
       :custom
       (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
@@ -824,7 +762,10 @@ We register LSP clients explicitly to use PATH lookup, since Nix provides the se
       :init
       (defun rdmacs/lsp-mode-setup-completion ()
         (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-              '(orderless))))
+              '(orderless)))
+      :config
+      (rdmacs/leader-keys
+    	"l" '(:keymap lsp-command-map :package lsp-mode :wk "LSP")))
 
     (use-package lsp-ui
       :after lsp-mode
@@ -867,7 +808,27 @@ This mirrors the nvim-dap setup with support for Go and C/C++ via LLDB.
 
       ;; Go debugging via delve
       (require 'dap-dlv-go)
-      (require 'dap-lldb))
+      (require 'dap-lldb)
+      ;; Keybindings
+      (rdmacs/leader-keys
+        "d" '(:ignore t :wk "Debug")
+        "d d" '(dap-debug :wk "Start debugging")
+        "d t" '(dap-ui-sessions :wk "Toggle DAP UI")
+        "d c" '(dap-continue :wk "Continue")
+        "d b" '(dap-breakpoint-toggle :wk "Toggle breakpoint")
+        "d B" '(dap-breakpoint-condition :wk "Conditional breakpoint")
+        "d p" '(dap-pause :wk "Pause")
+        "d s" '(dap-stop-thread :wk "Stop")
+        "d q" '(dap-disconnect :wk "Quit/Disconnect")
+        "d e" '(dap-eval :wk "Evaluate expression")
+        "d E" '(dap-eval-region :wk "Evaluate region")
+        "d i" '(dap-step-in :wk "Step into")
+        "d o" '(dap-step-out :wk "Step out")
+        "d n" '(dap-next :wk "Step over/next")
+        "d r" '(dap-restart-frame :wk "Restart")
+        "d R" '(dap-ui-repl :wk "Open REPL")
+        "d l" '(dap-ui-locals :wk "Show locals")
+        "d w" '(dap-ui-expressions-add :wk "Add watch expression")))
 #+end_src
 
 ** Format-All
@@ -891,14 +852,17 @@ about errors and warnings in your code as you write. This can greatly enhance yo
 coding experience by catching issues early. The configuration below activates
 Flymake mode in programming buffers.
 #+begin_src emacs-lisp
-(use-package flymake
-  :ensure nil          ;; This is built-in, no need to fetch it.
-  :defer t
-  :hook (prog-mode . flymake-mode)
-  :custom
-  (flymake-margin-indicators-string
-   '((error "!»" compilation-error) (warning "»" compilation-warning)
-     (note "»" compilation-info))))
+    (use-package flymake
+      :ensure nil          ;; This is built-in, no need to fetch it.
+      :defer t
+      :hook (prog-mode . flymake-mode)
+      :config
+      (rdmacs/leader-keys
+        "q" '(flymake-show-buffer-diagnostics :wk "Flymake buffer diagnostic"))
+      :custom
+      (flymake-margin-indicators-string
+       '((error "!»" compilation-error) (warning "»" compilation-warning)
+         (note "»" compilation-info))))
 #+end_src
 
 ** Flyover
@@ -1210,31 +1174,35 @@ Uses libghostty to run a real terminal inside emacs
       :config
       (require 'ghostel-compile)
       (ghostel-compile-global-mode 1))
-    ;; evil-mode integration
-    (use-package evil-ghostel
-      :after (ghostel evil)
-      :hook (ghostel-mode . evil-ghostel-mode))
+    ;; ;; evil-mode integration
+    ;; (use-package evil-ghostel
+    ;;   :after (ghostel evil)
+    ;;   :hook (ghostel-mode . evil-ghostel-mode))
 #+end_src
 
 
 ** Compilation Mode
 Configure and enhance Emacs' compilation mode
 #+begin_src emacs-lisp
-    ;; (use-package compile
-    ;;   :ensure nil
-    ;;   :defer
-    ;;   :custom
-    ;;   (compilation-scroll-output t)
-    ;;   (compilation-max-output-line-length nil))
 
-    ;; (use-package fancy-compilation
-    ;;   :ensure t
-    ;;   :after compile
-    ;;   :config
-    ;;   (fancy-compilation-mode)
-    ;;   :custom
-    ;;   (fancy-compilation-override-colors nil)
-    ;;   (fancy-compilation-scroll-output t))
+    (defun rdmacs/smart-compile ()
+      "Run `projectile-compile-project' if in a project, otherwise `compile'."
+      (interactive)
+      (if (projectile-project-p)
+          (call-interactively #'projectile-compile-project)
+        (call-interactively #'compile)))
+
+    (use-package compile
+      :ensure nil
+      :defer
+      :custom
+      (compilation-scroll-output t)
+      (compilation-max-output-line-length nil)
+      :config
+      (rdmacs/leader-keys
+        "c" '(:ignore t :wk "Compile")
+        "c c" '(rdmacs/smart-compile :wk "Run compile command")
+        "c r" '(recompile :wk "Recompile")))
 #+end_src
 * Version Control
 ** Magit
@@ -1245,7 +1213,15 @@ Complete text-based user interface to Git.
       :custom (magit-diff-refine-hunk (quote all)) ;; Shows inline diff
       :config
       (define-key transient-map (kbd "<escape>") 'transient-quit-one) ;; Make escape quit magit prompts
-      (setopt magit-format-file-function #'magit-format-file-nerd-icons))
+      (setopt magit-format-file-function #'magit-format-file-nerd-icons)
+      ;; Keybindings
+      (rdmacs/leader-keys
+        "g" '(:ignore t :wk "Git")
+        "g g" '(magit-status :wk "Magit status")
+        "g l" '(magit-log-current :wk "Show current log")
+        "g d" '(magit-diff-buffer-file :wk "Show diff for the current file")
+        "g D" '(diff-hl-show-hunk :wk "Show diff for hunk")
+        "g b" '(magit-blame :wk "Git blame")))
 #+end_src
 
 ** Diff-hl
@@ -1566,20 +1542,30 @@ Undo-fu-session: Persistent undo history
 Markdown mode with variable pitch fonts for prose and fixed pitch for code blocks.
 
 #+begin_src emacs-lisp
-(defun rdmacs/markdown-font-setup ()
-  "Set up mixed pitch fonts for markdown mode."
-  ;; Ensure code elements use fixed-pitch
-  (set-face-attribute 'markdown-code-face nil :inherit 'fixed-pitch)
-  (set-face-attribute 'markdown-inline-code-face nil :inherit 'fixed-pitch)
-  (set-face-attribute 'markdown-pre-face nil :inherit 'fixed-pitch))
+    (defun rdmacs/markdown-font-setup ()
+      "Set up mixed pitch fonts for markdown mode."
+      ;; Ensure code elements use fixed-pitch
+      (set-face-attribute 'markdown-code-face nil :inherit 'fixed-pitch)
+      (set-face-attribute 'markdown-inline-code-face nil :inherit 'fixed-pitch)
+      (set-face-attribute 'markdown-pre-face nil :inherit 'fixed-pitch))
 
-(use-package markdown-mode
-  :mode ("\\.md\\'" . markdown-mode)
-  :hook
-  (markdown-mode . variable-pitch-mode)
-  (markdown-mode . rdmacs/markdown-font-setup)
-  :custom
-  (markdown-fontify-code-blocks-natively t)) ;; Syntax highlight code blocks
+    (use-package markdown-mode
+      :mode ("\\.md\\'" . markdown-mode)
+      :hook
+      (markdown-mode . variable-pitch-mode)
+      (markdown-mode . rdmacs/markdown-font-setup)
+      :custom
+      (markdown-fontify-code-blocks-natively t) ;; Syntax highlight code blocks
+      :config
+      (rdmacs/leader-keys
+        :keymaps '(markdown-mode-map markdown-view-mode-map)
+        "m" '(:ignore t :wk "Markdown")
+        "m t" '((lambda ()
+                  (interactive)
+                  (if (eq major-mode 'markdown-view-mode)
+                      (markdown-mode)
+                    (markdown-view-mode)))
+                :wk "Toggle view mode")))
 #+end_src
 
 ** Consult
@@ -1587,46 +1573,58 @@ Provides search and navigation commands based on the Emacs completion function.
 Check out their [[https://github.com/minad/consult][git repository]] for more awesome functions.
 
 #+begin_src emacs-lisp
-     (use-package consult
-       ;; Enable automatic preview at point in the *Completions* buffer. This is
-       ;; relevant when you use the default completion UI.
-       :hook (completion-list-mode . consult-preview-at-point-mode)
-       :init
-       ;; Optionally configure the register formatting. This improves the register
-       ;; preview for `consult-register', `consult-register-load',
-       ;; `consult-register-store' and the Emacs built-ins.
-       (setq register-preview-delay 0.5
-             register-preview-function #'consult-register-format)
+    (use-package consult
+      ;; Enable automatic preview at point in the *Completions* buffer. This is
+      ;; relevant when you use the default completion UI.
+      :hook (completion-list-mode . consult-preview-at-point-mode)
+      :init
+      ;; Optionally configure the register formatting. This improves the register
+      ;; preview for `consult-register', `consult-register-load',
+      ;; `consult-register-store' and the Emacs built-ins.
+      (setq register-preview-delay 0.5
+            register-preview-function #'consult-register-format)
 
-       ;; Optionally tweak the register preview window.
-       ;; This adds thin lines, sorting and hides the mode line of the window.
-       (advice-add #'register-preview :override #'consult-register-window)
+      ;; Optionally tweak the register preview window.
+      ;; This adds thin lines, sorting and hides the mode line of the window.
+      (advice-add #'register-preview :override #'consult-register-window)
 
-       ;; Use Consult to select xref locations with preview
-       (setq xref-show-xrefs-function #'consult-xref
-             xref-show-definitions-function #'consult-xref)
-       :config
-       (autoload 'projectile-project-root "projectile")
-       (autoload 'projectile-project-files "projectile")
-       (setq consult-project-function (lambda (_) (projectile-project-root)))
-       ;; Make consult buffer aware of project files as a fallback
-     	(defvar consult--source-projectile-file
-    	  `(:name "Project File"
-    			  :narrow ?f
-    			  :category file
-    			  :face consult-file
-    			  :history file-name-history
-    			  :action ,#'consult--file-action
-    			  :enabled ,(lambda () (projectile-project-root))
-    			  :items
-    			  ,(lambda ()
-    				 (let ((root (projectile-project-root)))
-    				   (mapcar (lambda (f) (expand-file-name f root))
-    						   (projectile-project-files root))))
-    			  "Projectile file source for `consult-buffer'."))
-    	  (add-to-list
-    	   'consult-buffer-sources
-    	   'consult--source-projectile-file :append))
+      ;; Use Consult to select xref locations with preview
+      (setq xref-show-xrefs-function #'consult-xref
+            xref-show-definitions-function #'consult-xref)
+      :config
+      (autoload 'projectile-project-root "projectile")
+      (autoload 'projectile-project-files "projectile")
+      (setq consult-project-function (lambda (_) (projectile-project-root)))
+      ;; Make consult buffer aware of project files as a fallback
+      (defvar consult--source-projectile-file
+      	`(:name "Project File"
+      			:narrow ?f
+      			:category file
+      			:face consult-file
+      			:history file-name-history
+      			:action ,#'consult--file-action
+      			:enabled ,(lambda () (projectile-project-root))
+      			:items
+      			,(lambda ()
+      			   (let ((root (projectile-project-root)))
+      				 (mapcar (lambda (f) (expand-file-name f root))
+      						 (projectile-project-files root))))
+      			"Projectile file source for `consult-buffer'."))
+      (add-to-list
+       'consult-buffer-sources
+       'consult--source-projectile-file :append)
+
+      ;; Keybindings
+      (rdmacs/leader-keys
+    	"SPC" '(consult-buffer :wk "Consult Buffer")
+    	"s" '(:ignore t :wk "Search")
+    	"s c" '((lambda () (interactive) (find-file "~/editorconfig/emacs/emacs.org")) :wk "Find emacs Config")
+    	"s r" '(consult-recent-file :wk "Search recent files")
+    	"s f" '(consult-fd :wk "Search files with fd")
+    	"s g" '(consult-ripgrep :wk "Search with ripgrep")
+    	"s l" '(consult-line :wk "Search line")
+    	"s i" '(consult-imenu :wk "Search Imenu buffer locations") ;; This one is really cool
+      "s h" '(consult-info :wk "Search help")))
 
 #+end_src
 
@@ -1662,8 +1660,12 @@ Emacs Mini-Buffer Actions Rooted in Keymaps. Right click like menu for Emacs.
 #+begin_src emacs-lisp
     (use-package embark
       :defer
+      :config
+      (rdmacs/leader-keys
+        "," '(embark-act :wk "Embark act"))
       :bind
       ("C-q" . embark-act))
+
     (use-package embark-consult
       :after (embark consult))
 #+end_src
@@ -1735,7 +1737,7 @@ and integrates with version control to show file states.
   (setq neo-theme 'nerd-icons))         ;; Set the theme to 'nerd-icons' if nerd fonts are available.
 #+end_src
 
-** Direnv
+** Envrc
 Integrate Direnv with Emacs via =envrc=, which sets buffer-local environment
 once when a file is opened.
 #+begin_src emacs-lisp
