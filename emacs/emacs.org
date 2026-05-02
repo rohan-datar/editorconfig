@@ -69,7 +69,6 @@
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
   - [[#center-org-buffers][Center Org Buffers]]
 - [[#other-packages][Other packages]]
-  - [[#move-text][Move Text]]
   - [[#undo][Undo]]
   - [[#markdown-mode][Markdown Mode]]
   - [[#consult][Consult]]
@@ -344,9 +343,23 @@ Notes:
       (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
       (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
 
-      ;; move text up/down
-      (evil-define-key 'visual 'global (kbd "K") 'move-text-up)
-      (evil-define-key 'visual 'global (kbd "J") 'move-text-down)
+      ;; move selected lines up/down via :move, then gv=gv to reindent
+      ;; and restore the visual selection on the moved range
+      (evil-define-key 'visual 'global (kbd "K") (kbd ": m '<-2 RET gv=gv"))
+      (evil-define-key 'visual 'global (kbd "J") (kbd ": m '>+1 RET gv=gv"))
+
+      ;; vim's :m updates '<,'> to follow the moved text so gv re-selects it.
+      ;; evil-move only does this when called from active visual state, which
+      ;; isn't true when invoked via : from visual mode. Patch it to always
+      ;; update the visual markers so the gv=gv idiom works as in vim.
+      (advice-add 'evil-move :around
+                  (lambda (orig beg end address)
+                    (let ((n (count-lines beg end)))
+                      (funcall orig beg end address)
+                      (move-marker evil-visual-point (line-end-position))
+                      (move-marker evil-visual-mark
+                                   (save-excursion (forward-line (- 1 n))
+                                                   (point))))))
 
       :custom
       (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
@@ -1515,23 +1528,6 @@ We use visual-fill-column to center org-mode buffers for a more pleasing writing
 
 * Other packages
 All the package setups that don't need much tweaking.
-
-** Move Text
-Move regions of text up/down as a group
-#+begin_src emacs-lisp
-    (use-package move-text
-      :after evil
-      :config
-      (defun rdmacs/indent-region-advice (&rest ignored)
-        (let ((deactivate deactivate-mark))
-          (if (region-active-p)
-              (indent-region (region-beginning) (region-end))
-            (indent-region (line-beginning-position) (line-end-position)))
-          (setq deactivate-mark deactivate)))
-
-      (advice-add 'move-text-up :after 'rdmacs/indent-region-advice)
-      (advice-add 'move-text-down :after 'rdmacs/indent-region-advice))
-#+end_src
 
 ** Undo
 Vundo: Visualizes undo history.

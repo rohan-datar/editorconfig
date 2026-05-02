@@ -74,7 +74,6 @@ in
           evil-multiedit
           evil-mc
           evil-nerd-commenter
-          move-text
 
           # Keybindings
           general
