@@ -160,7 +160,7 @@ in
           neotree
           vundo
           undo-fu-session
-          direnv
+          envrc
           rainbow-mode
           hl-todo
           ws-butler
