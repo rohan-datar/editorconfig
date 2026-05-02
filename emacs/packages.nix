@@ -45,7 +45,6 @@ in
         lldb
 
         claude-code
-        claude-agent-acp
         github-copilot-cli
         ;
     }
