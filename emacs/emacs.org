@@ -1218,6 +1218,16 @@ Configure and enhance Emacs' compilation mode
         "c" '(:ignore t :wk "Compile")
         "c c" '(rdmacs/smart-compile :wk "Run compile command")
         "c r" '(recompile :wk "Recompile")))
+
+    (when (eq system-type 'darwin)
+    (use-package fancy-compilation
+      :ensure t
+      :after compile
+      :config
+      (fancy-compilation-mode)
+      :custom
+      (fancy-compilation-override-colors nil)
+      (fancy-compilation-scroll-output t)))
 #+end_src
 * Version Control
 ** Magit
