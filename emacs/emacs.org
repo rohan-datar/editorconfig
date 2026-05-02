@@ -3,7 +3,7 @@
 #+Author: Rohan Datar
 #+PROPERTY: header-args:emacs-lisp :tangle emacs.el
 #+PROPERTY: header-args :mkdirp yes :comments no
-#+Options: toc:2
+#+Options: toc:3
 
 * Table Of Contents :toc:
 - [[#core-setup--performance][Core Setup & Performance]]
@@ -84,10 +84,6 @@
   - [[#direnv][Direnv]]
   - [[#hl-todo][Hl-Todo]]
 - [[#runtime-performance][Runtime Performance]]
-- [[#multi-file-example][Multi File Example]]
-  - [[#adding-the-lisp-directory-to-load-path][Adding the lisp directory to load-path]]
-  - [[#sourcing-the-files][Sourcing the files]]
-  - [[#using-the-file][Using the file]]
 
 * Core Setup & Performance
 These are essential settings and small tweaks that must load before any packages.
@@ -326,8 +322,7 @@ Notes:
       (evil-mode)
       :config
       (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
-      (evil-set-initial-state 'vterm-mode 'insert) ;; Set initial state in vterm terminal to insert mode
-      (evil-set-initial-state 'dashboard-mode 'insert) ;; Set initial state in vterm terminal to insert mode
+      (evil-set-initial-state 'dashboard-mode 'normal) ;; Set initial state in dashboard to normal
       ;; normalize some emacs and vim keybindings
       (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
       (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
@@ -342,6 +337,10 @@ Notes:
       ;; Diff-HL navigation for version control
       (evil-define-key 'normal 'global (kbd "] c") 'diff-hl-next-hunk) ;; Next diff hunk
       (evil-define-key 'normal 'global (kbd "[ c") 'diff-hl-previous-hunk) ;; Previous diff hunk
+
+      ;; Tab navigation
+      (evil-define-key 'normal 'global (kbd "] t") 'tab-bar-switch-to-next-tab)
+      (evil-define-key 'normal 'global (kbd "[ t") 'tab-bar-switch-to-prev-tab)
 
       ;; move selected lines up/down via :move, then gv=gv to reindent
       ;; and restore the visual selection on the moved range
@@ -373,7 +372,12 @@ Notes:
                   ("SPC" . nil)
                   ("RET" . nil)
                   ("TAB" . nil)))
+#+end_src
 
+*** Evil Add-Ons
+Extensions for evil-mode functionality
+
+#+begin_src emacs-lisp
     (use-package evil-collection
       :after evil
       :config
@@ -439,22 +443,10 @@ Note: The Leader key is what you will press when you want to access your keybind
     	"," '(embark-act :wk "Embark act")
     	"SPC" '(consult-buffer :wk "Consult Buffer")
         "q" '(flymake-show-buffer-diagnostics :wk "Flymake buffer diagnostic")
-        "t t" '(vterm :wk "vterm terminal")
         "p" '(projectile-command-map :wk "Projectile")
     	"l" '(:keymap lsp-command-map :package lsp-mode :wk "LSP")
     	"u" '(universal-argument :wk "Universal argument"))
 
-      (rdmacs/leader-keys
-    	"v" '(:ignore t :wk "Vundo")
-    	"v u" '(vundo :wk "Vundo"))
-
-      (rdmacs/leader-keys
-    	"a" '(:ignore t :wk "AI")
-    	"a s" '(agent-shell :wk "Toggle agent-shell")
-    	"a c" '(copilot-chat :wk "Copilot Chat")
-    	"a v" '(agent-shell-other-buffer :wk "Agent shell toggle viewport")
-    	"a n" '(agent-shell-new-shell :wk "Start new agent-shell")
-    	)
 
       (rdmacs/leader-keys
         "s" '(:ignore t :wk "Search")
@@ -529,9 +521,19 @@ Note: The Leader key is what you will press when you want to access your keybind
         "h v" '(helpful-variable :wk "Describe variable"))
 
       (rdmacs/leader-keys
-        "t" '(:ignore t :wk "Toggle")
-        "t v" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
-        "t l" '(display-line-numbers-mode :wk "Toggle line numbers"))
+    	"o" '(:ignore t :wk "Open")
+    	"o t" '(ghostel :wk "Open terminal")
+    	"o t p" '(ghostel-project :wk "Open project terminal")
+    	"o o" '(ghostel-other :wk "Switch to other terminal"))
+      (rdmacs/leader-keys
+        "t" '(:ignore t :wk "Tabs")
+        "t t" '(tab-bar-switch-to-tab :wk "Switch tab")
+        "t o" '(tab-bar-new-tab :wk "Open new tab")
+    	"t i" '(tab-bar-list :wk "List tabs")
+    	"t k" '(tab-bar-close-tab :wk "Close current tab")
+    	"t n" '(tab-bar-switch-to-next-tab :wk "Next tab")
+    	"t p" '(tab-bar-switch-to-prev-tab :wk "Previous tab")
+    	"t r" '(tab-bar-rename-tab :wk "Rename tab"))
 
       (defun rdmacs/smart-compile ()
         "Run `projectile-compile-project' if in a project, otherwise `compile'."
@@ -555,6 +557,11 @@ Note: The Leader key is what you will press when you want to access your keybind
                     (markdown-view-mode)))
                 :wk "Toggle view mode")))
 
+      (rdmacs/leader-keys
+    	"v" '(:ignore t :wk "Visual")
+    	"v v" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
+    	"v n" '(display-line-numbers-mode :wk "Toggle line numbers")
+    	"v u" '(vundo :wk "Vundo"))
 
     ;; Fix general.el leader key not working instantly in messages buffer with evil mode
     (use-package emacs
@@ -612,8 +619,7 @@ We already enabled line numbers globally, but we want to turn them off in some p
 (dolist (mode '(org-mode-hook
                 eat-mode-hook
                 shell-mode-hook
-                neotree-mode-hook
-                vterm-mode-hook))
+                neotree-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
@@ -1193,35 +1199,42 @@ If you want a faster and more responsive terminal emulator try out vterm.
     (use-package eat
       :hook ('eshell-load-hook #'eat-eshell-mode))
 #+end_src
-*** Vterm
-vterm is an improved terminal emulator package which uses a compiled native module to interact with the underlying terminal applications. This enables it to be much faster than term-mode and to also provide a more complete terminal emulation experience.
-#+begin_src emacs-lisp
-(use-package vterm
-  :commands vterm
-  :config
-  ;; (setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
-  (setq vterm-max-scrollback 10000))
 
+*** Ghostel
+Uses libghostty to run a real terminal inside emacs
+#+begin_src emacs-lisp
+
+    (use-package ghostel
+      :custom
+      (ghostel-module-auto-install nil)
+      :config
+      (require 'ghostel-compile)
+      (ghostel-compile-global-mode 1))
+    ;; evil-mode integration
+    (use-package evil-ghostel
+      :after (ghostel evil)
+      :hook (ghostel-mode . evil-ghostel-mode))
 #+end_src
+
 
 ** Compilation Mode
 Configure and enhance Emacs' compilation mode
 #+begin_src emacs-lisp
-    (use-package compile
-      :ensure nil
-      :defer
-      :custom
-      (compilation-scroll-output t)
-      (compilation-max-output-line-length nil))
+    ;; (use-package compile
+    ;;   :ensure nil
+    ;;   :defer
+    ;;   :custom
+    ;;   (compilation-scroll-output t)
+    ;;   (compilation-max-output-line-length nil))
 
-    (use-package fancy-compilation
-      :ensure t
-      :after compile
-      :config
-      (fancy-compilation-mode)
-      :custom
-      (fancy-compilation-override-colors nil)
-      (fancy-compilation-scroll-output t))
+    ;; (use-package fancy-compilation
+    ;;   :ensure t
+    ;;   :after compile
+    ;;   :config
+    ;;   (fancy-compilation-mode)
+    ;;   :custom
+    ;;   (fancy-compilation-override-colors nil)
+    ;;   (fancy-compilation-scroll-output t))
 #+end_src
 * Version Control
 ** Magit
@@ -1408,7 +1421,7 @@ Better native claude code integration into emacs
 #+begin_src emacs-lisp
     (use-package claude-code
       :config
-      (setq claude-code-terminal-backend 'vterm) ;;TODO: switch this to ghostel once it's in nixpkgs
+      (setq claude-code-terminal-backend 'ghostel) ;;TODO: switch this to ghostel once it's in nixpkgs
       (claude-code-mode)
       :bind-keymap ("C-c c" . claude-code-command-map)
 
@@ -1778,26 +1791,3 @@ We also increase Read Process Output Max so Emacs can read more data.
     (setq read-process-output-max (* 1024 1024)) ;; 1mb
 #+end_src
 
-* Multi File Example
-** Adding the lisp directory to load-path
-Adds the lisp directory to Emacs's load path to search for elisp files.
-This is necessary because Emacs does not search the entire user-emacs-directory.
-The directory name can be anything, just add it to the load-path.
-#+begin_src emacs-lisp
-    ;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-#+end_src
-
-** Sourcing the files
-To use the elisp files we need to load it.
-Notes:
-- Don't forget the file and the provide name needs to be the same.
-- When naming elisp files, functions, it is recommended to use a group name (e.g. init-, start- or any custom name), so it does not get mixed up with other names, functions.
-#+begin_src emacs-lisp
-    ;; (require 'start-multiFileExample)
-#+end_src
-
-** Using the file
-And now we can use everything from that file.
-#+begin_src emacs-lisp
-    ;; (start/hello)
-#+end_src

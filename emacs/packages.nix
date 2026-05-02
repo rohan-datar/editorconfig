@@ -125,7 +125,7 @@ in
 
           # Terminal
           eat
-          vterm
+          ghostel
 
           # Version Control
           transient
