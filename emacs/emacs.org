@@ -1167,17 +1167,17 @@ If you want a faster and more responsive terminal emulator try out vterm.
 *** Ghostel
 Uses libghostty to run a real terminal inside emacs
 #+begin_src emacs-lisp
-
     (use-package ghostel
       :custom
       (ghostel-module-auto-install nil)
       :config
       (require 'ghostel-compile)
       (ghostel-compile-global-mode 1))
-    ;; ;; evil-mode integration
-    ;; (use-package evil-ghostel
-    ;;   :after (ghostel evil)
-    ;;   :hook (ghostel-mode . evil-ghostel-mode))
+
+    ;; evil-mode integration
+    (use-package evil-ghostel
+      :after (ghostel evil)
+      :hook (ghostel-mode . evil-ghostel-mode))
 #+end_src
 
 
@@ -1411,6 +1411,7 @@ Better native claude code integration into emacs
     (use-package ai-code
       :config
       (ai-code-set-backend 'github-copilot-cli)
+      (setq ai-code-backends-infra-terminal-backend 'ghostel)
       (global-set-key (kbd "C-c a") #'ai-code-menu))
 #+end_src
 

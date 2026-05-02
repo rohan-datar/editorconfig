@@ -63,7 +63,19 @@ let
     };
 
   # Build all Emacs packages from inputs
-  customEmacsPackages = builtins.listToAttrs (map buildEmacsPackage emacsInputs);
+  customEmacsPackages = (builtins.listToAttrs (map buildEmacsPackage emacsInputs)) // {
+    # evil-ghostel ships in the ghostel repo under extensions/, so reuse ghostel.src
+    # rather than adding a duplicate flake input. Keeps the two version-locked.
+    evil-ghostel = epkgs.trivialBuild {
+      pname = "evil-ghostel";
+      version = epkgs.ghostel.version;
+      src = epkgs.ghostel.src;
+      postUnpack = ''
+        mv $sourceRoot/extensions/evil-ghostel/evil-ghostel.el $sourceRoot/
+      '';
+      packageRequires = with epkgs; [ ghostel evil ];
+    };
+  };
 in
 {
   # Add a custom package set similar to neovimPlugins

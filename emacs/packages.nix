@@ -171,6 +171,7 @@ in
         # Custom packages from overlay
         inherit (ecpkgs)
           claude-code
+          evil-ghostel
           ;
 
         # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
