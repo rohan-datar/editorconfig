@@ -125,7 +125,6 @@ in
 
           # Terminal
           eat
-          ghostel
 
           # Version Control
           transient
@@ -171,7 +170,6 @@ in
         # Custom packages from overlay
         inherit (ecpkgs)
           claude-code
-          evil-ghostel
           ;
 
         # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
@@ -186,11 +184,18 @@ in
           swift-mode
           swift-ts-mode
           request # Dependency for swift-development
+          # Terminal fallback: ghostel is broken on darwin
+          vterm
           ;
         # Custom packages from overlay
         inherit (ecpkgs)
           swift-development # Xcode-like Swift development
           ;
+      }
+      // optionalAttrs (!isDarwin) {
+        # Terminal (libghostty-backed; broken on darwin so darwin uses vterm above)
+        inherit (epkgs) ghostel;
+        inherit (ecpkgs) evil-ghostel;
       }
     );
 }

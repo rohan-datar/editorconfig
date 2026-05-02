@@ -487,10 +487,17 @@ Note: The Leader key is what you will press when you want to access your keybind
     	"t r" '(tab-bar-rename-tab :wk "Rename tab"))
 
       (rdmacs/leader-keys
-    	"o" '(:ignore t :wk "Open")
-    	"o t" '(ghostel :wk "Open terminal")
-    	"o t p" '(ghostel-project :wk "Open project terminal")
-    	"o o" '(ghostel-other :wk "Switch to other terminal"))
+    	"o" '(:ignore t :wk "Open"))
+
+      ;; ghostel is broken on darwin; fall back to vterm there
+      (if (eq system-type 'darwin)
+          (rdmacs/leader-keys
+    	    "o t" '(vterm :wk "Open terminal")
+    	    "o t p" '(projectile-run-vterm :wk "Open project terminal"))
+        (rdmacs/leader-keys
+    	  "o t" '(ghostel :wk "Open terminal")
+    	  "o t p" '(ghostel-project :wk "Open project terminal")
+    	  "o o" '(ghostel-other :wk "Switch to other terminal")))
 
 
       (rdmacs/leader-keys
@@ -1165,19 +1172,27 @@ If you want a faster and more responsive terminal emulator try out vterm.
 #+end_src
 
 *** Ghostel
-Uses libghostty to run a real terminal inside emacs
+Uses libghostty to run a real terminal inside emacs.
+Broken on darwin (libghostty issue), so darwin falls back to vterm below.
 #+begin_src emacs-lisp
-    (use-package ghostel
-      :custom
-      (ghostel-module-auto-install nil)
-      :config
-      (require 'ghostel-compile)
-      (ghostel-compile-global-mode 1))
+    (unless (eq system-type 'darwin)
+      (use-package ghostel
+        :custom
+        (ghostel-module-auto-install nil)
+        :config
+        (require 'ghostel-compile)
+        (ghostel-compile-global-mode 1))
 
-    ;; evil-mode integration
-    (use-package evil-ghostel
-      :after (ghostel evil)
-      :hook (ghostel-mode . evil-ghostel-mode))
+      ;; evil-mode integration
+      (use-package evil-ghostel
+        :after (ghostel evil)
+        :hook (ghostel-mode . evil-ghostel-mode)))
+#+end_src
+
+*** Vterm (darwin fallback)
+#+begin_src emacs-lisp
+    (when (eq system-type 'darwin)
+      (use-package vterm))
 #+end_src
 
 
@@ -1397,7 +1412,7 @@ Better native claude code integration into emacs
 #+begin_src emacs-lisp
     (use-package claude-code
       :config
-      (setq claude-code-terminal-backend 'ghostel) ;;TODO: switch this to ghostel once it's in nixpkgs
+      (setq claude-code-terminal-backend (if (eq system-type 'darwin) 'vterm 'ghostel))
       (claude-code-mode)
       :bind-keymap ("C-c c" . claude-code-command-map)
 
@@ -1411,7 +1426,7 @@ Better native claude code integration into emacs
     (use-package ai-code
       :config
       (ai-code-set-backend 'github-copilot-cli)
-      (setq ai-code-backends-infra-terminal-backend 'ghostel)
+      (setq ai-code-backends-infra-terminal-backend (if (eq system-type 'darwin) 'vterm 'ghostel))
       (global-set-key (kbd "C-c a") #'ai-code-menu))
 #+end_src
 
