@@ -68,6 +68,9 @@ vim.opt.undofile = true
 -- For Obsidian plugin, remove if it causes issues
 vim.opt.conceallevel = 1
 
+-- exrc support
+vim.opt.exrc = true
+
 -- Experimental UI2: floating cmdline and messages
 require("vim._core.ui2").enable({
 	enable = true,
