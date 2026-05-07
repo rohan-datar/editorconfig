@@ -138,8 +138,8 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
       (setq undo-fu-session-directory (expand-file-name "undo-fu-session/" cache-dir))
       ;; Shell-maker (used by agent-shell, chatgpt-shell, etc.)
       (setq shell-maker-root-path (expand-file-name "shell-maker/" cache-dir))
-      ;; prescient history
-      (setq prescient-save-file (expand-file-name "prescient-save.el" cache-dir)))
+      ;;  history
+      (setq -save-file (expand-file-name "-save.el" cache-dir)))
 
     ;; Sync exec-path with PATH so Emacs finds Nix-provided binaries (LSPs, formatters, etc.)
     (setq exec-path (append (split-string (getenv "PATH") path-separator) exec-path))
@@ -1443,6 +1443,7 @@ Sorts completions by frecency
       :after vertico
       :init
       (vertico-prescient-mode)
+	  :custom
       (vertico-prescient-enable-sorting t))
 #+end_src
 
