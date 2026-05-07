@@ -140,6 +140,9 @@ in
           vertico
           marginalia
           nerd-icons-completion
+          prescient
+          corfu-prescient
+          vertico-prescient
 
           # Org mode
           toc-org

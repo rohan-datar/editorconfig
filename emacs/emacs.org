@@ -57,6 +57,7 @@
   - [[#cape][Cape]]
   - [[#orderless][Orderless]]
   - [[#vertico-and-marginalia][Vertico and Marginalia]]
+  - [[#prescient][Prescient]]
 - [[#ai][AI]]
   - [[#gptel][GPTel]]
   - [[#claude-code][Claude Code]]
@@ -136,7 +137,9 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
       (setq bookmark-default-file (expand-file-name "bookmarks" cache-dir))
       (setq undo-fu-session-directory (expand-file-name "undo-fu-session/" cache-dir))
       ;; Shell-maker (used by agent-shell, chatgpt-shell, etc.)
-      (setq shell-maker-root-path (expand-file-name "shell-maker/" cache-dir)))
+      (setq shell-maker-root-path (expand-file-name "shell-maker/" cache-dir))
+      ;; prescient history
+      (setq prescient-save-file (expand-file-name "prescient-save.el" cache-dir)))
 
     ;; Sync exec-path with PATH so Emacs finds Nix-provided binaries (LSPs, formatters, etc.)
     (setq exec-path (append (split-string (getenv "PATH") path-separator) exec-path))
@@ -250,6 +253,18 @@ Moved to =early-init.el= for proper effect before package initialization.
 
       (tab-always-indent 'complete) ;; Make the TAB key complete text instead of just indenting.
       (tab-width 4)                 ;; Set the tab width to 4 spaces.
+      ;; Enable context menu. `vertico-multiform-mode' adds a menu in the minibuffer
+      ;; to switch display modes.
+      (context-menu-mode t)
+      ;; Support opening new minibuffers from inside existing minibuffers.
+      (enable-recursive-minibuffers t)
+      ;; Hide commands in M-x which do not work in the current mode.  Vertico
+      ;; commands are hidden in normal buffers. This setting is useful beyond
+      ;; Vertico.
+      (read-extended-command-predicate #'command-completion-default-include-p)
+      ;; Do not allow the cursor in the minibuffer prompt
+      (minibuffer-prompt-properties
+       '(read-only t cursor-intangible t face minibuffer-prompt))
       (treesit-font-lock-level 4)   ;; Use advanced font locking for Treesit mode.
       (sgml-basic-offset 4) ;; Set Html mode indentation to 4
       (c-ts-mode-indent-offset 4) ;; Fix weird indentation in c-ts (C, C++)
@@ -1317,7 +1332,8 @@ Notes:
       (tab-always-indent 'complete)
 
       (corfu-preview-current 'insert) ;; Auto-insert when navigating (like blink.cmp auto_insert)
-      (corfu-preselect 'first)        ;; Preselect first candidate so TAB selects it immediately
+
+      (global-corfu-minibuffer nil) ;; disable in the minibuffer
       :bind
       (:map corfu-map
             ("TAB" . corfu-next)
@@ -1359,12 +1375,13 @@ Read the [[https://github.com/minad/cape#configuration][configuration section]] 
       ;; Use cape-elisp-block for elisp completion in source blocks instead
      (add-hook 'completion-at-point-functions #'cape-keyword) ;; Keyword completion
 
-      ;;(add-hook 'completion-at-point-functions #'cape-abbrev) ;; Complete abbreviation
-      ;;(add-hook 'completion-at-point-functions #'cape-history) ;; Complete from Eshell, Comint or minibuffer history
-      ;;(add-hook 'completion-at-point-functions #'cape-line) ;; Complete entire line from current buffer
-      ;;(add-hook 'completion-at-point-functions #'cape-tex) ;; Complete Unicode char from TeX command, e.g. \hbar
-      ;;(add-hook 'completion-at-point-functions #'cape-sgml) ;; Complete Unicode char from SGML entity, e.g., &alpha
-      ;;(add-hook 'completion-at-point-functions #'cape-rfc1345) ;; Complete Unicode char using RFC 1345 mnemonics
+      (add-hook 'completion-at-point-functions #'cape-abbrev) ;; Complete abbreviation
+      (add-hook 'completion-at-point-functions #'cape-history) ;; Complete from Eshell, Comint or minibuffer history
+      (add-hook 'completion-at-point-functions #'cape-line) ;; Complete entire line from current buffer
+      (add-hook 'completion-at-point-functions #'cape-tex) ;; Complete Unicode char from TeX command, e.g. \hbar
+      (add-hook 'completion-at-point-functions #'cape-sgml) ;; Complete Unicode char from SGML entity, e.g., &alpha
+      (add-hook 'completion-at-point-functions #'cape-rfc1345) ;; Complete Unicode char using RFC 1345 mnemonics
+      (add-hook 'completion-at-point-functions #'cape-emoji) ;; Complete emoji
       )
 #+end_src
 
@@ -1406,6 +1423,27 @@ One alternative is ivy and counsel, check out the [[https://github.com/MiniApoll
       (nerd-icons-completion-mode)
       :hook
       ('marginalia-mode-hook . 'nerd-icons-completion-marginalia-setup))
+#+end_src
+
+** Prescient
+Sorts completions by frecency
+#+begin_src emacs-lisp
+    (use-package prescient
+      :custom
+      (prescient-sort-full-matches-first t))
+
+    (use-package corfu-prescient
+      :after corfu
+      :init
+      (corfu-prescient-mode)
+      :custom
+      (corfu-prescient-enable-sorting t))
+
+    (use-package vertico-prescient
+      :after vertico
+      :init
+      (vertico-prescient-mode)
+      (vertico-prescient-enable-sorting t))
 #+end_src
 
 * AI
