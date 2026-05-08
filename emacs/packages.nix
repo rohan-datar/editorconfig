@@ -90,7 +90,6 @@ in
           golden-ratio
 
           # Development
-          projectile
           consult-dir
           sideline
           flyover

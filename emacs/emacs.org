@@ -32,7 +32,7 @@
   - [[#dashboard][Dashboard]]
   - [[#golden-ratio][Golden Ratio]]
 - [[#development][Development]]
-  - [[#projectile][Projectile]]
+  - [[#projectel][Project.el]]
   - [[#lsp-mode][LSP Mode]]
   - [[#dap-mode][Dap Mode]]
   - [[#format-all][Format-All]]
@@ -122,9 +122,8 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
       (setq savehist-file (expand-file-name "history" cache-dir))
       ;; Transient (Magit command history)
       (setq transient-history-file (expand-file-name "transient/history.el" cache-dir))
-      ;; Projectile bookmarks (known projects list)
-      (setq projectile-known-projects-file (expand-file-name "projectile/bookmarks.eld" cache-dir))
-      (setq projectile-cache-file (expand-file-name "projectile/cache.eld" cache-dir))
+      ;; project.el known projects list
+      (setq project-list-file (expand-file-name "projects" cache-dir))
       ;; DAP mode breakpoints
       (setq dap-breakpoints-file (expand-file-name "dap/breakpoints" cache-dir))
       ;; LSP session
@@ -507,8 +506,7 @@ Note: The Leader key is what you will press when you want to access your keybind
       ;; ghostel is broken on darwin; fall back to vterm there
       (if (eq system-type 'darwin)
           (rdmacs/leader-keys
-    	    "o t" '(vterm :wk "Open terminal")
-    	    "o t p" '(projectile-run-vterm :wk "Open project terminal"))
+    	    "o t" '(vterm :wk "Open terminal"))
         (rdmacs/leader-keys
     	  "o t" '(ghostel :wk "Open terminal")
     	  "o t p" '(ghostel-project :wk "Open project terminal")
@@ -678,13 +676,13 @@ Set the startup screen similar to Doom emacs
     (use-package dashboard
       :ensure t
       :demand t
-      :after (projectile nerd-icons)
+      :after (nerd-icons)
       :custom
       (dashboard-banner-logo-title "")
       (dashboard-startup-banner 'logo)
       (dashboard-center-content t)
       (dashboard-show-shortcuts t)
-      (dashboard-projects-backend 'projectile) ;; Use projectile for project list
+      (dashboard-projects-backend 'project-el)
       (dashboard-items '((recents . 5)
                          (projects . 5)))
       (dashboard-display-icons-p t)      ;; Display icons on both GUI and terminal
@@ -716,34 +714,15 @@ golden-ratio helps on this issue by resizing automatically the windows you are w
 #+end_src
 
 * Development
-** Projectile
-Project interaction library for Emacs.
-
-Emacs has a built in project manager called project.el, but we don't use it.
-You can try it out with the keybinds under C-x p because project.el does not require any special setup to use.
-
-We use projectile because it:
-- supports more features and project types.
-- has better integration with projects.
-- has better documentation.
-- is developed faster.
-More [[https://docs.projectile.mx/projectile/projectile_vs_project.html][reasons]] to use projectile.
+** Project.el
+Built-in project interaction.
 
 #+begin_src emacs-lisp
-    (use-package projectile
+    (use-package project
+      :ensure nil
       :config
       (rdmacs/leader-keys
-        "p" '(projectile-command-map :wk "Projectile"))
-      (projectile-mode)
-      :custom
-      (projectile-run-use-comint-mode t) ;; Interactive run dialog when running projects inside emacs (like giving input)
-      (projectile-switch-project-action #'projectile-dired) ;; Open dired when switching to a project
-      (projectile-project-search-path '("~/Documents/"
-                                         "~/Documents/dev"
-    									 "~/dev"
-                                         ("~/Documents/UW-Classes/" . 4)
-                                         ("~/nix" . 0)
-                                         ("~/editorconfig" . 0)))) ;; . 0 means only check the directory itself
+        "p" '(project-prefix-map :wk "Project")))
 #+end_src
 
 
@@ -1216,10 +1195,10 @@ Configure and enhance Emacs' compilation mode
 #+begin_src emacs-lisp
 
     (defun rdmacs/smart-compile ()
-      "Run `projectile-compile-project' if in a project, otherwise `compile'."
+      "Run `project-compile' if in a project, otherwise `compile'."
       (interactive)
-      (if (projectile-project-p)
-          (call-interactively #'projectile-compile-project)
+      (if (project-current)
+          (call-interactively #'project-compile)
         (call-interactively #'compile)))
 
     (use-package compile
@@ -1443,7 +1422,7 @@ Sorts completions by frecency
       :after vertico
       :init
       (vertico-prescient-mode)
-	  :custom
+      :custom
       (vertico-prescient-enable-sorting t))
 #+end_src
 
@@ -1657,27 +1636,35 @@ Check out their [[https://github.com/minad/consult][git repository]] for more aw
       (setq xref-show-xrefs-function #'consult-xref
             xref-show-definitions-function #'consult-xref)
       :config
-      (autoload 'projectile-project-root "projectile")
-      (autoload 'projectile-project-files "projectile")
-      (setq consult-project-function (lambda (_) (projectile-project-root)))
+      (require 'project)
+      (setq consult-project-function
+            (lambda (_)
+              (let ((project (project-current)))
+                (when project
+                  (project-root project)))))
       ;; Make consult buffer aware of project files as a fallback
-      (defvar consult--source-projectile-file
+      (defvar consult--source-project-file
       	`(:name "Project File"
       			:narrow ?f
       			:category file
       			:face consult-file
       			:history file-name-history
       			:action ,#'consult--file-action
-      			:enabled ,(lambda () (projectile-project-root))
+      			:enabled ,(lambda () (project-current))
       			:items
       			,(lambda ()
-      			   (let ((root (projectile-project-root)))
-      				 (mapcar (lambda (f) (expand-file-name f root))
-      						 (projectile-project-files root))))
-      			"Projectile file source for `consult-buffer'."))
+      			   (let ((project (project-current)))
+                 (when project
+                   (let ((root (project-root project)))
+                     (mapcar (lambda (f)
+                               (if (file-name-absolute-p f)
+                                   f
+                                 (expand-file-name f root)))
+                             (project-files project))))))
+      			"project.el file source for `consult-buffer'."))
       (add-to-list
        'consult-buffer-sources
-       'consult--source-projectile-file :append)
+       'consult--source-project-file :append)
 
       ;; Keybindings
       (rdmacs/leader-keys
@@ -1701,7 +1688,7 @@ When using the minibuffer, you can switch - with completion and filtering provid
         (use-package consult-dir
           :custom
           (consult-dir-default-command #'consult-dir-dired)
-          (consult-dir-project-list-function #'consult-dir-projectile-dirs)
+          (consult-dir-project-list-function #'consult-dir-project-dirs)
           :config
           (setf (plist-get consult-dir--source-recentf :action)
                 (lambda (cand)
@@ -1857,4 +1844,3 @@ We also increase Read Process Output Max so Emacs can read more data.
     ;; Increase the amount of data which Emacs reads from the process
     (setq read-process-output-max (* 1024 1024)) ;; 1mb
 #+end_src
-
