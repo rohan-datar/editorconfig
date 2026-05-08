@@ -610,6 +610,53 @@ We already enabled line numbers globally, but we want to turn them off in some p
     (prefer-coding-system 'utf-8)
 #+end_src
 
+Emacs' default text shaping doesn't
+ask HarfBuzz to compose multi-character sequences, so the font never
+gets a chance to substitute them. =ligature.el= fixes that by
+registering prefix sequences with =composition-function-table= so
+HarfBuzz sees them as a unit and can apply the font's GSUB rules.
+
+The sequences below are taken from Maple Mono's ligature feature spec.
+HarfBuzz silently ignores any sequence the font doesn't actually
+ligate, so over-registering is harmless.
+#+begin_src emacs-lisp
+  (use-package ligature
+    :config
+    (ligature-set-ligatures
+     'prog-mode
+     '(;; arrows
+       "->" "<-" "<->" "-->" "<--" "<-->"
+       "=>" "<=" ">=" "<=>" "<==" "==>" "<==>"
+       ">->" ">--" "<-<" "|->" "<-|"
+       "-~" "~>" "~-" "<~" "<~>" "<~~" "~~>" "~~"
+       ;; equality / comparison
+       "==" "===" "!=" "!==" "=/=" "=!="
+       ":=" "=:" ":=:" "=:="
+       ;; pipes and angle ops
+       "<<" "<<<" ">>" ">>>" "<>"
+       "<|" "|>" "<|>" "<||" "||>" "<|||" "|||>"
+       "|=" "|=>" "||" "|||"
+       ;; colons and question marks
+       "::" ":::" "?." "?:" ":?" ":?>" "<:" ":>" ":<" "?="
+       ;; braces and brackets
+       "{{" "}}" "{|" "|}" "[|" "|]"
+       "#{" "#[" "#(" "#?" "#!" "#:" "#=" "#_"
+       ;; logical / punctuation
+       "&&" "&&&" "??" "???" "!!" ";;" ";;;"
+       "<+" "+>" "<+>" "__"
+       ;; comments / html
+       "<!--" "<!---->"
+       ;; slashes
+       "//" "///" "/*" "/**" "*/" "</" "/>" "</>"
+       ;; dots
+       ".." "..." "..<" ".?" ".="
+       ;; tag ligatures
+       "[TODO]" "[FIXME]" "[INFO]" "[WARN]" "[ERROR]"
+       "[DEBUG]" "[TRACE]" "[FATAL]" "[NOTE]" "[HACK]" "[MARK]"))
+    (global-ligature-mode t))
+#+end_src
+
+
 ** Doom Modeline
 A fancy, fast and customizable mode-line.
 #+begin_src emacs-lisp
