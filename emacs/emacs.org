@@ -610,11 +610,12 @@ We already enabled line numbers globally, but we want to turn them off in some p
     (prefer-coding-system 'utf-8)
 #+end_src
 
-Emacs' default text shaping doesn't
-ask HarfBuzz to compose multi-character sequences, so the font never
-gets a chance to substitute them. =ligature.el= fixes that by
-registering prefix sequences with =composition-function-table= so
-HarfBuzz sees them as a unit and can apply the font's GSUB rules.
+*** Ligatures
+Emacs' default text shaping doesn't ask HarfBuzz to compose
+multi-character sequences, so the font never gets a chance to
+substitute them. =ligature.el= fixes that by registering prefix
+sequences with =composition-function-table= so HarfBuzz sees them as a
+unit and can apply the font's GSUB rules.
 
 The sequences below are taken from Maple Mono's ligature feature spec.
 HarfBuzz silently ignores any sequence the font doesn't actually
