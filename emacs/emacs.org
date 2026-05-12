@@ -139,7 +139,8 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
       ;;  prescient history
       (setq prescient-save-file (expand-file-name "prescient-save.el" cache-dir))
       ;; github tokens for gtpel
-      (setq gptel-gh-token-file (expand-file-name "copilot-chat/github-token" cache-dir)))
+      (setq gptel-gh-token-file (expand-file-name "copilot-chat/token" cache-dir))
+      (setq gptel-gh-github-token-file (expand-file-name "copilot-chat/github-token" cache-dir)))
 
     ;; Sync exec-path with PATH so Emacs finds Nix-provided binaries (LSPs, formatters, etc.)
     (setq exec-path (append (split-string (getenv "PATH") path-separator) exec-path))
