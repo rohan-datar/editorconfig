@@ -60,6 +60,11 @@
       flake = false;
     };
 
+    "emacs-monet" = {
+      url = "github:stevemolitor/monet";
+      flake = false;
+    };
+
   };
 
   outputs =

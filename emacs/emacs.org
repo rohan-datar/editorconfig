@@ -61,7 +61,6 @@
 - [[#ai][AI]]
   - [[#gptel][GPTel]]
   - [[#claude-code][Claude Code]]
-  - [[#ai-code-interface][AI Code Interface]]
 - [[#org-mode][Org Mode]]
   - [[#better-fonts][Better Fonts]]
   - [[#basic-config][Basic Config]]
@@ -137,8 +136,10 @@ Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
       (setq undo-fu-session-directory (expand-file-name "undo-fu-session/" cache-dir))
       ;; Shell-maker (used by agent-shell, chatgpt-shell, etc.)
       (setq shell-maker-root-path (expand-file-name "shell-maker/" cache-dir))
-      ;;  history
-      (setq -save-file (expand-file-name "-save.el" cache-dir)))
+      ;;  prescient history
+      (setq prescient-save-file (expand-file-name "prescient-save.el" cache-dir))
+      ;; github tokens for gtpel
+      (setq gptel-gh-token-file (expand-file-name "copilot-chat/github-token" cache-dir)))
 
     ;; Sync exec-path with PATH so Emacs finds Nix-provided binaries (LSPs, formatters, etc.)
     (setq exec-path (append (split-string (getenv "PATH") path-separator) exec-path))
@@ -753,6 +754,7 @@ golden-ratio helps on this issue by resizing automatically the windows you are w
       :ensure t
       :hook (after-init . golden-ratio-mode)
       :custom
+      (golden-ratio-exclude-buffer-regexp '("^\\*claude"))
       (golden-ratio-extra-commands '(evil-window-left
     								 evil-window-right
     								 evil-window-up
@@ -857,7 +859,7 @@ This mirrors the nvim-dap setup with support for Go and C/C++ via LLDB.
 
       ;; Go debugging via delve
       (require 'dap-dlv-go)
-      (require 'dap-lldb)
+      (require 'dap-lldb))
       ;; Keybindings
       (rdmacs/leader-keys
         "d" '(:ignore t :wk "Debug")
@@ -877,7 +879,7 @@ This mirrors the nvim-dap setup with support for Go and C/C++ via LLDB.
         "d r" '(dap-restart-frame :wk "Restart")
         "d R" '(dap-ui-repl :wk "Open REPL")
         "d l" '(dap-ui-locals :wk "Show locals")
-        "d w" '(dap-ui-expressions-add :wk "Add watch expression")))
+        "d w" '(dap-ui-expressions-add :wk "Add watch expression"))
 #+end_src
 
 ** Format-All
@@ -1280,7 +1282,7 @@ Complete text-based user interface to Git.
       :custom (magit-diff-refine-hunk (quote all)) ;; Shows inline diff
       :config
       (define-key transient-map (kbd "<escape>") 'transient-quit-one) ;; Make escape quit magit prompts
-      (setopt magit-format-file-function #'magit-format-file-nerd-icons)
+      (setopt magit-format-file-function #'magit-format-file-nerd-icons))
       ;; Keybindings
       (rdmacs/leader-keys
         "g" '(:ignore t :wk "Git")
@@ -1288,7 +1290,7 @@ Complete text-based user interface to Git.
         "g l" '(magit-log-current :wk "Show current log")
         "g d" '(magit-diff-buffer-file :wk "Show diff for the current file")
         "g D" '(diff-hl-show-hunk :wk "Show diff for hunk")
-        "g b" '(magit-blame :wk "Git blame")))
+        "g b" '(magit-blame :wk "Git blame"))
 #+end_src
 
 ** Diff-hl
@@ -1305,14 +1307,12 @@ Smerge is included for resolving merge conflicts in files. It provides
 a simple interface to help you keep changes from either the upper or
 lower version during a merge.
 #+begin_src emacs-lisp
-(use-package smerge-mode
-  :ensure nil
-  :defer t
-  :bind (:map smerge-mode-map
-              ("C-c ^ u" . smerge-keep-upper)  ;; Keep the changes from the upper version.
-              ("C-c ^ l" . smerge-keep-lower)  ;; Keep the changes from the lower version.
-              ("C-c ^ n" . smerge-next)        ;; Move to the next conflict.
-              ("C-c ^ p" . smerge-previous)))  ;; Move to the previous conflict.
+    (use-package smerge-mode
+      :ensure nil
+      :defer t
+      :config
+      (rdmacs/leader-keys
+        "m" '(:keymap smerge-mode-map :package smerge-mode :wk "Merge conflict handling")))
 #+end_src
 
 ** Blamer
@@ -1340,6 +1340,7 @@ Notes:
       :custom
       (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
       (corfu-auto t)                 ;; Enable auto completion
+      (global-corfu-minibuffer nil) ;; disable in the minibuffer
       (corfu-auto-prefix 2)          ;; Minimum length of prefix for auto completion.
       (corfu-popupinfo-mode t)       ;; Enable popup information
       (corfu-popupinfo-delay 0.5)    ;; Lower popup info delay to 0.5 seconds from 2 seconds
@@ -1359,8 +1360,6 @@ Notes:
       (tab-always-indent 'complete)
 
       (corfu-preview-current 'insert) ;; Auto-insert when navigating (like blink.cmp auto_insert)
-
-      (global-corfu-minibuffer nil) ;; disable in the minibuffer
       :bind
       (:map corfu-map
             ("TAB" . corfu-next)
@@ -1403,8 +1402,8 @@ Read the [[https://github.com/minad/cape#configuration][configuration section]] 
      (add-hook 'completion-at-point-functions #'cape-keyword) ;; Keyword completion
 
       (add-hook 'completion-at-point-functions #'cape-abbrev) ;; Complete abbreviation
-      (add-hook 'completion-at-point-functions #'cape-history) ;; Complete from Eshell, Comint or minibuffer history
-      (add-hook 'completion-at-point-functions #'cape-line) ;; Complete entire line from current buffer
+      ;; (add-hook 'completion-at-point-functions #'cape-history) ;; Complete from Eshell, Comint or minibuffer history
+      ;; (add-hook 'completion-at-point-functions #'cape-line) ;; Complete entire line from current buffer
       (add-hook 'completion-at-point-functions #'cape-tex) ;; Complete Unicode char from TeX command, e.g. \hbar
       (add-hook 'completion-at-point-functions #'cape-sgml) ;; Complete Unicode char from SGML entity, e.g., &alpha
       (add-hook 'completion-at-point-functions #'cape-rfc1345) ;; Complete Unicode char using RFC 1345 mnemonics
@@ -1480,31 +1479,32 @@ Sorts completions by frecency
     (use-package gptel
       :config
       (setq gptel-model 'claude-4.5-opus
-            gptel-backend (gptel-make-gh-copilot "Copilot")))
+            gptel-backend (gptel-make-gh-copilot "Copilot"))
+      (rdmacs/leader-keys
+    	"a g" '(:keymap gptel-mode-map :package gptel :wk "gptel")))
 #+end_src
 
 ** Claude Code
 Better native claude code integration into emacs
 #+begin_src emacs-lisp
+    (use-package monet)
+
     (use-package claude-code
       :config
       (setq claude-code-terminal-backend (if (eq system-type 'darwin) 'vterm 'ghostel))
+      (add-to-list 'display-buffer-alist
+        		   '("^\\*claude"
+        			 (display-buffer-in-side-window)
+        			 (side . right)
+        			 (window-width . 90)
+        			 (preserve-size . (t . nil))))
+      (add-hook 'claude-code-process-environment-functions #'monet-start-server-function)
+      (monet-mode 1)
       (claude-code-mode)
-      :bind-keymap ("C-c c" . claude-code-command-map)
-
-      ;; Optionally define a repeat map so that "M" will cycle thru Claude auto-accept/plan/confirm modes after invoking claude-code-cycle-mode / C-c M.
-      :bind
-      (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode)))
+      (rdmacs/leader-keys
+    	"a c" '(:keymap claude-code-command-map :package claude-code :wk "Claude Code")))
 #+end_src
 
-** AI Code Interface
-#+begin_src emacs-lisp
-    (use-package ai-code
-      :config
-      (ai-code-set-backend 'github-copilot-cli)
-      (setq ai-code-backends-infra-terminal-backend (if (eq system-type 'darwin) 'vterm 'ghostel))
-      (global-set-key (kbd "C-c a") #'ai-code-menu))
-#+end_src
 
 * Org Mode
 One of the things that Emacs is loved for.

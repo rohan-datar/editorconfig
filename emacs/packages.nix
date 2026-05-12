@@ -79,6 +79,7 @@ in
           general
 
           # Appearance
+          ligature
           catppuccin-theme
           doom-modeline
           nerd-icons
@@ -172,6 +173,7 @@ in
         # Custom packages from overlay
         inherit (ecpkgs)
           claude-code
+          monet
           ;
 
         # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)

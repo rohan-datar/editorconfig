@@ -15,6 +15,7 @@ let
     # ];
 
     claude-code = with epkgs; [ inheritenv ];
+    monet = with epkgs; [ websocket ];
 
     swift-development = with epkgs; [
       # Built-in packages are automatically available, only need MELPA packages
@@ -73,7 +74,10 @@ let
       postUnpack = ''
         mv $sourceRoot/extensions/evil-ghostel/evil-ghostel.el $sourceRoot/
       '';
-      packageRequires = with epkgs; [ ghostel evil ];
+      packageRequires = with epkgs; [
+        ghostel
+        evil
+      ];
     };
   };
 in

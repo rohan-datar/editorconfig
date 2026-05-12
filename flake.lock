@@ -16,6 +16,22 @@
         "type": "github"
       }
     },
+    "emacs-monet": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1776563377,
+        "narHash": "sha256-C5t7pKcp8lqZUPiWAcrx2H7Gba2NSpojUPxG5AnrMJg=",
+        "owner": "stevemolitor",
+        "repo": "monet",
+        "rev": "ee2e35557e8ae07de842c435486f7c152f3750e0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "stevemolitor",
+        "repo": "monet",
+        "type": "github"
+      }
+    },
     "emacs-overlay": {
       "inputs": {
         "nixpkgs": [
@@ -207,6 +223,7 @@
     "root": {
       "inputs": {
         "emacs-claude-code": "emacs-claude-code",
+        "emacs-monet": "emacs-monet",
         "emacs-overlay": "emacs-overlay",
         "emacs-swift-development": "emacs-swift-development",
         "flake-parts": "flake-parts",
