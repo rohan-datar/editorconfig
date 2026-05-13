@@ -1313,7 +1313,7 @@ lower version during a merge.
       :defer t
       :config
       (rdmacs/leader-keys
-        "m" '(:keymap smerge-mode-map :package smerge-mode :wk "Merge conflict handling")))
+        "m" '(:keymap smerge-basic-map :package smerge-mode :wk "Merge conflict handling")))
 #+end_src
 
 ** Blamer
