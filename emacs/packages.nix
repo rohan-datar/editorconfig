@@ -151,7 +151,7 @@ in
 
           #AI
           gptel
-          ai-code
+          pi-coding-agent
 
           # Other packages
           consult
