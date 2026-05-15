@@ -25,7 +25,7 @@
     {
       imports = [ wlib.wrapperModules.emacs ];
 
-      package = pkgs.emacs-pgtk;
+      package = pkgs.emacs;
       emacsPackages = packages.emacsPackages;
       configFile = "";
       earlyConfigFile = "";
