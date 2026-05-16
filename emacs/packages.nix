@@ -45,7 +45,6 @@ in
         lldb
 
         claude-code
-        github-copilot-cli
         ;
     }
     // pkgs.lib.optionalAttrs isDarwin {
