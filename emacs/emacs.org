@@ -774,7 +774,7 @@ Built-in project interaction.
       :ensure nil
       :config
       (rdmacs/leader-keys
-        "p" '(project-prefix-map :wk "Project")))
+        "p" '(:keymap project-prefix-map :package project :wk "Project")))
 #+end_src
 
 
