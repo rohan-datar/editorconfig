@@ -1010,11 +1010,12 @@ The following line enables Eldoc globally for all buffers.
 #+begin_src emacs-lisp
 (use-package eldoc
   :ensure nil                                ;; This is built-in, no need to fetch it.
-  :config
-  (setq eldoc-idle-delay 0)                  ;; Automatically fetch doc help
-  (setq eldoc-echo-area-use-multiline-p nil) ;; We use the "K" floating help instead
-                                             ;; set to t if you want docs on the echo area
-  (setq eldoc-echo-area-display-truncation-message nil)
+  :custom
+  (eldoc-idle-delay 0.3)                     ;; Avoid expensive doc refreshes on every keystroke
+  (eldoc-display-functions '(eldoc-display-in-echo-area)) ;; Don't keep rebuilding the *eldoc* buffer
+  (eldoc-echo-area-use-multiline-p nil)      ;; We use the "K" floating help instead
+                                              ;; set to t if you want docs on the echo area
+  (eldoc-echo-area-display-truncation-message nil)
   :init
   (global-eldoc-mode))
 #+end_src
@@ -1849,7 +1850,7 @@ Integrate Direnv with Emacs via =envrc=, which sets buffer-local environment
 once when a file is opened.
 #+begin_src emacs-lisp
     (use-package envrc
-      :hook (after-init . envrc-global-mode))
+      :hook (find-file . envrc-mode))
 
 #+end_src
 
