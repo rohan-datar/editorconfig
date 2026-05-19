@@ -1012,7 +1012,7 @@ The following line enables Eldoc globally for all buffers.
   :ensure nil                                ;; This is built-in, no need to fetch it.
   :custom
   (eldoc-idle-delay 0.3)                     ;; Avoid expensive doc refreshes on every keystroke
-  (eldoc-display-functions '(eldoc-display-in-echo-area)) ;; Don't keep rebuilding the *eldoc* buffer
+  (eldoc-display-functions '(eldoc-display-in-echo-area eldoc-display-in-buffer)) ;; Keep *eldoc* buffer for `eldoc-box-help-at-point`
   (eldoc-echo-area-use-multiline-p nil)      ;; We use the "K" floating help instead
                                               ;; set to t if you want docs on the echo area
   (eldoc-echo-area-display-truncation-message nil)
