@@ -3,67 +3,34 @@
   ...
 }:
 {
-  flake.wrappers = {
-    nvim-full =
-      {
-        config,
-        pkgs,
-        wlib,
-        lib,
-        ...
-      }:
-      {
-
-        imports = [
-          wlib.wrapperModules.neovim
-          (import ./specs.nix inputs)
-        ];
-        settings = {
+  perSystem =
+    { pkgs, lib, ... }:
+    let
+      mkNvim = profile: settings:
+        inputs.nix-wrapper-modules.wrappers.neovim.wrap {
+          inherit pkgs profile settings;
+          imports = [ (import ./specs.nix inputs) ];
+        };
+    in
+    {
+      packages = {
+        nvim-full = mkNvim "full" {
           config_directory = "${inputs.self}/nvim";
           aliases = [
             "rdvim"
             "vim"
           ];
         };
-      };
-    nvim-minimal =
-      {
-        config,
-        pkgs,
-        wlib,
-        lib,
-        ...
-      }:
-      {
 
-        imports = [
-          wlib.wrapperModules.neovim
-          (import ./specs.nix inputs)
-        ];
-        profile = "minimal";
-        settings = {
+        nvim-minimal = mkNvim "minimal" {
           config_directory = "${inputs.self}/nvim";
           aliases = [
             "rdvim"
             "vim"
           ];
         };
-      };
-    nvim-test =
-      {
-        config,
-        pkgs,
-        wlib,
-        lib,
-        ...
-      }:
-      {
 
-        imports = [
-          wlib.wrapperModules.neovim
-          (import ./specs.nix inputs)
-        ];
-        settings = {
+        nvim-test = mkNvim "test" {
           block_normal_config = false;
           config_directory = lib.generators.mkLuaInline ''vim.fn.stdpath("config")'';
           aliases = [
@@ -73,5 +40,5 @@
           ];
         };
       };
-  };
+    };
 }

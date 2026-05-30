@@ -259,7 +259,7 @@ in
     };
   };
 
-  config.extraPackages =
+  config.runtimePkgs =
     (values {
       inherit (pkgs)
         universal-ctags

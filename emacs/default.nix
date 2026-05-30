@@ -1,13 +1,7 @@
 { inputs, ... }:
 {
-  flake.wrappers.rdmacs =
-    {
-      config,
-      pkgs,
-      wlib,
-      lib,
-      ...
-    }:
+  perSystem =
+    { pkgs, lib, ... }:
     let
       inherit (pkgs.stdenv) isDarwin;
       packages = import ./packages.nix { inherit pkgs; };
@@ -21,85 +15,81 @@
           "elisp"
         ];
       };
-    in
-    {
-      imports = [ wlib.wrapperModules.emacs ];
 
-      package = pkgs.emacs-pgtk;
-      emacsPackages = packages.emacsPackages;
-      configFile = "";
-      earlyConfigFile = "";
-      constructFiles.init.builder = ''
-        mkdir -p "$(dirname "$2")"
-        cp "${initFile}" "$2"
-      '';
-      constructFiles.early-init.builder = ''
-        mkdir -p "$(dirname "$2")"
-        cp "${./early-init.el}" "$2"
-      '';
-      # The wrapper module only auto-adds --init-directory when configFile or
-      # earlyConfigFile is non-empty. We bypass those by writing the files via
-      # constructFiles.*.builder, so we need to add the flag ourselves.
-      flags."--init-directory" = dirOf config.constructFiles.init.path;
-      extraPackages = packages.runtimeDeps;
-      wrapperVariants.emacsclient = {
-        exePath = "bin/emacsclient";
-        mirror = false; # Don't inherit --init-directory from emacs (emacsclient doesn't support it)
-        addFlag = [ "-c" ];
-      };
-      buildCommand.fixDarwinApp = lib.mkIf isDarwin {
-        after = [
-          "symlinkScript"
-          "makeWrapper"
+      rdmacs = inputs.nix-wrapper-modules.wrappers.emacs.wrap {
+        inherit pkgs;
+        imports = [
+          ({ config, ... }: {
+            package = pkgs.emacs-pgtk;
+            emacsPackages = packages.emacsPackages;
+            configFile = "";
+            earlyConfigFile = "";
+            constructFiles.init.builder = ''
+              mkdir -p "$(dirname "$2")"
+              cp "${initFile}" "$2"
+            '';
+            constructFiles.early-init.builder = ''
+              mkdir -p "$(dirname "$2")"
+              cp "${./early-init.el}" "$2"
+            '';
+            # The wrapper module only auto-adds --init-directory when configFile or
+            # earlyConfigFile is non-empty. We bypass those by writing the files via
+            # constructFiles.*.builder, so we need to add the flag ourselves.
+            flags."--init-directory" = dirOf config.constructFiles.init.path;
+            runtimePkgs = packages.runtimeDeps;
+            wrapperVariants.emacsclient = {
+              exePath = "bin/emacsclient";
+              mirror = false; # Don't inherit --init-directory from emacs (emacsclient doesn't support it)
+              addFlag = [ "-c" ];
+            };
+            buildCommand.fixDarwinApp = lib.mkIf isDarwin {
+              after = [
+                "symlinkScript"
+                "makeWrapper"
+              ];
+              data = ''
+                if [ -d "$out/Applications/Emacs.app" ]; then
+                    rm "$out/Applications/Emacs.app/Contents/MacOS/Emacs"
+                    ln -s "$out/bin/emacs" "$out/Applications/Emacs.app/Contents/MacOS/Emacs"
+                fi
+
+                # Create Emacsclient.app for Spotlight/Raycast
+                mkdir -p "$out/Applications/Emacsclient.app/Contents/MacOS"
+                mkdir -p "$out/Applications/Emacsclient.app/Contents/Resources"
+
+                # Reuse Emacs icon
+                cp "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" \
+                   "$out/Applications/Emacsclient.app/Contents/Resources/Emacsclient.icns"
+
+                # Minimal Info.plist via heredoc
+                cat > "$out/Applications/Emacsclient.app/Contents/Info.plist" <<'PLIST'
+                <?xml version="1.0" encoding="UTF-8"?>
+                <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+                <plist version="1.0">
+                <dict>
+                  <key>CFBundleExecutable</key>
+                  <string>Emacsclient</string>
+                  <key>CFBundleIconFile</key>
+                  <string>Emacsclient</string>
+                  <key>CFBundleIdentifier</key>
+                  <string>org.gnu.Emacsclient</string>
+                  <key>CFBundleName</key>
+                  <string>Emacsclient</string>
+                  <key>CFBundlePackageType</key>
+                  <string>APPL</string>
+                  <key>CFBundleVersion</key>
+                  <string>1.0</string>
+                </dict>
+                </plist>
+                PLIST
+
+                # Point binary at wrapped emacsclient
+                ln -s "$out/bin/emacsclient" "$out/Applications/Emacsclient.app/Contents/MacOS/Emacsclient"
+              '';
+            };
+          })
         ];
-        data = ''
-          if [ -d "$out/Applications/Emacs.app" ]; then
-              rm "$out/Applications/Emacs.app/Contents/MacOS/Emacs"
-              ln -s "$out/bin/emacs" "$out/Applications/Emacs.app/Contents/MacOS/Emacs"
-          fi
-
-          # Create Emacsclient.app for Spotlight/Raycast
-          mkdir -p "$out/Applications/Emacsclient.app/Contents/MacOS"
-          mkdir -p "$out/Applications/Emacsclient.app/Contents/Resources"
-
-          # Reuse Emacs icon
-          cp "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" \
-             "$out/Applications/Emacsclient.app/Contents/Resources/Emacsclient.icns"
-
-          # Minimal Info.plist via heredoc
-          cat > "$out/Applications/Emacsclient.app/Contents/Info.plist" <<'PLIST'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>CFBundleExecutable</key>
-            <string>Emacsclient</string>
-            <key>CFBundleIconFile</key>
-            <string>Emacsclient</string>
-            <key>CFBundleIdentifier</key>
-            <string>org.gnu.Emacsclient</string>
-            <key>CFBundleName</key>
-            <string>Emacsclient</string>
-            <key>CFBundlePackageType</key>
-            <string>APPL</string>
-            <key>CFBundleVersion</key>
-            <string>1.0</string>
-          </dict>
-          </plist>
-          PLIST
-
-          # Point binary at wrapped emacsclient
-          ln -s "$out/bin/emacsclient" "$out/Applications/Emacsclient.app/Contents/MacOS/Emacsclient"
-        '';
       };
-
-    };
-
-  perSystem =
-    { pkgs, ... }:
-    let
-      # Emacs packages and runtime dependencies imported from separate file
-      packages = import ./packages.nix { inherit pkgs; };
 
       runtimePath = pkgs.lib.makeBinPath packages.runtimeDeps;
 
@@ -149,6 +139,7 @@
     {
       packages = {
         inherit
+          rdmacs
           rdmacs-test
           ;
       };

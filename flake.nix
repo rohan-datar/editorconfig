@@ -75,7 +75,6 @@
         ./formatter.nix
         ./nvim
         ./emacs
-        inputs.nix-wrapper-modules.flakeModules.wrappers
       ];
     };
 }
