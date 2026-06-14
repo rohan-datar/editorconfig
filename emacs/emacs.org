@@ -1846,11 +1846,56 @@ and integrates with version control to show file states.
 #+end_src
 
 ** Envrc
-Integrate Direnv with Emacs via =envrc=, which sets buffer-local environment
-once when a file is opened.
+Integrate Direnv with Emacs via =envrc=.  We use =envrc-global-mode= so that
+all buffers (including =*compilation*=) inherit the direnv environment, but
+we restrict it to only the major modes that actually need it.  This avoids the
+performance hit of running =envrc--find-env-dir= (via =locate-dominating-file=)
+on every transient special-mode buffer (Magit, Help, tabulated-list, etc.).
 #+begin_src emacs-lisp
     (use-package envrc
-      :hook (find-file . envrc-mode))
+      :init
+      ;; Only enable envrc in buffers that actually visit files or run
+      ;; external processes.  This prevents the expensive direnv lookup
+      ;; from running on every transient buffer (magit, help, etc.).
+      (setq envrc-global-modes
+            '(prog-mode            ; all programming modes
+              text-mode            ; org, markdown, etc.
+              compilation-mode     ; *compilation* buffers
+              comint-mode          ; shell, inferior processes
+              eshell-mode
+              vterm-mode
+              eat-mode
+              term-mode
+              shell-mode
+              ghostel-mode         ; ghostel-compile buffers during the run
+              (not special-mode)   ; exclude help, magit, etc.
+              dired-mode))         ; re-enable dired (derived from special-mode)
+      (envrc-global-mode)
+      :config
+      ;; `compilation-start' copies `process-environment' from the calling
+      ;; buffer.  If the calling buffer is excluded by `envrc-global-modes'
+      ;; (e.g. `magit-status'), `buffer-env' is nil and `compilation-start'
+      ;; kills the envrc environment that `envrc-global-mode' set in the
+      ;; *compilation* buffer.  This advice temporarily applies envrc to the
+      ;; calling buffer so `compilation-start' copies the correct environment.
+      ;;
+      ;; NOTE: this is a fallback for non-ghostel compile (e.g. `grep-mode',
+      ;; which `ghostel-compile-global-mode' excludes).  When
+      ;; `ghostel-compile-global-mode' is active, it advises
+      ;; `compilation-start' and routes to `ghostel-compile--start', which
+      ;; captures `process-environment' from the *ghostel* buffer itself —
+      ;; not the calling buffer.  That is why `ghostel-mode' is in
+      ;; `envrc-global-modes' above.
+      (defun envrc-propagate-compilation (orig &rest args)
+        "Ensure `compile' respects envrc even when called from a non-envrc buffer."
+        (if (or envrc-mode
+                (not (envrc--find-env-dir)))
+            (apply orig args)
+          (envrc--update)
+          (unwind-protect
+              (apply orig args)
+            (envrc--clear (current-buffer)))))
+      (advice-add 'compile :around #'envrc-propagate-compilation))
 
 #+end_src
 
