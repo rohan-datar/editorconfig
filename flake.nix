@@ -28,11 +28,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    "plugins-inlay-hints" = {
-      url = "github:MysticalDevil/inlay-hints.nvim";
-      flake = false;
-    };
-
     # Neovim plugins not in nixpkgs
     "plugins-compile-nvim" = {
       url = "github:pohlrabi404/compile.nvim";

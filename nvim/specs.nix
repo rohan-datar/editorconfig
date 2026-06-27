@@ -143,7 +143,7 @@ in
         {
           name = "inlay-hints";
           lazy = true;
-          data = mkPlugin "inlay-hints" inputs."plugins-inlay-hints";
+          data = vp.inlay-hints-nvim;
         }
       ];
     };

@@ -181,24 +181,24 @@ in
           grammars: builtins.filter (g: g.pname or "" != "tree-sitter-razor") (builtins.attrValues grammars)
         );
       }
+      // optionalAttrs (!isDarwin) {
+        # Ghostel builds libghostty via zig, which fails on darwin
+        # with `DarwinSdkNotFound`. evil-ghostel depends on ghostel, so
+        # both are Linux-only. Darwin falls back to vterm/eat at runtime.
+        inherit (epkgs) ghostel;
+        inherit (ecpkgs) evil-ghostel;
+      }
       // optionalAttrs isDarwin {
         # Swift development (Darwin only)
         inherit (epkgs)
           swift-mode
           swift-ts-mode
           request # Dependency for swift-development
-          # Terminal fallback: ghostel is broken on darwin
-          vterm
           ;
         # Custom packages from overlay
         inherit (ecpkgs)
           swift-development # Xcode-like Swift development
           ;
-      }
-      // optionalAttrs (!isDarwin) {
-        # Terminal (libghostty-backed; broken on darwin so darwin uses vterm above)
-        inherit (epkgs) ghostel;
-        inherit (ecpkgs) evil-ghostel;
       }
     );
 }

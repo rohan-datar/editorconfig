@@ -39,8 +39,12 @@
             runtimePkgs = packages.runtimeDeps;
             wrapperVariants.emacsclient = {
               exePath = "bin/emacsclient";
-              mirror = false; # Don't inherit --init-directory from emacs (emacsclient doesn't support it)
-              addFlag = [ "-c" ];
+              # Don't inherit --init-directory from emacs (emacsclient doesn't support it).
+              # We intentionally do NOT add `-c` here: the wrapped `bin/emacsclient`
+              # should behave like a plain emacsclient on the CLI. The `-c -n` flags
+              # for launching a new frame from the app bundle are handled by the
+              # AppleScript in `Emacsclient.app` (see fixDarwinApp below).
+              mirror = false;
             };
             buildCommand.fixDarwinApp = lib.mkIf isDarwin {
               after = [
@@ -53,38 +57,105 @@
                     ln -s "$out/bin/emacs" "$out/Applications/Emacs.app/Contents/MacOS/Emacs"
                 fi
 
-                # Create Emacsclient.app for Spotlight/Raycast
-                mkdir -p "$out/Applications/Emacsclient.app/Contents/MacOS"
-                mkdir -p "$out/Applications/Emacsclient.app/Contents/Resources"
+                # Build Emacsclient.app as an AppleScript applet (like the
+                # homebrew emacs-plus / Emacs_Client_For_OSX launchers).
+                #
+                # The previous version symlinked the executable directly at the
+                # wrapped `emacsclient`. When launched as a GUI app bundle that
+                # process hung around as its own Dock icon (permanently bouncing)
+                # and registered as a separate app with tiling WMs.
+                #
+                # Instead, the applet is a background agent (LSUIElement = true):
+                #   * it never shows up in the Dock or app switcher,
+                #   * it just calls `emacsclient -c -n` via `do shell script`,
+                #   * the new frame is created by the *already running* Emacs.app
+                #     server, so it is owned by Emacs.app's Dock icon and is the
+                #     only window your WM sees.
+                EMACSCLIENT_APP="$out/Applications/Emacsclient.app"
+                rm -rf "$EMACSCLIENT_APP"
 
-                # Reuse Emacs icon
-                cp "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" \
-                   "$out/Applications/Emacsclient.app/Contents/Resources/Emacsclient.icns"
+                # NOTE: heredoc bodies and their closing delimiters below are
+                # intentionally at column 0. bash only recognizes the closing
+                # delimiter when it starts at the beginning of a line (leading
+                # whitespace would make it part of the body and swallow the rest
+                # of the build script). The body indentation does not matter to
+                # AppleScript / XML.
+                cat > "$TMPDIR/emacsclient.applescript" <<APPLESCRIPT
+-- Emacsclient launcher (background agent, no Dock icon).
+-- Opens a frame on the running Emacs server; if no server is up,
+-- launches Emacs.app and retries for up to ~30s.
 
-                # Minimal Info.plist via heredoc
-                cat > "$out/Applications/Emacsclient.app/Contents/Info.plist" <<'PLIST'
-                <?xml version="1.0" encoding="UTF-8"?>
-                <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-                <plist version="1.0">
-                <dict>
-                  <key>CFBundleExecutable</key>
-                  <string>Emacsclient</string>
-                  <key>CFBundleIconFile</key>
-                  <string>Emacsclient</string>
-                  <key>CFBundleIdentifier</key>
-                  <string>org.gnu.Emacsclient</string>
-                  <key>CFBundleName</key>
-                  <string>Emacsclient</string>
-                  <key>CFBundlePackageType</key>
-                  <string>APPL</string>
-                  <key>CFBundleVersion</key>
-                  <string>1.0</string>
-                </dict>
-                </plist>
-                PLIST
+property emacsClientBin : "$out/bin/emacsclient"
+property emacsApp : "$out/Applications/Emacs.app"
 
-                # Point binary at wrapped emacsclient
-                ln -s "$out/bin/emacsclient" "$out/Applications/Emacsclient.app/Contents/MacOS/Emacsclient"
+on openClient(argStr)
+    try
+        do shell script (quoted form of emacsClientBin & " -c -n" & argStr)
+        return true
+    on error
+        return false
+    end try
+end openClient
+
+on run argv
+    set argStr to ""
+    repeat with arg in argv
+        set argStr to argStr & " " & quoted form of (arg as text)
+    end repeat
+
+    if openClient(argStr) then return
+
+    -- No server running: start Emacs.app, then poll until it accepts connections.
+    do shell script "open " & quoted form of emacsApp
+    set waited to 0
+    repeat while waited < 30
+        delay 1
+        set waited to waited + 1
+        if openClient(argStr) then return
+    end repeat
+end run
+APPLESCRIPT
+
+                # Compile the script into an app bundle. osacompile ships with
+                # macOS and is reachable at /usr/bin in the build environment.
+                /usr/bin/osacompile -o "$EMACSCLIENT_APP" "$TMPDIR/emacsclient.applescript"
+
+                # Reuse the Emacs icon for the applet (osacompile ships a generic
+                # applet.icns; overwrite it so Spotlight/Raycast shows the Emacs icon).
+                if [ -f "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" ]; then
+                    cp "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" \
+                       "$EMACSCLIENT_APP/Contents/Resources/applet.icns"
+                fi
+
+                # Rewrite Info.plist: claim our own identity and mark the bundle
+                # as a background agent so it never enters the Dock / app switcher.
+                # osacompile already created Contents/MacOS/applet and a default
+                # plist referencing it; we keep the `applet` executable name and
+                # just replace the plist.
+                cat > "$EMACSCLIENT_APP/Contents/Info.plist" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleExecutable</key>
+  <string>applet</string>
+  <key>CFBundleIconFile</key>
+  <string>applet</string>
+  <key>CFBundleIdentifier</key>
+  <string>org.gnu.Emacsclient</string>
+  <key>CFBundleName</key>
+  <string>Emacsclient</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleVersion</key>
+  <string>1.0</string>
+  <key>LSUIElement</key>
+  <true/>
+  <key>NSHighResolutionCapable</key>
+  <true/>
+</dict>
+</plist>
+PLIST
               '';
             };
           })
