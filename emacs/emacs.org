@@ -32,6 +32,7 @@
   - [[#dashboard][Dashboard]]
   - [[#golden-ratio][Golden Ratio]]
 - [[#development][Development]]
+  - [[#editorconfig][Editorconfig]]
   - [[#projectel][Project.el]]
   - [[#lsp-mode][LSP Mode]]
   - [[#dap-mode][Dap Mode]]
@@ -766,12 +767,22 @@ golden-ratio helps on this issue by resizing automatically the windows you are w
 #+end_src
 
 * Development
+** Editorconfig
+#+begin_src emacs-lisp
+    (use-package editorconfig
+      :ensure nil
+      :config
+      (editorconfig-mode 1))
+
+#+end_src
 ** Project.el
 Built-in project interaction.
 
 #+begin_src emacs-lisp
     (use-package project
       :ensure nil
+      :custom
+      (project-switch-commands 'project-dired)
       :config
       (rdmacs/leader-keys
         "p" '(:keymap project-prefix-map :package project :wk "Project")))
@@ -1935,12 +1946,12 @@ Hightlight TODO Keywords
 Dial the GC threshold back down so that garbage collection happens more frequently but in less time.
 We also increase Read Process Output Max so Emacs can read more data.
 #+begin_src emacs-lisp
-        ;; Dial the GC threshold back down so that garbage collection happens more frequently but in less time.
-        ;; Make gc pauses faster by decreasing the threshold.
-        ;; About 0.02 faster
-        (add-hook 'emacs-startup-hook (lambda ()
-        								(setq gc-cons-threshold (* 1024 1024 2) ;; 2mb
-        									  gc-cons-percentage 0.2)))
+    ;; Dial the GC threshold back down so that garbage collection happens more frequently but in less time.
+    ;; Make gc pauses faster by decreasing the threshold.
+    ;; About 0.02 faster
+    (add-hook 'emacs-startup-hook (lambda ()
+                                                                (setq gc-cons-threshold (* 1024 1024 2) ;; 2mb
+                                                                          gc-cons-percentage 0.2)))
 
     ;; Increase the amount of data which Emacs reads from the process
     (setq read-process-output-max (* 1024 1024)) ;; 1mb
