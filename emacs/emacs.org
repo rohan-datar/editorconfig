@@ -60,7 +60,6 @@
   - [[#vertico-and-marginalia][Vertico and Marginalia]]
   - [[#prescient][Prescient]]
 - [[#ai][AI]]
-  - [[#gptel][GPTel]]
   - [[#claude-code][Claude Code]]
   - [[#pi-coding-agent][Pi Coding Agent]]
 - [[#org-mode][Org Mode]]
@@ -103,46 +102,23 @@ This file is loaded before anything else. Most of the performance tweaks are the
 
 ** Nix Store Compatibility
 When running from Nix, the init directory is in the read-only Nix store.
-Redirect writable paths to ~/.cache/emacs/ to avoid permission errors.
+The Nix wrapper sets ~user-emacs-directory~ to =~/.cache/emacs=, which
+handles most writable paths automatically. We only need to explicitly
+redirect a few package-specific paths and ensure Nix binaries are on PATH.
 #+begin_src emacs-lisp
+    ;; Ensure cache directory exists (for package-specific paths below)
     (let ((cache-dir (expand-file-name "~/.cache/emacs/")))
-      ;; Ensure cache directory exists
       (unless (file-exists-p cache-dir)
         (make-directory cache-dir t))
       ;; Native compilation cache
       (when (boundp 'native-comp-eln-load-path)
         (startup-redirect-eln-cache (expand-file-name "eln-cache/" cache-dir)))
-      ;; Yasnippet snippets directory
-      (setq yas-snippet-dirs (list (expand-file-name "snippets/" cache-dir)))
-      ;; Package quickstart cache
-      ;; Recent files list
-      (setq recentf-save-file (expand-file-name "recentf" cache-dir))
-      ;; Custom file for customize settings
+      ;; Custom file: when nil, customize tries to write to the init file (read-only in Nix)
       (setq custom-file (expand-file-name "custom-vars.el" cache-dir))
-      ;; Savehist (minibuffer history)
-      (setq savehist-file (expand-file-name "history" cache-dir))
-      ;; Transient (Magit command history)
-      (setq transient-history-file (expand-file-name "transient/history.el" cache-dir))
-      ;; project.el known projects list
-      (setq project-list-file (expand-file-name "projects" cache-dir))
-      ;; DAP mode breakpoints
-      (setq dap-breakpoints-file (expand-file-name "dap/breakpoints" cache-dir))
-      ;; LSP session
-      (setq lsp-session-file (expand-file-name "lsp-session" cache-dir))
-      ;; URL cache and cookies (used by many packages)
-      (setq url-configuration-directory (expand-file-name "url/" cache-dir))
-      ;; Eshell directory (history, aliases, etc.)
-      (setq eshell-directory-name (expand-file-name "eshell/" cache-dir))
-      ;; Bookmarks
-      (setq bookmark-default-file (expand-file-name "bookmarks" cache-dir))
+      ;; Package-specific paths that don't derive from user-emacs-directory
       (setq undo-fu-session-directory (expand-file-name "undo-fu-session/" cache-dir))
-      ;; Shell-maker (used by agent-shell, chatgpt-shell, etc.)
       (setq shell-maker-root-path (expand-file-name "shell-maker/" cache-dir))
-      ;;  prescient history
-      (setq prescient-save-file (expand-file-name "prescient-save.el" cache-dir))
-      ;; github tokens for gtpel
-      (setq gptel-gh-token-file (expand-file-name "copilot-chat/token" cache-dir))
-      (setq gptel-gh-github-token-file (expand-file-name "copilot-chat/github-token" cache-dir)))
+      (setq prescient-save-file (expand-file-name "prescient-save.el" cache-dir)))
 
     ;; Sync exec-path with PATH so Emacs finds Nix-provided binaries (LSPs, formatters, etc.)
     (setq exec-path (append (split-string (getenv "PATH") path-separator) exec-path))
@@ -453,7 +429,7 @@ Note: The Leader key is what you will press when you want to access your keybind
       (general-create-definer rdmacs/leader-keys
         :states '(normal insert visual motion emacs)
         :keymaps 'override
-                :prefix "SPC"
+        :prefix "SPC"
         :global-prefix "C-SPC") ;; Set global leader key so we can access our keybindings from any state
 
       (rdmacs/leader-keys
@@ -507,14 +483,10 @@ Note: The Leader key is what you will press when you want to access your keybind
       (rdmacs/leader-keys
     	"o" '(:ignore t :wk "Open"))
 
-      ;; ghostel is broken on darwin; fall back to vterm there
-      (if (eq system-type 'darwin)
-          (rdmacs/leader-keys
-    	    "o t" '(vterm :wk "Open terminal"))
-        (rdmacs/leader-keys
-    	  "o t" '(ghostel :wk "Open terminal")
-    	  "o t p" '(ghostel-project :wk "Open project terminal")
-    	  "o o" '(ghostel-other :wk "Switch to other terminal")))
+      (rdmacs/leader-keys
+    	"o t" '(ghostel :wk "Open terminal")
+    	"o t p" '(ghostel-project :wk "Open project terminal")
+    	"o o" '(ghostel-other :wk "Switch to other terminal"))
 
 
       (rdmacs/leader-keys
@@ -1231,9 +1203,7 @@ If you want a faster and more responsive terminal emulator try out vterm.
 
 *** Ghostel
 Uses libghostty to run a real terminal inside emacs.
-Broken on darwin (libghostty issue), so darwin falls back to vterm below.
 #+begin_src emacs-lisp
-    (unless (eq system-type 'darwin)
       (use-package ghostel
         :custom
         (ghostel-module-auto-install nil)
@@ -1244,14 +1214,9 @@ Broken on darwin (libghostty issue), so darwin falls back to vterm below.
       ;; evil-mode integration
       (use-package evil-ghostel
         :after (ghostel evil)
-        :hook (ghostel-mode . evil-ghostel-mode)))
+        :hook (ghostel-mode . evil-ghostel-mode))
 #+end_src
 
-*** Vterm (darwin fallback)
-#+begin_src emacs-lisp
-    (when (eq system-type 'darwin)
-      (use-package vterm))
-#+end_src
 
 
 ** Compilation Mode
@@ -1276,16 +1241,6 @@ Configure and enhance Emacs' compilation mode
         "c" '(:ignore t :wk "Compile")
         "c c" '(rdmacs/smart-compile :wk "Run compile command")
         "c r" '(recompile :wk "Recompile")))
-
-    (when (eq system-type 'darwin)
-    (use-package fancy-compilation
-      :ensure t
-      :after compile
-      :config
-      (fancy-compilation-mode)
-      :custom
-      (fancy-compilation-override-colors nil)
-      (fancy-compilation-scroll-output t)))
 #+end_src
 * Version Control
 ** Magit
@@ -1488,35 +1443,16 @@ Sorts completions by frecency
 #+end_src
 
 * AI
-** GPTel
-#+begin_src emacs-lisp
-    (use-package gptel
-      :config
-      (setq gptel-model 'claude-4.5-opus
-            gptel-backend (gptel-make-gh-copilot "Copilot"))
-      (rdmacs/leader-keys
-    	"a g" '(:keymap gptel-mode-map :package gptel :wk "gptel")))
-#+end_src
-
 ** Claude Code
 Better native claude code integration into emacs
 #+begin_src emacs-lisp
-    (use-package monet)
-
-    (use-package claude-code
+    (use-package claude-code-ide
+      :custom
+      (claude-code-ide-terminal-backend 'ghostel)
       :config
-      (setq claude-code-terminal-backend (if (eq system-type 'darwin) 'vterm 'ghostel))
-      (add-to-list 'display-buffer-alist
-        		   '("^\\*claude"
-        			 (display-buffer-in-side-window)
-        			 (side . right)
-        			 (window-width . 90)
-        			 (preserve-size . (t . nil))))
-      (add-hook 'claude-code-process-environment-functions #'monet-start-server-function)
-      (monet-mode 1)
-      (claude-code-mode)
+      (claude-code-ide-emacs-tools-setup)
       (rdmacs/leader-keys
-    	"a c" '(:keymap claude-code-command-map :package claude-code :wk "Claude Code")))
+    	"a c" '(claude-code-ide-menu  :wk "Claude Code")))
 #+end_src
 
 ** Pi Coding Agent
@@ -1874,7 +1810,6 @@ on every transient special-mode buffer (Magit, Help, tabulated-list, etc.).
               compilation-mode     ; *compilation* buffers
               comint-mode          ; shell, inferior processes
               eshell-mode
-              vterm-mode
               eat-mode
               term-mode
               shell-mode

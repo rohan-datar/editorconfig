@@ -89,11 +89,13 @@ NixCats organizes Neovim config using:
 ### Emacs Configuration (emacs/)
 
 1. **emacs.org** - Literate configuration file containing all Emacs setup
-   - Tangled to elisp at build time using `pkgs.tangleOrgBabelFile` (from org-babel overlay)
+   - Tangled to elisp at eval time using `inputs.org-babel.lib.tangleOrgBabel`
+     and passed directly to the wrapper's `configFile` option (no IFD)
 
-2. **default.nix** - emacs-overlay configuration:
+2. **default.nix** - emacs-overlay + nix-wrapper-modules configuration:
    - `rdmacs-unwrapped` - Base Emacs with packages via `emacsWithPackages`
-   - `rdmacs` - Wrapped version with init-directory baked in:
+   - `rdmacs` - Wrapped version via `nix-wrapper-modules`:
+     - Sets `userDirectory = "~/.cache/emacs"` so packages write to a writable location
      - Provides `bin/emacs` and `bin/emacsclient` on all platforms
      - On Darwin, also creates `Emacs.app` and `Emacsclient.app` bundles for Spotlight/Raycast
    - `rdmacs-test` - Live-tangling wrapper for config iteration

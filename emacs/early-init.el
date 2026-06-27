@@ -28,8 +28,9 @@
 
 
 ;; Package quickstart for faster startup
-;; Precomputes a single autoload file instead of scanning on every launch
-(setq package-quickstart-file (expand-file-name "package-quickstart.el" "~/.cache/emacs/"))
+;; Precomputes a single autoload file instead of scanning on every launch.
+;; user-emacs-directory is set to ~/.cache/emacs by the Nix wrapper, so the
+;; package-quickstart file naturally lives there without an explicit path.
 (setq package-quickstart t)
 
 ;; Disable UI elements before UI initialization.

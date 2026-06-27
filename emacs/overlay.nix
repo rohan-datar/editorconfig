@@ -13,10 +13,6 @@ let
     #   dashboard
     #   nerd-icons
     # ];
-
-    claude-code = with epkgs; [ inheritenv ];
-    monet = with epkgs; [ websocket ];
-
     swift-development = with epkgs; [
       # Built-in packages are automatically available, only need MELPA packages
       nerd-icons

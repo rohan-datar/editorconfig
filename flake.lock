@@ -1,34 +1,18 @@
 {
   "nodes": {
-    "emacs-claude-code": {
+    "emacs-claude-code-ide": {
       "flake": false,
       "locked": {
-        "lastModified": 1777579222,
-        "narHash": "sha256-5QJrWIu4EgnHcOqMwlrs2JBBx7aI9OaSJswesr6Apfk=",
-        "owner": "stevemolitor",
-        "repo": "claude-code.el",
-        "rev": "03199df8b3a1e9cd4857f0851f7a912ba524aff3",
+        "lastModified": 1780335122,
+        "narHash": "sha256-6kaTPI2CCsdxxiCpZ7qqciv/HJCQRsJ8084+SqW8Idc=",
+        "owner": "manzaltu",
+        "repo": "claude-code-ide.el",
+        "rev": "a9485f766ea69f6cb3a3f08dea20d44fd6596673",
         "type": "github"
       },
       "original": {
-        "owner": "stevemolitor",
-        "repo": "claude-code.el",
-        "type": "github"
-      }
-    },
-    "emacs-monet": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1776563377,
-        "narHash": "sha256-C5t7pKcp8lqZUPiWAcrx2H7Gba2NSpojUPxG5AnrMJg=",
-        "owner": "stevemolitor",
-        "repo": "monet",
-        "rev": "ee2e35557e8ae07de842c435486f7c152f3750e0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "stevemolitor",
-        "repo": "monet",
+        "owner": "manzaltu",
+        "repo": "claude-code-ide.el",
         "type": "github"
       }
     },
@@ -111,16 +95,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1782175435,
-        "narHash": "sha256-EMzXKmnOtBQ2MnvpiNOm7E+kOMvdPrIKaeg52Tip2Uk=",
+        "lastModified": 1782467914,
+        "narHash": "sha256-pGvFkM8N0xEkIIXDe5YYfbEAvHrk4IxBrjB/x8OomhE=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "89570f24e97e614aa34aa9ab1c927b6578a43775",
+        "rev": "e73de5be04e0eff4190a1432b946d469c794e7b4",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
-        "ref": "nixpkgs-unstable",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -206,8 +190,7 @@
     },
     "root": {
       "inputs": {
-        "emacs-claude-code": "emacs-claude-code",
-        "emacs-monet": "emacs-monet",
+        "emacs-claude-code-ide": "emacs-claude-code-ide",
         "emacs-overlay": "emacs-overlay",
         "emacs-swift-development": "emacs-swift-development",
         "flake-parts": "flake-parts",

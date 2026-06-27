@@ -44,7 +44,6 @@ in
         delve # Go debugger (dlv)
         lldb
 
-        claude-code
         ;
     }
     // pkgs.lib.optionalAttrs isDarwin {
@@ -124,6 +123,7 @@ in
 
           # Terminal
           eat
+          ghostel
 
           # Version Control
           transient
@@ -149,7 +149,7 @@ in
           visual-fill-column
 
           #AI
-          gptel
+          # eca
           pi-coding-agent
 
           # Other packages
@@ -171,8 +171,8 @@ in
 
         # Custom packages from overlay
         inherit (ecpkgs)
-          claude-code
-          monet
+          claude-code-ide
+          evil-ghostel
           ;
 
         # Tree-sitter grammars (for Emacs 29+ built-in tree-sitter)
@@ -180,13 +180,6 @@ in
         treesit = epkgs.treesit-grammars.with-grammars (
           grammars: builtins.filter (g: g.pname or "" != "tree-sitter-razor") (builtins.attrValues grammars)
         );
-      }
-      // optionalAttrs (!isDarwin) {
-        # Ghostel builds libghostty via zig, which fails on darwin
-        # with `DarwinSdkNotFound`. evil-ghostel depends on ghostel, so
-        # both are Linux-only. Darwin falls back to vterm/eat at runtime.
-        inherit (epkgs) ghostel;
-        inherit (ecpkgs) evil-ghostel;
       }
       // optionalAttrs isDarwin {
         # Swift development (Darwin only)

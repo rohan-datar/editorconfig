@@ -5,16 +5,14 @@
     let
       inherit (pkgs.stdenv) isDarwin;
       packages = import ./packages.nix { inherit pkgs; };
-      tangle = (pkgs.extend inputs.org-babel.overlays.default).tangleOrgBabelFile;
-
-      # Tangle the org config to an elisp file
-      # org-babel overlay provides tangleOrgBabelFile
-      initFile = tangle "init.el" ./emacs.org {
+      # Tangle the org config to an elisp string at eval time (no IFD).
+      # We pass the result directly to the wrapper's configFile option.
+      tangleContent = inputs.org-babel.lib.tangleOrgBabel {
         languages = [
           "emacs-lisp"
           "elisp"
         ];
-      };
+      } (builtins.readFile ./emacs.org);
 
       rdmacs = inputs.nix-wrapper-modules.wrappers.emacs.wrap {
         inherit pkgs;
@@ -22,20 +20,11 @@
           ({ config, ... }: {
             package = pkgs.emacs-pgtk;
             emacsPackages = packages.emacsPackages;
-            configFile = "";
-            earlyConfigFile = "";
-            constructFiles.init.builder = ''
-              mkdir -p "$(dirname "$2")"
-              cp "${initFile}" "$2"
-            '';
-            constructFiles.early-init.builder = ''
-              mkdir -p "$(dirname "$2")"
-              cp "${./early-init.el}" "$2"
-            '';
-            # The wrapper module only auto-adds --init-directory when configFile or
-            # earlyConfigFile is non-empty. We bypass those by writing the files via
-            # constructFiles.*.builder, so we need to add the flag ourselves.
-            flags."--init-directory" = dirOf config.constructFiles.init.path;
+            # Set user-emacs-directory to a writable location so packages don't
+            # try to write into the read-only Nix store init directory.
+            userDirectory = "~/.cache/emacs";
+            configFile = tangleContent;
+            earlyConfigFile = builtins.readFile ./early-init.el;
             runtimePkgs = packages.runtimeDeps;
             wrapperVariants.emacsclient = {
               exePath = "bin/emacsclient";
@@ -52,44 +41,44 @@
                 "makeWrapper"
               ];
               data = ''
-                                if [ -d "$out/Applications/Emacs.app" ]; then
-                                    rm "$out/Applications/Emacs.app/Contents/MacOS/Emacs"
-                                    ln -s "$out/bin/emacs" "$out/Applications/Emacs.app/Contents/MacOS/Emacs"
-                                fi
+                				if [ -d "$out/Applications/Emacs.app" ]; then
+                					rm "$out/Applications/Emacs.app/Contents/MacOS/Emacs"
+                					ln -s "$out/bin/emacs" "$out/Applications/Emacs.app/Contents/MacOS/Emacs"
+                				fi
 
-                                # Build Emacsclient.app as an AppleScript applet.
-                                # The AppleScript source lives in a separate file
-                                # (./emacsclient-launcher.applescript) with @out@ placeholders
-                                # that we substitute here, where the final $out store path is
-                                # known. This keeps the launcher logic out of the Nix file.
-                                EMACSCLIENT_APP="$out/Applications/Emacsclient.app"
-                                rm -rf "$EMACSCLIENT_APP"
+                				# Build Emacsclient.app as an AppleScript applet.
+                				# The AppleScript source lives in a separate file
+                				# (./emacsclient-launcher.applescript) with @out@ placeholders
+                				# that we substitute here, where the final $out store path is
+                				# known. This keeps the launcher logic out of the Nix file.
+                				EMACSCLIENT_APP="$out/Applications/Emacsclient.app"
+                				rm -rf "$EMACSCLIENT_APP"
 
-                                cp ${./emacsclient-launcher.applescript} "$TMPDIR/emacsclient.applescript"
-                                substituteInPlace "$TMPDIR/emacsclient.applescript" --subst-var out
+                				cp ${./emacsclient-launcher.applescript} "$TMPDIR/emacsclient.applescript"
+                				substituteInPlace "$TMPDIR/emacsclient.applescript" --subst-var out
 
-                                # Compile the script into an app bundle. osacompile ships with
-                                # macOS and is reachable at /usr/bin in the build environment.
-                                /usr/bin/osacompile -o "$EMACSCLIENT_APP" "$TMPDIR/emacsclient.applescript"
+                				# Compile the script into an app bundle. osacompile ships with
+                				# macOS and is reachable at /usr/bin in the build environment.
+                				/usr/bin/osacompile -o "$EMACSCLIENT_APP" "$TMPDIR/emacsclient.applescript"
 
-                                APPLET_EXE="$(basename "$(find "$EMACSCLIENT_APP/Contents/MacOS" -type f -print -quit)")"
+                				APPLET_EXE="$(basename "$(find "$EMACSCLIENT_APP/Contents/MacOS" -type f -print -quit)")"
 
-                                # Reuse the Emacs icon for the applet. osacompile ships a generic
-                                # applet/droplet icon at "$APPLET_EXE.icns"; overwrite it so
-                                # Spotlight/Raycast shows the Emacs icon.
-                                if [ -f "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" ]; then
-                                    cp "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" \
-                                       "$EMACSCLIENT_APP/Contents/Resources/''${APPLET_EXE}.icns"
-                                fi
+                				# Reuse the Emacs icon for the applet. osacompile ships a generic
+                				# applet/droplet icon at "$APPLET_EXE.icns"; overwrite it so
+                				# Spotlight/Raycast shows the Emacs icon.
+                				if [ -f "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" ]; then
+                					cp "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" \
+                						"$EMACSCLIENT_APP/Contents/Resources/''${APPLET_EXE}.icns"
+                				fi
 
-                                # Rewrite Info.plist: claim our own identity and mark the bundle
-                                # as a background agent so it never enters the Dock / app switcher.
-                                # The plist lives in ./emacsclient-info.plist with @APPLET_EXE@
-                                # placeholders, substituted here once osacompile has produced the
-                                # bundle and we know the executable name (applet vs droplet).
-                                cp ${./emacsclient-info.plist} "$EMACSCLIENT_APP/Contents/Info.plist"
-                                substituteInPlace "$EMACSCLIENT_APP/Contents/Info.plist" \
-                                  --replace "@APPLET_EXE@" "$APPLET_EXE"
+                				# Rewrite Info.plist: claim our own identity and mark the bundle
+                				# as a background agent so it never enters the Dock / app switcher.
+                				# The plist lives in ./emacsclient-info.plist with @APPLET_EXE@
+                				# placeholders, substituted here once osacompile has produced the
+                				# bundle and we know the executable name (applet vs droplet).
+                				cp ${./emacsclient-info.plist} "$EMACSCLIENT_APP/Contents/Info.plist"
+                				substituteInPlace "$EMACSCLIENT_APP/Contents/Info.plist" \
+                					--replace "@APPLET_EXE@" "$APPLET_EXE"
               '';
             };
           })

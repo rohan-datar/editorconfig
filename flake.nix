@@ -2,7 +2,7 @@
   description = "Nix Flake for configuring my editors";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
@@ -50,16 +50,10 @@
       flake = false;
     };
 
-    "emacs-claude-code" = {
-      url = "github:stevemolitor/claude-code.el";
+    "emacs-claude-code-ide" = {
+      url = "github:manzaltu/claude-code-ide.el";
       flake = false;
     };
-
-    "emacs-monet" = {
-      url = "github:stevemolitor/monet";
-      flake = false;
-    };
-
   };
 
   outputs =
