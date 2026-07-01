@@ -119,6 +119,7 @@ in
           markdown-mode
           pkl-mode
           kotlin-mode
+          applescript-mode
           add-node-modules-path
 
           # Terminal
@@ -128,6 +129,7 @@ in
           # Version Control
           transient
           magit
+          git-timemachine
           diff-hl
           blamer
 
