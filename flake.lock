@@ -3,11 +3,11 @@
     "emacs-claude-code-ide": {
       "flake": false,
       "locked": {
-        "lastModified": 1780335122,
-        "narHash": "sha256-6kaTPI2CCsdxxiCpZ7qqciv/HJCQRsJ8084+SqW8Idc=",
+        "lastModified": 1783000777,
+        "narHash": "sha256-pL5PNnemuXHHhQ0wEqhoagyKNdx+ywb2EEru8XWJ0Lc=",
         "owner": "manzaltu",
         "repo": "claude-code-ide.el",
-        "rev": "a9485f766ea69f6cb3a3f08dea20d44fd6596673",
+        "rev": "cc508396a09e98931bb588da8542b73fa07733e2",
         "type": "github"
       },
       "original": {
@@ -24,11 +24,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1782846501,
-        "narHash": "sha256-2Pz2ajx4elc6+J1ptkGAi4HLYTW2vW/jJhQfeZsXq9U=",
+        "lastModified": 1783017315,
+        "narHash": "sha256-Hd8OsY+xAu9AN8L4C2BfjC0K8zfwR+QL9pLhJ5TYCxY=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "049348f7a64744506ea5dfb6c939d780de5214c8",
+        "rev": "89295cc78aff3450ec13903cc47ffde2945383b9",
         "type": "github"
       },
       "original": {
@@ -60,11 +60,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778716662,
-        "narHash": "sha256-m1Yf0wZ8j1OHjTc2UwHwyQRSnNeSgLJOd7q5Y45hzi4=",
+        "lastModified": 1782949081,
+        "narHash": "sha256-vp6Y/Grm98ESt6ceOkWiHWyZRDV3J1RID4w+6NWK9yA=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "f7c1a2d347e4c52d5fb8d10cb4d94b5884e546fb",
+        "rev": "17c9d6cdfc60c64f4ee8d306f9bc0b4ccb51481e",
         "type": "github"
       },
       "original": {
@@ -111,11 +111,11 @@
     },
     "nixpkgs-stable": {
       "locked": {
-        "lastModified": 1782691344,
-        "narHash": "sha256-i5nw9BYYsMDAaOC4J+JmTof6b2GhlyH076awYRNrTV8=",
+        "lastModified": 1782847225,
+        "narHash": "sha256-JC9PjqKYG9ve5U8aDOLQipp3+KLANBHUvGdLZlxzdKI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "1f01958ffb5b3545c96d9ef2f4e24c5e5e1eb846",
+        "rev": "95ca1e203c0750115fd4a6f17d5a245dfe6b1edd",
         "type": "github"
       },
       "original": {
@@ -143,11 +143,11 @@
     "plugins-agentic-nvim": {
       "flake": false,
       "locked": {
-        "lastModified": 1782843914,
-        "narHash": "sha256-1vFtJ3e3K4MztkVB6GOi8IFHnM95jQuZ2ztd7Cbhdl8=",
+        "lastModified": 1783009605,
+        "narHash": "sha256-c8NcOCjXfBAPgYtx+JVZqfOo5fzIirKx4bYbFEk1O9E=",
         "owner": "carlos-algms",
         "repo": "agentic.nvim",
-        "rev": "e2937ac9a2299753fec7b2a31276337ffa145e80",
+        "rev": "9ca49020144ba9a30d1a664a371d4627d9b87a51",
         "type": "github"
       },
       "original": {
