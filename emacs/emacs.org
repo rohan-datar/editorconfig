@@ -1,9 +1,8 @@
-
 #+Title: My Emacs Config
 #+Author: Rohan Datar
 #+PROPERTY: header-args:emacs-lisp :tangle emacs.el
 #+PROPERTY: header-args :mkdirp yes :comments no
-#+Options: toc:3
+#+Options: toc:5
 
 * Table Of Contents :toc:
 - [[#core-setup--performance][Core Setup & Performance]]
@@ -69,6 +68,7 @@
   - [[#table-of-contents][Table of Contents]]
   - [[#org-superstar][Org Superstar]]
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
+  - [[#org-babel][Org Babel]]
   - [[#center-org-buffers][Center Org Buffers]]
 - [[#other-packages][Other packages]]
   - [[#undo][Undo]]
@@ -148,9 +148,7 @@ automatically exports the configuration here to the associated output files.
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
 	  (org-babel-tangle)
-	  (package-quickstart-refresh)
-	  )
-    ))
+	  (package-quickstart-refresh))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'rdmacs/org-babel-tangle-config)))
 #+end_src
@@ -1132,6 +1130,11 @@ For .pkl files
        ("\\.applescript\\'" . applescript-mode)))
 #+end_src
 
+*** Mermaid
+#+begin_src emacs-lisp
+    (use-package mermaid-mode)
+#+end_src
+
 *** Swift (Darwin only)
 Swift development setup for iOS/tvOS development.
 Uses the system Swift toolchain for LSP and build tools since nixpkgs Swift (5.10) is outdated compared to current (6.2).
@@ -1563,6 +1566,20 @@ Org-tempo allows for '<s' followed by TAB to expand to a begin_src tag.
     (use-package org-tempo
       :ensure nil
       :after org)
+#+end_src
+
+** Org Babel
+This allows creating files from org mode source blocks. Some languages have additional setup required.
+
+*** Mermaid Diagrams
+#+begin_src emacs-lisp
+    (use-package ob-mermaid)
+#+end_src
+
+#+begin_src emacs-lisp
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((mermaid . t)))
 #+end_src
 
 ** Center Org Buffers

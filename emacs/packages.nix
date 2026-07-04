@@ -44,6 +44,8 @@ in
         delve # Go debugger (dlv)
         lldb
 
+        # miscellaneous
+        mermaid-cli
         ;
     }
     // pkgs.lib.optionalAttrs isDarwin {
@@ -115,12 +117,13 @@ in
           rust-mode
           dotenv-mode
           web-mode
+          add-node-modules-path
           nix-ts-mode
           markdown-mode
           pkl-mode
           kotlin-mode
           applescript-mode
-          add-node-modules-path
+          mermaid-mode
 
           # Terminal
           eat
@@ -149,6 +152,7 @@ in
           toc-org
           org-superstar
           visual-fill-column
+          ob-mermaid
 
           #AI
           # eca
