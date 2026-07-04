@@ -1127,9 +1127,9 @@ For .pkl files
 #+begin_src emacs-lisp
     (use-package applescript-mode
       :mode
-      (("\\.scpt\\" . applescript-mode)
-       ("\\.scptd\\" . applescript-mode)
-       ("\\.applescript\\" . applescript-mode)))
+      (("\\.scpt\\'" . applescript-mode)
+       ("\\.scptd\\'" . applescript-mode)
+       ("\\.applescript\\'" . applescript-mode)))
 #+end_src
 
 *** Swift (Darwin only)
