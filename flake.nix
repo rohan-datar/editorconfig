@@ -2,7 +2,7 @@
   description = "Nix Flake for configuring my editors";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     # nixpkgs-test.url = "github:nixos/nixpkgs/0d0f425671a7f18c70baa48914f8c1dd2ffd0b49";
 
     flake-parts = {
@@ -29,6 +29,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
+    };
+
     # Neovim plugins not in nixpkgs
     "plugins-compile-nvim" = {
       url = "github:pohlrabi404/compile.nvim";
@@ -37,11 +43,6 @@
 
     "plugins-tiny-code-action-nvim" = {
       url = "github:rachartier/tiny-code-action.nvim";
-      flake = false;
-    };
-
-    "plugins-agentic-nvim" = {
-      url = "github:carlos-algms/agentic.nvim";
       flake = false;
     };
 

@@ -3,6 +3,7 @@
 let
   ecpkgs = pkgs.customEmacsPackages;
   values = builtins.attrValues;
+  aipkgs = pkgs.llm-agents;
   inherit (pkgs.stdenv) isDarwin;
   inherit (pkgs.lib) optionalAttrs;
 in
@@ -46,6 +47,11 @@ in
 
         # miscellaneous
         mermaid-cli
+        ;
+
+      inherit (aipkgs)
+        claude-code
+        pi
         ;
     }
     // pkgs.lib.optionalAttrs isDarwin {
@@ -153,10 +159,6 @@ in
           org-superstar
           visual-fill-column
           ob-mermaid
-
-          #AI
-          # eca
-          pi-coding-agent
 
           # Other packages
           consult

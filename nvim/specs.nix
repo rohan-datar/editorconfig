@@ -205,11 +205,6 @@ in
           name = "copilot.lua";
           data = vp.copilot-lua;
         }
-        {
-          name = "agentic.nvim";
-          lazy = true;
-          data = mkPlugin "agentic.nvim" inputs."plugins-agentic-nvim";
-        }
       ];
     };
     git = {
@@ -316,12 +311,6 @@ in
     ++ optionals config.specs.git.enable (values {
       inherit (pkgs)
         lazygit
-        ;
-    })
-    ++ optionals config.specs.ai.enable (values {
-      inherit (pkgs)
-        claude-agent-acp
-        github-copilot-cli
         ;
     });
 
