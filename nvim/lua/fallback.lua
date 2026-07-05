@@ -46,7 +46,6 @@ if vim.g.nix_info_plugin_name == nil then
 		"https://github.com/direnv/direnv.vim",
 		"https://github.com/roman/golden-ratio",
 		"https://github.com/rachartier/tiny-code-action.nvim",
-		"https://github.com/carlos-algms/agentic.nvim",
 	})
 
 	-- plugins with extra build steps

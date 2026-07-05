@@ -1,8 +1,9 @@
 # Emacs packages and runtime dependencies for rdmacs
-{ pkgs }:
+{ pkgs, inputs }:
 let
   ecpkgs = pkgs.customEmacsPackages;
   values = builtins.attrValues;
+  aipkgs = pkgs.llm-agents;
   inherit (pkgs.stdenv) isDarwin;
   inherit (pkgs.lib) optionalAttrs;
 in
@@ -154,10 +155,6 @@ in
           visual-fill-column
           ob-mermaid
 
-          #AI
-          # eca
-          pi-coding-agent
-
           # Other packages
           consult
           helpful
@@ -173,6 +170,11 @@ in
           wgrep
           embark
           embark-consult
+          ;
+
+        inherit (aipkgs)
+          claude-code
+          pi
           ;
 
         # Custom packages from overlay
