@@ -1,5 +1,5 @@
 # Emacs packages and runtime dependencies for rdmacs
-{ pkgs, inputs }:
+{ pkgs }:
 let
   ecpkgs = pkgs.customEmacsPackages;
   values = builtins.attrValues;
@@ -175,11 +175,6 @@ in
           wgrep
           embark
           embark-consult
-          ;
-
-        inherit (aipkgs)
-          claude-code
-          pi
           ;
 
         # Custom packages from overlay
