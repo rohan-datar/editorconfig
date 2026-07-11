@@ -165,7 +165,12 @@ in
           helpful
           diminish
           rainbow-delimiters
-          neotree
+          treemacs
+          treemacs-evil
+          project-treemacs
+          treemacs-nerd-icons
+          treemacs-magit
+          treemacs-tab-bar
           vundo
           undo-fu-session
           envrc

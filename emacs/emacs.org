@@ -82,7 +82,7 @@
   - [[#rainbow-delimiters][Rainbow Delimiters]]
   - [[#rainbow-mode][Rainbow Mode]]
   - [[#ws-butler][Ws-butler]]
-  - [[#neotree][Neotree]]
+  - [[#treemacs][Treemacs]]
   - [[#envrc][Envrc]]
   - [[#hl-todo][Hl-Todo]]
 - [[#runtime-performance][Runtime Performance]]
@@ -123,7 +123,6 @@ redirect a few package-specific paths and ensure Nix binaries are on PATH.
 
     ;; Sync exec-path with PATH so Emacs finds Nix-provided binaries (LSPs, formatters, etc.)
     (setq exec-path (append (split-string (getenv "PATH") path-separator) exec-path))
-    (setq magit-git-executable "/run/current-system/sw/bin/git")
 #+end_src
 
 ** Auto-tangle Configuration file
@@ -439,7 +438,7 @@ Note: The Leader key is what you will press when you want to access your keybind
         "f" '(:ignore t :wk "Files")
         "f f" '(dired :wk "Open dired")
         "f e" '(dired-jump :wk "Dired jump to current")
-        "f s" '(neotree-toggle :wk "Toggle neotree"))
+        "f s" '(treemacs :wk "Toggle treemacs"))
 
       (rdmacs/leader-keys
         "b" '(:ignore t :wk "Buffers")
@@ -550,7 +549,7 @@ We already enabled line numbers globally, but we want to turn them off in some p
 (dolist (mode '(org-mode-hook
                 eat-mode-hook
                 shell-mode-hook
-                neotree-mode-hook))
+                treemacs-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
@@ -1809,20 +1808,47 @@ Removes whitespace from the ends of lines.
       (ws-butler-global-mode 1))
 #+end_src
 
-** Neotree
-The `neotree' package provides a file tree explorer for Emacs, allowing easy navigation
+** Treemacs
+The `treemacs' package provides a file tree explorer for Emacs, allowing easy navigation
 through directories and files. It presents a visual representation of the file system
 and integrates with version control to show file states.
 #+begin_src emacs-lisp
-(use-package neotree
-  :ensure t
-  :custom
-  (neo-show-hidden-files t)                ;; By default shows hidden files (toggle with H)
-  (neo-theme 'nerd)                        ;; Set the default theme for Neotree to 'nerd' for a visually appealing look.
-  (neo-vc-integration '(face char))        ;; Enable VC integration to display file states with faces (color coding) and characters (icons).
-  :defer t                                 ;; Load the package only when needed to improve startup time.
-  :config
-  (setq neo-theme 'nerd-icons))         ;; Set the theme to 'nerd-icons' if nerd fonts are available.
+    (use-package treemacs
+      :ensure t
+      :defer t
+      :custom
+      (treemacs-show-hidden-files t)                ;; By default shows hidden files
+      (treemacs-git-mode 'deferred)                 ;; Git integration with deferred mode for performance
+      (treemacs-follow-after-init t)                ;; Follow current file after startup
+      (treemacs-width 35)                           ;; Default width
+      :config
+      (treemacs-hide-gitignored-files-mode nil))    ;; Show gitignored files
+
+    (use-package treemacs-evil
+      :ensure t
+      :after (treemacs evil))
+
+    (use-package project-treemacs
+      :ensure t
+      :after (treemacs)
+      :config
+      (project-treemacs-mode))
+
+    (use-package treemacs-nerd-icons
+      :ensure t
+      :after (treemacs)
+      :config
+      (treemacs-nerd-icons-config))
+
+    (use-package treemacs-magit
+      :ensure t
+      :after (treemacs magit))
+
+    (use-package treemacs-tab-bar
+      :ensure t
+      :after (treemacs)
+      :cofnig
+      (treemacs-set-scope-type 'Tabs))
 #+end_src
 
 ** Envrc
