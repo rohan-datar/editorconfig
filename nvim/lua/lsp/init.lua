@@ -56,7 +56,7 @@ require("lze").load({
 		end,
 	},
 	{
-		"inlay-hints",
+		"inlay-hints.nvim",
 		for_cat = "lsp",
 		event = "LspAttach",
 		after = function()
