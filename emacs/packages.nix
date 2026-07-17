@@ -1,9 +1,9 @@
 # Emacs packages and runtime dependencies for rdmacs
-{ pkgs }:
+{ pkgs, inputs, ... }:
 let
   ecpkgs = pkgs.customEmacsPackages;
   values = builtins.attrValues;
-  aipkgs = pkgs.llm-agents;
+  aipkgs = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
   inherit (pkgs.stdenv) isDarwin;
   inherit (pkgs.lib) optionalAttrs;
 in

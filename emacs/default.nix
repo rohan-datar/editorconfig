@@ -4,7 +4,7 @@
     { pkgs, lib, ... }:
     let
       inherit (pkgs.stdenv) isDarwin;
-      packages = import ./packages.nix { inherit pkgs; };
+      packages = import ./packages.nix { inherit pkgs inputs; };
       # Tangle the org config to an elisp string at eval time (no IFD).
       # We pass the result directly to the wrapper's configFile option.
       tangleContent = inputs.org-babel.lib.tangleOrgBabel {
