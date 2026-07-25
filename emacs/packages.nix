@@ -51,6 +51,7 @@ in
 
       inherit (aipkgs)
         claude-code
+        claude-agent-acp
         pi
         ;
     }
@@ -180,11 +181,12 @@ in
           wgrep
           embark
           embark-consult
+
+          agent-shell
           ;
 
         # Custom packages from overlay
         inherit (ecpkgs)
-          claude-code-ide
           evil-ghostel
           ;
 

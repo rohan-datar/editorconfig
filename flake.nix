@@ -51,11 +51,6 @@
       url = "github:konrad1977/swift-development";
       flake = false;
     };
-
-    "emacs-claude-code-ide" = {
-      url = "github:manzaltu/claude-code-ide.el";
-      flake = false;
-    };
   };
 
   outputs =

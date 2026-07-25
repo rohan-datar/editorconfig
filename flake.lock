@@ -33,22 +33,6 @@
         "type": "github"
       }
     },
-    "emacs-claude-code-ide": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1784653890,
-        "narHash": "sha256-jW0R4TqXqVIumHJB9DziqB7NPfMmIKbhsn2H1dLwT6A=",
-        "owner": "manzaltu",
-        "repo": "claude-code-ide.el",
-        "rev": "1de17bbadc650962a05fd68463fdff71697ec649",
-        "type": "github"
-      },
-      "original": {
-        "owner": "manzaltu",
-        "repo": "claude-code-ide.el",
-        "type": "github"
-      }
-    },
     "emacs-overlay": {
       "inputs": {
         "nixpkgs": [
@@ -254,7 +238,6 @@
     },
     "root": {
       "inputs": {
-        "emacs-claude-code-ide": "emacs-claude-code-ide",
         "emacs-overlay": "emacs-overlay",
         "emacs-swift-development": "emacs-swift-development",
         "flake-parts": "flake-parts",

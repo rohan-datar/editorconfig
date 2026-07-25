@@ -60,7 +60,7 @@
   - [[#vertico-and-marginalia][Vertico and Marginalia]]
   - [[#prescient][Prescient]]
 - [[#ai][AI]]
-  - [[#claude-code][Claude Code]]
+  - [[#agent-shell][Agent Shell]]
   - [[#pi-coding-agent][Pi Coding Agent]]
 - [[#org-mode][Org Mode]]
   - [[#better-fonts][Better Fonts]]
@@ -1461,16 +1461,20 @@ Sorts completions by frecency
 #+end_src
 
 * AI
-** Claude Code
+** Agent Shell
 Better native claude code integration into emacs
 #+begin_src emacs-lisp
-    (use-package claude-code-ide
-      :custom
-      (claude-code-ide-terminal-backend 'ghostel)
+    (use-package agent-shell
       :config
-      (claude-code-ide-emacs-tools-setup)
-      (rdmacs/leader-keys
-    	"a c" '(claude-code-ide-menu  :wk "Claude Code")))
+      ;; Evil state-specific RET behavior: insert mode = newline, normal mode = send
+      (evil-define-key 'insert agent-shell-mode-map (kbd "RET") #'newline)
+      (evil-define-key 'normal agent-shell-mode-map (kbd "RET") #'comint-send-input)
+
+      ;; Configure *agent-shell-diff* buffers to start in Emacs state
+      (add-hook 'diff-mode-hook
+    			(lambda ()
+    			  (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
+    				(evil-emacs-state)))))
 #+end_src
 
 ** Pi Coding Agent
