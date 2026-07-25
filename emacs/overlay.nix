@@ -81,8 +81,8 @@ in
   # Add a custom package set similar to neovimPlugins
   inherit customEmacsPackages;
 
-  # TEMPORARY: build ghostel from the nixpkgs-test input to validate the
-  # upgrade in commit 0d0f425671a7f18c70baa48914f8c1dd2ffd0b49.
+  # TEMPORARY: build ghostel from the nixpkgs-test input to validate an
+  # upgrade
   #
   # This overlay is listed AFTER emacs-overlay in args.nix, which matters:
   # emacs-overlay rebuilds the emacs package set via `emacsPackagesFor`, so
