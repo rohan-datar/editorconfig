@@ -6,7 +6,8 @@
   perSystem =
     { pkgs, lib, ... }:
     let
-      mkNvim = profile: settings:
+      mkNvim =
+        profile: settings:
         inputs.nix-wrapper-modules.wrappers.neovim.wrap {
           inherit pkgs profile settings;
           imports = [ (import ./specs.nix inputs) ];

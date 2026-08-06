@@ -19,7 +19,7 @@
         imports = [
           ({ config, ... }: {
             package = pkgs.emacs-pgtk;
-            emacsPackages = packages.emacsPackages;
+            inherit (packages) emacsPackages;
             # Set user-emacs-directory to a writable location so packages don't
             # try to write into the read-only Nix store init directory.
             userDirectory = "~/.cache/emacs";

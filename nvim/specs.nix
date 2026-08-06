@@ -30,6 +30,16 @@ in
   };
   config.info.cats = mapAttrs (_: v: v.enable) config.specs;
 
+  # Neovim's Ruby remote-plugin host is enabled by default upstream, unlike perl and
+  # neovide which ship with `nvim-host.enable = mkDefault false`. Nothing here uses it,
+  # and leaving it on has a nasty side effect: wrapping the host forces its `gemdir`
+  # default, `"${pkgs.path}/pkgs/applications/editors/neovim/ruby_provider"`, and
+  # interpolating pkgs.path re-copies the whole nixpkgs tree into the store under a new
+  # hash. `nix flake check` evaluates purely and so refuses to create that copy, failing
+  # with `path '...-source' is not valid` on any machine whose store happens not to have
+  # it already.
+  config.hosts.ruby.nvim-host.enable = false;
+
   config.specs = {
     core = {
       enable = true;
