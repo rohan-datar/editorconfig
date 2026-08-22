@@ -81,22 +81,19 @@ in
   # Add a custom package set similar to neovimPlugins
   inherit customEmacsPackages;
 
-  # TEMPORARY: build ghostel from the nixpkgs-test input to validate an
-  # upgrade
-  #
+  # ghostel upgrade testing: source ghostel from the `nixpkgs-test` input so a
+  # nixpkgs PR/commit can be tested before it reaches this flake's nixpkgs.
   # This overlay is listed AFTER emacs-overlay in args.nix, which matters:
   # emacs-overlay rebuilds the emacs package set via `emacsPackagesFor`, so
   # overriding `emacsPackages.ghostel` directly is thrown away. Wrapping
   # `emacsPackagesFor` here and overriding ghostel on the resulting scope
   # survives. evil-ghostel (above) reuses `epkgs.ghostel.src`, so it is
   # automatically version-locked to this override.
-  #
-  # Remove this attribute to return to nixpkgs's ghostel.
-  # emacsPackagesFor =
-  #   emacs:
-  #   (prev.emacsPackagesFor emacs).overrideScope (
-  #     eself: esuper: {
-  #       ghostel = inputs.nixpkgs-test.legacyPackages.${final.stdenv.system}.emacsPackages.ghostel;
-  #     }
-  #   );
+  emacsPackagesFor =
+    emacs:
+    (prev.emacsPackagesFor emacs).overrideScope (
+      eself: esuper: {
+        ghostel = inputs.nixpkgs-test.legacyPackages.${final.stdenv.system}.emacsPackages.ghostel;
+      }
+    );
 }

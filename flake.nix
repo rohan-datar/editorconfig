@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    # nixpkgs-test.url = "github:nixos/nixpkgs/0d0f425671a7f18c70baa48914f8c1dd2ffd0b49";
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
@@ -11,6 +10,16 @@
     };
 
     systems.url = "github:nix-systems/default";
+
+    # Second nixpkgs used to source emacsPackages.ghostel when testing
+    # upgrades (see the ghostel block in emacs/overlay.nix).
+    #
+    # To test a nixpkgs PR or commit, repoint this input - no file edits needed:
+    #   nix flake lock --override-input nixpkgs-test github:NixOS/nixpkgs/refs/pull/<N>/head
+    #   nix flake lock --override-input nixpkgs-test github:NixOS/nixpkgs/<commit-sha>
+    # And to return to stock unstable:
+    #   nix flake lock --update-input nixpkgs-test
+    nixpkgs-test.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
     # Emacs overlay - provides up-to-date Emacs builds and packages
     emacs-overlay = {

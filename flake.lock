@@ -189,6 +189,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-test": {
+      "locked": {
+        "lastModified": 1787209939,
+        "narHash": "sha256-WvvHR4kSQLAbtouMC/ruZ5UpLwlUcY3K4FAllMN+yGk=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "391b592eb44808b3bd0cb80bb71b63a5a118b8bb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "org-babel": {
       "locked": {
         "lastModified": 1781216126,
@@ -244,6 +260,7 @@
         "llm-agents": "llm-agents",
         "nix-wrapper-modules": "nix-wrapper-modules",
         "nixpkgs": "nixpkgs",
+        "nixpkgs-test": "nixpkgs-test",
         "org-babel": "org-babel",
         "plugins-compile-nvim": "plugins-compile-nvim",
         "plugins-tiny-code-action-nvim": "plugins-tiny-code-action-nvim",
