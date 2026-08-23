@@ -636,9 +636,34 @@ ligate, so over-registering is harmless.
 A fancy, fast and customizable mode-line.
 #+begin_src emacs-lisp
     (use-package doom-modeline
+      :hook (after-init . doom-modeline-mode)
       :custom
-      (doom-modeline-height 25) ;; Set modeline height
-      :hook (after-init . doom-modeline-mode))
+      (doom-modeline-check 'full)
+      (doom-modeline-minor-modes nil)
+      (doom-modeline-major-mode-icon t)
+      (doom-modeline-buffer-encoding t)
+      (doom-modeline-buffer-file-name-style 'relative-to-project)
+      (doom-modeline-bar-width 1)
+      :config
+      (doom-modeline-def-segment rdmacs-evil-state
+        (let* ((state (or (and (bound-and-true-p evil-local-mode) evil-state)
+                          'emacs))
+               (face (intern (format "doom-modeline-evil-%s-state" state))))
+          (propertize (format " %s " (upcase (symbol-name state)))
+                      'face (cond ((not (doom-modeline--active)) 'mode-line-inactive)
+                                  ((facep face) face)
+                                  (t 'mode-line)))))
+
+      ;; Mostly standard with some reordering
+      (doom-modeline-def-modeline 'main
+    	'(eldoc bar window-state workspace-name window-number
+    			rdmacs-evil-state vcs check
+    			matches follow buffer-info remote-host buffer-position
+    			word-count parrot selection-info)
+    	'(compilation objed-state misc-info project-name persp-name battery
+    				  grip irc mu4e gnus github debug repl lsp local-minor-modes
+    				  input-method indent-info buffer-encoding major-mode
+    				  process time)))
 #+end_src
 
 ** Nerd Icons
