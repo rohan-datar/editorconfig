@@ -1386,7 +1386,15 @@ Notes:
 
     (use-package nerd-icons-corfu
       :after corfu
-      :init (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+      :init
+      (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+      :config
+      ;; Work around nerd-icons-corfu referencing the undefined
+      ;; `elisp-feature' face for module completion candidates.
+      (setcdr (assq 'module nerd-icons-corfu-mapping)
+              '(:style "cod"
+                :icon "file_submodule"
+                :face font-lock-type-face)))
 #+end_src
 
 ** Cape
