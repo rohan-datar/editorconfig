@@ -1580,6 +1580,44 @@ We use an Org mode document for our Emacs configuration because it provides:
                                    (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c)))))))
 #+end_src
 
+** Private Org Notes Pilot
+Configure the private Org notes repository when it is present on the current
+machine. Keeping this in the wrapped configuration makes Agenda and Capture
+consistent across macOS and NixOS while allowing machines without the pilot
+checkout to start normally.
+
+#+begin_src emacs-lisp
+(defconst rdmacs/org-notes-directory
+  (expand-file-name "~/Documents/Org/")
+  "Root of the private Org notes repository.")
+
+(when (file-directory-p rdmacs/org-notes-directory)
+  (setq org-directory rdmacs/org-notes-directory
+        org-default-notes-file
+        (expand-file-name "inbox.org" rdmacs/org-notes-directory)
+        ;; A directory entry is expanded each time Agenda runs, so Beorg's
+        ;; generated calendar and reminders files appear without another rebuild.
+        org-agenda-files (list rdmacs/org-notes-directory)
+        org-log-done 'time
+        org-log-into-drawer t
+        org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "WAIT(w@/!)" "|"
+                    "DONE(d!)" "CANCELLED(c@)"))
+        org-capture-templates
+        `(("t" "Task" entry
+           (file+headline ,(expand-file-name "Tasks.org" rdmacs/org-notes-directory) "Inbox")
+           "* TODO %?\n  %U\n" :empty-lines 1)
+          ("n" "Inbox note" entry
+           (file ,(expand-file-name "inbox.org" rdmacs/org-notes-directory))
+           "* %?\n  %U\n" :empty-lines 1)
+          ("j" "Journal" entry
+           (file+olp+datetree ,(expand-file-name "Journal.org" rdmacs/org-notes-directory) "Journal")
+           "* %U %?\n" :tree-type day :empty-lines 1))))
+
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
+#+end_src
+
 ** Table of Contents
 #+begin_src emacs-lisp
     (use-package toc-org
