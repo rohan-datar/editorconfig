@@ -1580,42 +1580,79 @@ We use an Org mode document for our Emacs configuration because it provides:
                                    (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c)))))))
 #+end_src
 
-** Private Org Notes Pilot
-Configure the private Org notes repository when it is present on the current
-machine. Keeping this in the wrapped configuration makes Agenda and Capture
-consistent across macOS and NixOS while allowing machines without the pilot
-checkout to start normally.
+** Private Org Knowledge Base
+Configure the canonical private Org repository when it is present on the
+current machine. Agenda discovery is recursive so tasks in project and roadmap
+files are visible. Templates and archives remain inert. Machines without the
+checkout continue to start normally.
 
 #+begin_src emacs-lisp
 (defconst rdmacs/org-notes-directory
   (expand-file-name "~/Documents/Org/")
-  "Root of the private Org notes repository.")
+  "Root of the private Org knowledge base.")
+
+(defun rdmacs/org-notes-agenda-file-p (file)
+  "Return non-nil when FILE should contribute to Org Agenda."
+  (let ((relative (file-relative-name file rdmacs/org-notes-directory)))
+    (not (or (string-match-p
+              "\\(?:\\`\\|/\\)\\(?:templates\\|archive\\|\\.git\\)/"
+              relative)
+             (member relative '("README.org" "index.org" "setup.org"))))))
+
+(defun rdmacs/org-notes-files ()
+  "Return current recursive Agenda files for the private knowledge base."
+  (when (file-directory-p rdmacs/org-notes-directory)
+    (seq-filter #'rdmacs/org-notes-agenda-file-p
+                (directory-files-recursively
+                 rdmacs/org-notes-directory "\\.org\\'"))))
+
+(defun rdmacs/refresh-org-agenda-files (&rest _)
+  "Refresh nested Agenda files before each Agenda invocation."
+  (setq org-agenda-files (rdmacs/org-notes-files)))
+
+(defun rdmacs/org-notes-open-index ()
+  "Open the private knowledge-base index."
+  (interactive)
+  (find-file (expand-file-name "index.org" rdmacs/org-notes-directory)))
+
+(defun rdmacs/org-notes-search ()
+  "Search the private Org knowledge base with ripgrep."
+  (interactive)
+  (consult-ripgrep rdmacs/org-notes-directory))
 
 (when (file-directory-p rdmacs/org-notes-directory)
-  (setq org-directory rdmacs/org-notes-directory
-        org-default-notes-file
-        (expand-file-name "inbox.org" rdmacs/org-notes-directory)
-        ;; A directory entry is expanded each time Agenda runs, so Beorg's
-        ;; generated calendar and reminders files appear without another rebuild.
-        org-agenda-files (list rdmacs/org-notes-directory)
-        org-log-done 'time
-        org-log-into-drawer t
-        org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "WAIT(w@/!)" "|"
-                    "DONE(d!)" "CANCELLED(c@)"))
-        org-capture-templates
-        `(("t" "Task" entry
-           (file+headline ,(expand-file-name "Tasks.org" rdmacs/org-notes-directory) "Inbox")
-           "* TODO %?\n  %U\n" :empty-lines 1)
-          ("n" "Inbox note" entry
-           (file ,(expand-file-name "inbox.org" rdmacs/org-notes-directory))
-           "* %?\n  %U\n" :empty-lines 1)
-          ("j" "Journal" entry
-           (file+olp+datetree ,(expand-file-name "Journal.org" rdmacs/org-notes-directory) "Journal")
-           "* %U %?\n" :tree-type day :empty-lines 1))))
+  (let ((inbox (expand-file-name "inbox.org" rdmacs/org-notes-directory))
+        (journal (expand-file-name "journal.org" rdmacs/org-notes-directory)))
+    (setq org-directory rdmacs/org-notes-directory
+          org-default-notes-file inbox
+          org-link-file-path-type 'relative
+          org-use-sub-superscripts '{}
+          org-archive-location "archive/%s_archive::"
+          org-log-done 'time
+          org-log-into-drawer t
+          org-todo-keywords
+          '((sequence "TODO(t)" "NEXT(n)" "WAIT(w@/!)" "|"
+                      "DONE(d!)" "CANCELLED(c@)"))
+          org-refile-targets '((org-agenda-files :maxlevel . 3))
+          org-capture-templates
+          `(("t" "Task" entry
+             (file+headline ,inbox "Unprocessed")
+             "* TODO %?\n  %U\n" :empty-lines 1)
+            ("n" "Inbox note" entry
+             (file+headline ,inbox "Unprocessed")
+             "* %?\n  %U\n" :empty-lines 1)
+            ("j" "Journal" entry
+             (file+olp+datetree ,journal "Journal")
+             "* %U %?\n" :tree-type day :empty-lines 1))))
+  (rdmacs/refresh-org-agenda-files))
+
+(unless (advice-member-p #'rdmacs/refresh-org-agenda-files 'org-agenda)
+  (advice-add 'org-agenda :before #'rdmacs/refresh-org-agenda-files))
 
 (global-set-key (kbd "C-c a") #'org-agenda)
 (global-set-key (kbd "C-c c") #'org-capture)
+(global-set-key (kbd "C-c n i") #'rdmacs/org-notes-open-index)
+(global-set-key (kbd "C-c n s") #'rdmacs/org-notes-search)
 #+end_src
 
 ** Table of Contents
