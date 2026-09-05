@@ -483,7 +483,7 @@ Note: The Leader key is what you will press when you want to access your keybind
       (rdmacs/leader-keys
     	"o" '(:ignore t :wk "Open")
     	"o t" '(ghostel :wk "Open terminal")
-    	"o t p" '(ghostel-project :wk "Open project terminal")
+    	"o p" '(ghostel-project :wk "Open project terminal")
     	"o o" '(ghostel-other :wk "Switch to other terminal"))
 
 
@@ -1959,7 +1959,7 @@ and integrates with version control to show file states.
     (use-package treemacs-tab-bar
       :ensure t
       :after (treemacs)
-      :cofnig
+      :config
       (treemacs-set-scope-type 'Tabs))
 #+end_src
 
