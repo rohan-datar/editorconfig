@@ -65,6 +65,7 @@
 - [[#org-mode][Org Mode]]
   - [[#better-fonts][Better Fonts]]
   - [[#basic-config][Basic Config]]
+  -  [[#org-knowledge-base][Org Knowledge Base]]
   - [[#table-of-contents][Table of Contents]]
   - [[#org-superstar][Org Superstar]]
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
@@ -478,10 +479,9 @@ Note: The Leader key is what you will press when you want to access your keybind
     	"t p" '(tab-bar-switch-to-prev-tab :wk "Previous tab")
     	"t r" '(tab-bar-rename-tab :wk "Rename tab"))
 
-      (rdmacs/leader-keys
-    	"o" '(:ignore t :wk "Open"))
 
       (rdmacs/leader-keys
+    	"o" '(:ignore t :wk "Open")
     	"o t" '(ghostel :wk "Open terminal")
     	"o t p" '(ghostel-project :wk "Open project terminal")
     	"o o" '(ghostel-other :wk "Switch to other terminal"))
@@ -1580,7 +1580,7 @@ We use an Org mode document for our Emacs configuration because it provides:
                                    (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c)))))))
 #+end_src
 
-** Private Org Knowledge Base
+**  Org Knowledge Base
 Configure the canonical private Org repository when it is present on the
 current machine. Agenda discovery is recursive so tasks in project and roadmap
 files are visible. Templates and archives remain inert. Machines without the
