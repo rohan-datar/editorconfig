@@ -25,6 +25,7 @@ in
         vscode-langservers-extracted
         gopls
         rust-analyzer
+        texlab
 
         # Formatters
         stylua
@@ -47,6 +48,15 @@ in
         # miscellaneous
         mermaid-cli
         ;
+
+      # LaTeX toolchain for AUCTeX
+      texlive = pkgs.texlive.withPackages (
+        ps: with ps; [
+          scheme-small
+          latexmk
+          chktex
+        ]
+      );
     }
     // pkgs.lib.optionalAttrs isDarwin {
       # Swift development tools (Darwin only)
@@ -55,7 +65,7 @@ in
       inherit (pkgs)
         # Swift formatters
         swiftformat
-        # Swift linter (swiftlint not available in nixpkgs, use system version)
+        swiftlint
         ;
     }
   );
@@ -124,6 +134,10 @@ in
           kotlin-mode
           applescript-mode
           mermaid-mode
+
+          # LaTeX
+          auctex
+          pdf-tools
 
           # Terminal
           eat
