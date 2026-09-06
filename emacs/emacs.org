@@ -61,7 +61,6 @@
   - [[#prescient][Prescient]]
 - [[#ai][AI]]
   - [[#agent-shell][Agent Shell]]
-  - [[#pi-coding-agent][Pi Coding Agent]]
 - [[#org-mode][Org Mode]]
   - [[#better-fonts][Better Fonts]]
   - [[#basic-config][Basic Config]]
@@ -1508,12 +1507,6 @@ Better native claude code integration into emacs
     			(lambda ()
     			  (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
     				(evil-emacs-state)))))
-#+end_src
-
-** Pi Coding Agent
-#+begin_src emacs-lisp
-(use-package pi-coding-agent
-  :init (defalias 'pi 'pi-coding-agent))
 #+end_src
 
 * Org Mode

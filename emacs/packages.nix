@@ -3,7 +3,6 @@
 let
   ecpkgs = pkgs.customEmacsPackages;
   values = builtins.attrValues;
-  aipkgs = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
   inherit (pkgs.stdenv) isDarwin;
   inherit (pkgs.lib) optionalAttrs;
 in
@@ -47,12 +46,6 @@ in
 
         # miscellaneous
         mermaid-cli
-        ;
-
-      inherit (aipkgs)
-        claude-code
-        claude-agent-acp
-        pi
         ;
     }
     // pkgs.lib.optionalAttrs isDarwin {
