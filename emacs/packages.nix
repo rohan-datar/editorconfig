@@ -5,8 +5,22 @@ let
   values = builtins.attrValues;
   inherit (pkgs.stdenv) isDarwin;
   inherit (pkgs.lib) optionalAttrs;
+  # Full TeX Live distribution for AUCTeX, with GUI apps filtered out.
+  texliveCombined = pkgs.texlive.combine {
+    inherit (pkgs.texlive) scheme-full;
+    pkgFilter =
+      p:
+      (p.tlType == "run" || p.tlType == "bin" || p.pname == "core" || p.hasManpages or false)
+      && !builtins.elem (p.pname or p.name) [
+        "asymptote" # xasy GUI; also breaks the build via pyqt5 on darwin
+        "tlshell" # tcl/tk GUI
+        "texdoctk" # perl/tk GUI
+        "xdvi" # X11 dvi viewer
+      ];
+  };
 in
 {
+  inherit texliveCombined;
   # External tools (LSPs, formatters, etc.) to be available in PATH
   runtimeDeps = values (
     {
@@ -52,19 +66,10 @@ in
         mermaid-cli
         ;
 
-      # Full TeX Live distribution for AUCTeX, with GUI apps filtered out
-      texlive = pkgs.texlive.combine {
-        inherit (pkgs.texlive) scheme-full;
-        pkgFilter =
-          p:
-          (p.tlType == "run" || p.tlType == "bin" || p.pname == "core" || p.hasManpages or false)
-          && !builtins.elem (p.pname or p.name) [
-            "asymptote" # xasy GUI; also breaks the build via pyqt5 on darwin
-            "tlshell" # tcl/tk GUI
-            "texdoctk" # perl/tk GUI
-            "xdvi" # X11 dvi viewer
-          ];
-      };
+      # Full TeX Live distribution for AUCTeX, with GUI apps filtered out.
+      # Same derivation as the texliveCombined flake output, so the system
+      # PATH copy and this wrapper copy share one store path.
+      texlive = texliveCombined;
     }
     // pkgs.lib.optionalAttrs isDarwin {
       # Swift development tools (Darwin only)

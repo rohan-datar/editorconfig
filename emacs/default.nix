@@ -136,6 +136,7 @@
           rdmacs
           rdmacs-test
           ;
+        inherit (packages) texliveCombined;
       };
       apps = {
         rdmacs-test = {
