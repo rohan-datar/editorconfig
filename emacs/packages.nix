@@ -142,6 +142,8 @@ in
           kotlin-mode
           applescript-mode
           mermaid-mode
+          just-mode
+          justl
 
           # LaTeX
           auctex

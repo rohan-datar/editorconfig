@@ -1202,6 +1202,11 @@ and citations with C-c [.
       (pdf-tools-install))
 #+end_src
 
+*** Justfile
+#+begin_src emacs-lisp
+    (use-package just-mode)
+    (use-package justl)
+#+end_src
 
 *** Mermaid
 #+begin_src emacs-lisp
