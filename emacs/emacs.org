@@ -1176,19 +1176,36 @@ and citations with C-c [.
       (TeX-parse-self t)                    ;; Parse file on load to detect packages
       (TeX-source-correlate-start-server t) ;; Allow PDF -> source jumps
       (reftex-plug-into-AUCTeX t)           ;; RefTeX drives AUCTeX refs/citations
+      (TeX-error-overview-open-after-TeX-run t)
       (TeX-view-program-selection '((output-pdf "PDF Tools")))
       :config
       (add-hook 'LaTeX-mode-hook
                 (lambda () (setq TeX-command-default "LaTeXMk"))))
-      ;; Live preview
-      (defun rdmacs/latex-compile-on-save ()
-        "Recompile the TeX master with latexmk after saving a LaTeX buffer."
-        (when (derived-mode-p 'latex-mode)
-          (TeX-command "LaTeXMk" 'TeX-master-file)))
-      (add-hook 'LaTeX-mode-hook
-                (lambda ()
-                  (add-hook 'after-save-hook
-                            #'rdmacs/latex-compile-on-save nil t)))
+    ;; Live preview
+    (defun rdmacs/latex-compile-on-save ()
+      "Recompile the TeX master with latexmk after saving a LaTeX buffer."
+      (when (derived-mode-p 'latex-mode)
+        (TeX-command "LaTeXMk" 'TeX-master-file)))
+    (add-hook 'LaTeX-mode-hook
+              (lambda ()
+                (add-hook 'after-save-hook
+                          #'rdmacs/latex-compile-on-save nil t)))
+
+    (rdmacs/leader-keys
+      :keymaps 'LaTeX-mode-map
+      "x" '(:ignore t :wk "LaTeX")
+      "x c" '(TeX-command-master :wk "Run command (C-c C-c)")
+      "x m" '(rdmacs/latex-compile-on-save :wk "Compile LaTeXMk now")
+      "x v" '(TeX-view :wk "View PDF")
+      "x n" '(TeX-next-error :wk "Next error")
+      "x p" '(TeX-previous-error :wk "Previous error")
+      "x e" '(LaTeX-environment :wk "Insert environment")
+      "x s" '(LaTeX-section :wk "Insert section")
+      "x (" '(reftex-label :wk "Insert label")
+      "x )" '(reftex-reference :wk "Insert reference")
+      "x [" '(reftex-citation :wk "Insert citation")
+      "x b" '(TeX-recenter-output-buffer :wk "Recenter output")
+      "x k" '(TeX-kill-job :wk "Kill compile job"))
 
     (use-package pdf-tools
       :defer t
@@ -1197,7 +1214,7 @@ and citations with C-c [.
       (pdf-view-display-size 'fit-page)
       (auto-revert-verbose nil)     ; no "Reverting buffer" chatter on recompile
       :hook (pdf-view-mode . auto-revert-mode) ; live-update: redisplay when
-                                               ; latexmk rewrites the PDF
+    										; latexmk rewrites the PDF
       :config
       (pdf-tools-install))
 #+end_src
@@ -1697,10 +1714,15 @@ checkout continue to start normally.
 (unless (advice-member-p #'rdmacs/refresh-org-agenda-files 'org-agenda)
   (advice-add 'org-agenda :before #'rdmacs/refresh-org-agenda-files))
 
-(global-set-key (kbd "C-c a") #'org-agenda)
-(global-set-key (kbd "C-c c") #'org-capture)
-(global-set-key (kbd "C-c n i") #'rdmacs/org-notes-open-index)
-(global-set-key (kbd "C-c n s") #'rdmacs/org-notes-search)
+(rdmacs/leader-keys
+  "a" '(:ignore t :wk "Org")
+  "a a" '(org-agenda :wk "Agenda")
+  "a c" '(org-capture :wk "Capture")
+  "a t" '(org-todo-list :wk "Todo list")
+  "a i" '(rdmacs/org-notes-open-index :wk "Notes index")
+  "a s" '(rdmacs/org-notes-search :wk "Search notes")
+  "a l" '(org-store-link :wk "Store link")
+  "a e" '(org-export-dispatch :wk "Export"))
 #+end_src
 
 ** Table of Contents
