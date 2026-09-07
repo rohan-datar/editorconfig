@@ -5,19 +5,20 @@ let
   values = builtins.attrValues;
   inherit (pkgs.stdenv) isDarwin;
   inherit (pkgs.lib) optionalAttrs;
-  # Full TeX Live distribution for AUCTeX, with GUI apps filtered out.
-  texliveCombined = pkgs.texlive.combine {
-    inherit (pkgs.texlive) scheme-full;
-    pkgFilter =
+  # Full TeX Live distribution for AUCTeX and org latex previews, with GUI
+  # apps filtered out.
+  texliveCombined = pkgs.texliveSmall.withPackages (
+    ps:
+    builtins.filter (
       p:
-      (p.tlType == "run" || p.tlType == "bin" || p.pname == "core" || p.hasManpages or false)
-      && !builtins.elem (p.pname or p.name) [
-        "asymptote" # xasy GUI; also breaks the build via pyqt5 on darwin
+      !builtins.elem (p.pname or "") [
+        "asymptote" # xasy GUI
         "tlshell" # tcl/tk GUI
         "texdoctk" # perl/tk GUI
         "xdvi" # X11 dvi viewer
-      ];
-  };
+      ]
+    ) (builtins.attrValues ps)
+  );
 in
 {
   inherit texliveCombined;
