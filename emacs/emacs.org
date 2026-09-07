@@ -1178,21 +1178,30 @@ and citations with C-c [.
       (reftex-plug-into-AUCTeX t)           ;; RefTeX drives AUCTeX refs/citations
       (TeX-view-program-selection '((output-pdf "PDF Tools")))
       :config
-      ;; Use the latexmk build driver AUCTeX 14 ships ("LaTeXMk"). AUCTeX resets
-      ;; TeX-command-default to "LaTeX" per buffer on mode entry, so set it in
-      ;; the hook rather than globally. The chktex flymake backend is registered
-      ;; by AUCTeX itself; chktex comes from the texlive toolchain.
       (add-hook 'LaTeX-mode-hook
                 (lambda () (setq TeX-command-default "LaTeXMk"))))
+      ;; Live preview
+      (defun rdmacs/latex-compile-on-save ()
+        "Recompile the TeX master with latexmk after saving a LaTeX buffer."
+        (when (derived-mode-p 'latex-mode)
+          (TeX-command "LaTeXMk" 'TeX-master-file)))
+      (add-hook 'LaTeX-mode-hook
+                (lambda ()
+                  (add-hook 'after-save-hook
+                            #'rdmacs/latex-compile-on-save nil t)))
 
     (use-package pdf-tools
       :defer t
       :magic ("%PDF" . pdf-view-mode)
       :custom
       (pdf-view-display-size 'fit-page)
+      (auto-revert-verbose nil)     ; no "Reverting buffer" chatter on recompile
+      :hook (pdf-view-mode . auto-revert-mode) ; live-update: redisplay when
+                                               ; latexmk rewrites the PDF
       :config
       (pdf-tools-install))
 #+end_src
+
 
 *** Mermaid
 #+begin_src emacs-lisp

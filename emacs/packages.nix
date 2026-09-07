@@ -45,18 +45,26 @@ in
         delve # Go debugger (dlv)
         lldb
 
+        # preview-latex: pdf2dsc for the PDF2DSC preview pipeline
+        ghostscript
+
         # miscellaneous
         mermaid-cli
         ;
 
-      # LaTeX toolchain for AUCTeX
-      texlive = pkgs.texlive.withPackages (
-        ps: with ps; [
-          scheme-small
-          latexmk
-          chktex
-        ]
-      );
+      # Full TeX Live distribution for AUCTeX, with GUI apps filtered out
+      texlive = pkgs.texlive.combine {
+        inherit (pkgs.texlive) scheme-full;
+        pkgFilter =
+          p:
+          (p.tlType == "run" || p.tlType == "bin" || p.pname == "core" || p.hasManpages or false)
+          && !builtins.elem (p.pname or p.name) [
+            "asymptote" # xasy GUI; also breaks the build via pyqt5 on darwin
+            "tlshell" # tcl/tk GUI
+            "texdoctk" # perl/tk GUI
+            "xdvi" # X11 dvi viewer
+          ];
+      };
     }
     // pkgs.lib.optionalAttrs isDarwin {
       # Swift development tools (Darwin only)

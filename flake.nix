@@ -2,7 +2,7 @@
   description = "Nix Flake for configuring my editors";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "https://channels.nixos.org/nixpkgs-unstable/nixexprs.tar.zst";
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
