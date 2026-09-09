@@ -1689,6 +1689,8 @@ checkout continue to start normally.
   (let ((inbox (expand-file-name "inbox.org" rdmacs/org-notes-directory))
         (journal (expand-file-name "journal.org" rdmacs/org-notes-directory)))
     (setq org-directory rdmacs/org-notes-directory
+          org-preview-latex-image-directory
+          (expand-file-name "~/.cache/emacs/org-latex-preview/")
           org-default-notes-file inbox
           org-link-file-path-type 'relative
           org-use-sub-superscripts '{}
