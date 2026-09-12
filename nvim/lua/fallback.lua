@@ -29,8 +29,6 @@ if vim.g.nix_info_plugin_name == nil then
 		"https://github.com/MeanderingProgrammer/render-markdown.nvim",
 		"https://github.com/stevearc/quicker.nvim",
 		"https://github.com/rachartier/tiny-inline-diagnostic.nvim",
-		"https://github.com/zbirenbaum/copilot.lua",
-		"https://github.com/fang2hou/blink-copilot",
 		"https://github.com/lewis6991/gitsigns.nvim",
 		"https://github.com/NeogitOrg/neogit",
 		"https://github.com/folke/lazydev.nvim",

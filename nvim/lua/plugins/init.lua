@@ -80,7 +80,6 @@ require("lze").load({
 	{ import = "plugins.treesitter" },
 	{ "todo-comments.nvim", for_cat = "ui" },
 	{ import = "plugins.snippets" },
-	{ import = "plugins.ai" },
 	{
 		"render-markdown.nvim",
 		for_cat = "ui",

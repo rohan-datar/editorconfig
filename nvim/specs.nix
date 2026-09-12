@@ -206,17 +206,6 @@ in
         }
       ];
     };
-    ai = {
-      enable = full;
-      lazy = true;
-      data = [
-        vp.blink-copilot
-        {
-          name = "copilot.lua";
-          data = vp.copilot-lua;
-        }
-      ];
-    };
     git = {
       enable = true;
       lazy = true;

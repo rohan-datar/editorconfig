@@ -23,14 +23,6 @@ return {
 		end
 
 		local providers = {}
-		if nixInfo(false, "info", "cats", "ai") then
-			providers.copilot = {
-				name = "copilot",
-				module = "blink-copilot",
-				score_offset = 100,
-				async = true,
-			}
-		end
 
 		require("blink.cmp").setup({
 			-- 'default' for mappings similar to built-in completion
