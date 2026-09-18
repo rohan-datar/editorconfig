@@ -2084,7 +2084,11 @@ on every transient special-mode buffer (Magit, Help, tabulated-list, etc.).
           (unwind-protect
               (apply orig args)
             (envrc--clear (current-buffer)))))
-      (advice-add 'compile :around #'envrc-propagate-compilation))
+      (advice-add 'compile :around #'envrc-propagate-compilation)
+      (setq compilation-environment
+            (cons "__NIX_DARWIN_SET_ENVIRONMENT_DONE=1"
+                  (delete "__NIX_DARWIN_SET_ENVIRONMENT_DONE=1"
+                          compilation-environment))))
 
 #+end_src
 
