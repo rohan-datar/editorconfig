@@ -78,6 +78,7 @@ require("lze").load({
 		},
 	},
 	{ import = "plugins.treesitter" },
+	{ import = "plugins.orgmode" },
 	{ "todo-comments.nvim", for_cat = "ui" },
 	{ import = "plugins.snippets" },
 	{

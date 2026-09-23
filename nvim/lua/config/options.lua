@@ -65,9 +65,6 @@ vim.opt.backup = false
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.undofile = true
 
--- For Obsidian plugin, remove if it causes issues
-vim.opt.conceallevel = 1
-
 -- exrc support
 vim.opt.exrc = true
 

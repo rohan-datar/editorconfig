@@ -34,7 +34,7 @@ if vim.g.nix_info_plugin_name == nil then
 		"https://github.com/folke/lazydev.nvim",
 		"https://github.com/ray-x/go.nvim",
 		"https://github.com/mrcjkb/rustaceanvim",
-		"https://github.com/obsidian-nvim/obsidian.nvim",
+		"https://github.com/nvim-orgmode/orgmode",
 		"https://github.com/rafamadriz/friendly-snippets",
 		"https://github.com/mfussenegger/nvim-dap",
 		"https://github.com/MironPascalCaseFan/debugmaster.nvim",

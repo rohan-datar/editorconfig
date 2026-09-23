@@ -245,27 +245,4 @@ require("lze").load({
 			},
 		},
 	},
-	{
-		"markdown_oxide",
-		for_cat = "lsp",
-		lsp = {
-			capabilities = {
-				workspace = {
-					didChangeWatchedFiles = {
-						dynamicRegistration = true,
-					},
-				},
-			},
-			on_attach = function(client)
-				-- setup Markdown Oxide daily note commands
-				if client.name == "markdown_oxide" then
-					vim.api.nvim_create_user_command("Daily", function(args)
-						local input = args.args
-
-						client.exec_cmd({ command = "jump", arguments = { input } })
-					end, { desc = "Open daily note", nargs = "*" })
-				end
-			end,
-		},
-	},
 })

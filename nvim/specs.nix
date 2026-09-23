@@ -238,8 +238,8 @@ in
           data = vp.lazydev-nvim;
         }
         {
-          name = "obsidian.nvim";
-          data = vp.obsidian-nvim;
+          name = "orgmode";
+          data = vp.orgmode;
         }
         {
           name = "go.nvim";
@@ -291,7 +291,6 @@ in
         zls
         jdt-language-server
         superhtml
-        markdown-oxide
         clang-tools
         vscode-json-languageserver
         ;
