@@ -1,12 +1,13 @@
 # EditorConfig 
 
-This repository is a Nix flake that builds my Neovim and Emacs configurations.
+This repository is a Nix flake that builds my Neovim, Emacs, and Helix configurations.
 
 ## Structure
 - `flake.nix`, `args.nix`, `formatter.nix`: flake wiring, overlays, and treefmt setup.
 - `nvim/`: NixCats-based Neovim config (categories in `nvim/categories.nix`, profiles in `nvim/packages.nix`, Lua under `nvim/lua/`).
 - `emacs/`: Emacs overlay build with a literate config in `emacs/emacs.org` and packaging in `emacs/default.nix`.
 - `rdmacs-test.sh`: helper to launch the Emacs test build from Raycast/launchers.
+- `helix/`: Minimal Helix config using nix-wrapper-modules, with Catppuccin Mocha and Nix language tooling.
 
 ## Packages
 - `.#nvim-full`: Full Neovim profile with all categories enabled.
@@ -14,6 +15,20 @@ This repository is a Nix flake that builds my Neovim and Emacs configurations.
 - `.#nvim-test`: Neovim profile for live editing without rebuilds.
 - `.#rdmacs`: Emacs with init-directory baked in. Provides `bin/emacs` and `bin/emacsclient` on all platforms; on Darwin also includes `Emacs.app` and `Emacsclient.app` bundles for Spotlight/Raycast.
 - `.#rdmacs-test`: Emacs build that tangles on launch for faster iteration.
+- `.#helix`: Helix with default keybindings, Catppuccin Mocha, relative line numbers, and bundled `nixd` / `nixfmt`.
+
+## Trying Helix
+```bash
+nix run .#helix -- flake.nix
+nix run .#helix -- --health nix
+nix build .#helix
+```
+
+Edit `helix/default.nix` to change settings, then rerun `nix run .#helix` to rebuild.
+The wrapper supplies its own configuration without modifying `~/.config/helix`.
+Use `:format` to format Nix files; formatting on save is not enabled by this config.
+Helix's built-in syntax highlighting works for other languages, but additional language servers are not bundled.
+For a first-time introduction, launch `nix run .#helix -- --tutor`.
 
 ## Non-Intuitive Bits
 - Neovim profiles are defined in `nvim/packages.nix`. The `test` profile disables wrapper behavior to allow live editing.

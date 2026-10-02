@@ -70,6 +70,7 @@
         ./formatter.nix
         ./nvim
         ./emacs
+        ./helix
       ];
     };
 }
