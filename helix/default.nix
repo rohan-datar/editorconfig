@@ -26,13 +26,39 @@
         inherit pkgs;
 
         settings = {
-          theme = "catppuccin_mocha";
+          theme = "catppuccin_mocha_transparent";
           editor = {
             line-number = "relative";
             cursorline = true;
             bufferline = "multiple";
             color-modes = true;
             lsp.display-inlay-hints = true;
+            popup-border = "all";
+          };
+        };
+
+        themes.catppuccin_mocha_transparent = {
+          inherits = "catppuccin_mocha";
+          "ui.background" = {
+            fg = "text";
+          };
+          # Floating windows
+          "ui.popup" = {
+            fg = "text";
+          };
+          "ui.help" = {
+            fg = "overlay2";
+          };
+          "ui.menu" = {
+            fg = "overlay2";
+          };
+          # Active buffer tab used the editor background color
+          "ui.bufferline.active" = {
+            fg = "mauve";
+            underline = {
+              color = "mauve";
+              style = "line";
+            };
           };
         };
 
