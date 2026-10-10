@@ -389,22 +389,147 @@ Extensions for evil-mode functionality
       :config
       (global-evil-matchit-mode 1))
 
-    (use-package evil-multiedit
-      :ensure t
-      :after evil-collection
-      :config
-      (evil-multiedit-default-keybinds))
-
-    (use-package evil-mc
-      :ensure t
-      :after evil-multiedit
-      :config
-      (global-evil-mc-mode 1))
 
     (use-package evil-nerd-commenter
       :config
       (evil-define-key 'normal 'global (kbd "gcc")  'evilnc-comment-or-uncomment-lines)
       (evil-define-key 'visual 'global (kbd "gc") 'evilnc-comment-or-uncomment-lines))
+
+#+end_src
+*** Multiple Cursors
+Matching text uses =evil-multiedit=; independent cursors and per-line selections
+use =evil-mc=. Starting one workflow ends the other, so edits are never replayed
+by both backends.
+
+- Normal =Q= starts matching the symbol at point. During multiedit, =Q= toggles
+  the occurrence at point; =M-d= / =M-D= add the next / previous match.
+- Visual =Q= matches the selected text throughout the buffer. Visual =s= prompts
+  for a regexp and matches only within the exact selection. =:iedit REGEXP=
+  remains available, including Ex ranges.
+- =gQ= restores a matching session using multiedit's native pattern/scope
+  semantics, not an exact snapshot of enabled occurrences.
+- During multiedit, =]C= / =[C= (or =C-n= / =C-p=) navigate occurrences.
+  Visual =RET= restricts matches to the selected area. Normal =ESC= ends the
+  session. The former regexp keep/drop bindings are removed; spatial
+  restriction is not regexp filtering.
+- Visual =M-s= splits into full characterwise selections of each nonempty line
+  fragment. Partial first/last lines are preserved; newlines and empty lines
+  are not selected. =c= or =d= then operates on every selected fragment.
+- Normal =M-j= / =M-k= add independent cursors on the next / previous line;
+  =gr h= adds one at point. =]C= / =[C= retain evil-mc's cursor-building
+  navigation in this workflow.
+- Normal =&= pads cursors with spaces to the furthest cursor column. After
+  splitting, leave visual state before aligning. Normal =ESC= clears cursors.
+
+#+begin_src emacs-lisp
+    (use-package evil-multiedit
+      :ensure t
+      :after evil-collection
+      :config
+      (evil-multiedit-default-keybinds)
+      (evil-define-command rdmacs/multiedit-select (beg end)
+        "Select regexp matches within the visual selection using multiedit."
+        :repeat ignore
+        :evil-mc t
+        (interactive "<r>")
+        (evil-multiedit-ex-match beg end nil (read-regexp "Select matches: ")))
+      (evil-define-key* 'normal 'global
+        "Q" #'evil-multiedit-match-symbol-and-next
+        "gQ" #'evil-multiedit-restore)
+      (evil-define-key* 'visual 'global
+        "Q" #'evil-multiedit-match-all
+        "s" #'rdmacs/multiedit-select)
+      (evil-define-key* 'normal evil-multiedit-mode-map
+        "Q" #'evil-multiedit-toggle-or-restrict-region
+        "]C" #'evil-multiedit-next
+        "[C" #'evil-multiedit-prev
+        [escape] #'evil-multiedit-abort))
+
+    (use-package evil-mc
+      :ensure t
+      :after evil-multiedit
+      :config
+      (global-evil-mc-mode 1)
+
+      ;; Only one backend owns edits and its navigation keymap at a time.
+      (defvar-local rdmacs--mc-suspended nil)
+      (defun rdmacs/mc-sync-multiedit ()
+        "Suspend evil-mc during multiedit, then restore it when the session ends."
+        (cond ((and evil-multiedit-mode evil-mc-mode)
+               (evil-mc-undo-all-cursors)
+               (setq rdmacs--mc-suspended t)
+               (evil-mc-mode -1))
+              ((and (not evil-multiedit-mode) rdmacs--mc-suspended)
+               (setq rdmacs--mc-suspended nil)
+               (evil-mc-mode 1))))
+      (add-hook 'evil-multiedit-mode-hook #'rdmacs/mc-sync-multiedit)
+      (advice-add 'evil-mc-run-cursors-before :before #'evil-multiedit-abort)
+
+      (defun rdmacs/mc--when-cursors (cmd)
+        "Key definition that runs CMD only when there are extra cursors."
+        `(menu-item "" ,cmd :filter ,(lambda (cmd) (when (evil-mc-has-cursors-p) cmd))))
+
+      (evil-define-command rdmacs/mc-split-lines (beg end)
+        "Split the selection into nonempty per-line characterwise selections."
+        :repeat ignore
+        :evil-mc t
+        (interactive "<r>")
+        (let (regions)
+          (save-excursion
+            (goto-char beg)
+            (while (< (point) end)
+              (let ((line-end (min (line-end-position) end)))
+                (when (< (point) line-end)
+                  (push (cons (point) line-end) regions)))
+              (forward-line 1)))
+          (unless regions
+            (user-error "No text selected"))
+          (setq regions (nreverse regions))
+          (evil-multiedit-abort)
+          (evil-mc-undo-all-cursors)
+          (evil-normal-state)
+          (when (cdr regions)
+            (evil-mc-run-cursors-before))
+          ;; Store each fake selection in evil-mc's native region state.
+          ;; Leave the last range to the real cursor, without a duplicate.
+          (while (cdr regions)
+            (let* ((range (pop regions))
+                   (pos (1- (cdr range))))
+              (goto-char pos)
+              (evil-mc-make-cursor-at-pos
+               pos (evil-mc-put-cursor-region
+                    (evil-mc-get-default-cursor)
+                    (evil-mc-create-region (car range) pos 'char)))))
+          (evil-visual-select (caar regions) (cdar regions) 'inclusive)))
+
+      (defvar-local rdmacs--mc-align-column nil
+        "Column `rdmacs/mc-align' pads every cursor out to.")
+      (defun rdmacs/mc-align ()
+        "Align all cursors up to one column."
+        (interactive)
+        ;; Compute the target once; evil-mc replays the padding at each cursor.
+        (unless (evil-mc-executing-command-p)
+          (setq rdmacs--mc-align-column
+                (apply #'max (current-column)
+                       (mapcar (lambda (cursor)
+                                 (save-excursion
+                                   (goto-char (evil-mc-get-cursor-start cursor))
+                                   (current-column)))
+                               evil-mc-cursor-list))))
+        (insert (make-string (max 0 (- rdmacs--mc-align-column (current-column))) ?\s)))
+      (add-to-list 'evil-mc-custom-known-commands
+                   '(rdmacs/mc-align (:default . evil-mc-execute-default-call)))
+
+      (evil-define-key* 'normal 'global
+        (kbd "M-j") #'evil-mc-make-cursor-move-next-line
+        (kbd "M-k") #'evil-mc-make-cursor-move-prev-line)
+      (evil-define-key* 'normal evil-mc-key-map
+        "]C" #'evil-mc-make-and-goto-next-cursor
+        "[C" #'evil-mc-make-and-goto-prev-cursor
+        "&" (rdmacs/mc--when-cursors #'rdmacs/mc-align)
+        [escape] (rdmacs/mc--when-cursors #'evil-mc-undo-all-cursors))
+      (evil-define-key* 'visual 'global
+        (kbd "M-s") #'rdmacs/mc-split-lines))
 
 #+end_src
 
@@ -501,6 +626,241 @@ Note: The Leader key is what you will press when you want to access your keybind
                     (evil-normalize-keymaps))))
               nil nil t))
 #+end_src
+
+*** Keypad
+Reach Emacs's =C-x= and =C-c= bindings from the leader without holding Control.
+Both entry points are literal by default; modifiers are always explicit.
+
+- =SPC x= starts at =C-x=; =SPC c= starts at =C-c=. For example,
+  =SPC x b= sends =C-x b= and =SPC c t= sends =C-c t=.
+- At any prefix, =x= adds Control, =m= adds Meta, and =g= adds Control+Meta
+  to the next key. =SPC x x f= sends =C-x C-f=; =SPC c x t= sends =C-c C-t=.
+  Nested modifiers work too: =SPC c x x x v= sends =C-c C-x C-v=.
+- =SPC= makes the next key literal, including modifier introducers:
+  =SPC c SPC x= sends =C-c x=. An explicit modified binding never falls back
+  to an unmodified command if it is undefined.
+- =DEL= first cancels a pending modifier/literal escape, otherwise removes the
+  last translated key; at the entry prefix it cancels. =ESC= and =C-g= always
+  cancel without changing the previous command or Evil repeat.
+- In insert/Emacs state, use =C-SPC x= / =C-SPC c= for the same entry points.
+  Counts and universal arguments apply to the translated command.
+- Compilation lives under =C-c c=: =SPC c c c= compiles and =SPC c c r=
+  recompiles. Major-mode bindings such as =C-c C-c= remain separate.
+
+The display-only which-key preview lists reachable keys using the same resolver
+as execution, with the translated prefix echoed below it. Commands execute
+through Emacs's normal command loop, preserving remapping, further input, and
+Evil's dot-repeat.
+
+#+begin_src emacs-lisp
+    (defvar rdmacs--keypad-keys nil
+      "Translated keys in the current keypad session.")
+    (defvar rdmacs--keypad-modifier nil
+      "Explicit modifier pending for the next key, or nil.")
+    (defvar rdmacs--keypad-literal nil
+      "Non-nil when the next key bypasses modifier introducers.")
+
+    (defun rdmacs--keypad-modifiers (modifier)
+      "Return the event modifiers named by MODIFIER."
+      (pcase modifier
+        ("C-" '(control))
+        ("M-" '(meta))
+        ("C-M-" '(control meta))))
+
+    (defun rdmacs--keypad-add-modifier (modifier key)
+      "Return KEY with the explicit MODIFIER added."
+      (let* ((event (aref (key-parse key) 0))
+             (base (if (memq 'control (rdmacs--keypad-modifiers modifier))
+                       (pcase event (9 'tab) (13 'return)
+                              (_ (event-basic-type event)))
+                     (event-basic-type event))))
+        (single-key-description
+         (event-convert-list
+          (append (rdmacs--keypad-modifiers modifier)
+                  (event-modifiers event) (list base))))))
+
+    (defun rdmacs--keypad-resolve (key)
+      "Resolve typed KEY without changing the current keypad state.
+The reader and preview use the same translation and binding lookup."
+      (cond
+       ((member key '("ESC" "<escape>" "C-g")) '(quit))
+       ((member key '("DEL" "<backspace>")) '(back))
+       ((and (equal key "SPC") (not rdmacs--keypad-literal)) '(literal))
+       ((and (not rdmacs--keypad-modifier) (not rdmacs--keypad-literal)
+             (member key '("x" "m" "g")))
+        (list 'modifier (pcase key ("x" "C-") ("m" "M-") ("g" "C-M-"))))
+       (t
+        (let* ((translated (if rdmacs--keypad-modifier
+                               (rdmacs--keypad-add-modifier rdmacs--keypad-modifier key)
+                             key))
+               (keys (append rdmacs--keypad-keys (list translated)))
+               (binding (key-binding (key-parse (string-join keys " ")))))
+          (cond ((keymapp binding) (list 'prefix keys binding))
+                ((and (commandp binding) (not (eq binding 'undefined)))
+                 (list 'command keys binding))
+                (t (list 'undefined keys)))))))
+
+    (defun rdmacs--keypad-handle (key)
+      "Handle KEY, returning a resolved event vector, an exit symbol, or nil."
+      (pcase (rdmacs--keypad-resolve key)
+        ('(quit) 'quit)
+        ('(back)
+         (cond ((or rdmacs--keypad-modifier rdmacs--keypad-literal)
+                (setq rdmacs--keypad-modifier nil rdmacs--keypad-literal nil))
+               ((cdr rdmacs--keypad-keys)
+                (setq rdmacs--keypad-keys (butlast rdmacs--keypad-keys))
+                nil)
+               (t 'quit)))
+        ('(literal)
+         (setq rdmacs--keypad-modifier nil rdmacs--keypad-literal t)
+         nil)
+        (`(modifier ,modifier)
+         (setq rdmacs--keypad-modifier modifier)
+         nil)
+        (`(,kind ,keys . ,_)
+         (setq rdmacs--keypad-keys keys
+               rdmacs--keypad-modifier nil rdmacs--keypad-literal nil)
+         (pcase kind
+           ('prefix nil)
+           ('command (key-parse (string-join keys " ")))
+           ('undefined 'undefined)))))
+
+    (defun rdmacs--keypad-describe ()
+      "Describe the translated prefix and any pending modifier."
+      (concat (string-join rdmacs--keypad-keys " ")
+              (cond (rdmacs--keypad-modifier (concat " " rdmacs--keypad-modifier))
+                    (rdmacs--keypad-literal " [literal]")
+                    (t ""))))
+
+    (defun rdmacs--keypad-unmodify (event)
+      "Return the typed key for EVENT under the pending modifier, if reachable."
+      (let ((required (rdmacs--keypad-modifiers rdmacs--keypad-modifier))
+            (modifiers (event-modifiers event)))
+        (when (seq-every-p (lambda (modifier) (memq modifier modifiers)) required)
+          (dolist (modifier required)
+            (setq modifiers (delq modifier modifiers)))
+          (single-key-description
+           (event-convert-list (append modifiers (list (event-basic-type event))))))))
+
+    (defun rdmacs--keypad-candidates ()
+      "Collect possible next keys from every active map, including Meta bindings."
+      (let ((prefix (key-parse (string-join rdmacs--keypad-keys " ")))
+            (keys '("x" "m" "g" "SPC")))
+        (dolist (map (current-active-maps t))
+          (let ((submap (lookup-key map prefix)))
+            (when (keymapp submap)
+              (map-keymap
+               (lambda (event binding)
+                 (cond ((and (eq event 27) (keymapp binding))
+                        (map-keymap
+                         (lambda (meta-event _)
+                           (unless (memq meta-event '(t remap))
+                             (let* ((modified (rdmacs--keypad-add-modifier
+                                               "M-" (single-key-description meta-event)))
+                                    (typed (rdmacs--keypad-unmodify
+                                            (aref (key-parse modified) 0))))
+                               (when typed (push typed keys)))))
+                         binding))
+                       ((not (memq event '(t remap)))
+                        (let ((typed (rdmacs--keypad-unmodify event)))
+                          (when typed (push typed keys))))))
+               submap))))
+        (delete-dups keys)))
+
+    (defun rdmacs--keypad-preview-map ()
+      "Build a display keymap containing only bindings reachable by the reader."
+      (let ((map (make-sparse-keymap)))
+        (dolist (key (rdmacs--keypad-candidates))
+          (pcase (rdmacs--keypad-resolve key)
+            (`(,(or 'command 'prefix) ,_ ,binding)
+             (define-key map (key-parse key)
+               (list 'menu-item
+                     (if (keymapp binding)
+                         (or (keymap-prompt binding) "prefix")
+                       (if (symbolp binding) (symbol-name binding) "lambda"))
+                     binding)))
+            (`(modifier ,modifier)
+             (which-key-add-keymap-based-replacements
+              map key (list (concat modifier "next key"))))
+            ('(literal)
+             (which-key-add-keymap-based-replacements
+              map key '("next key as typed")))))
+        map))
+
+    (defvar rdmacs--keypad-preview-map nil)
+    (declare-function which-key--hide-popup "which-key")
+
+    (defun rdmacs--keypad-show ()
+      "Show the reachable next keys without installing which-key's paging map."
+      ;; An empty replacement must not leave the previous candidates visible.
+      (rdmacs--keypad-hide)
+      (let ((rdmacs--keypad-preview-map (rdmacs--keypad-preview-map))
+            (overriding-terminal-local-map overriding-terminal-local-map)
+            (pre-command-hook pre-command-hook)
+            (default-hook (default-value 'pre-command-hook)))
+        (unwind-protect
+            (which-key-show-keymap 'rdmacs--keypad-preview-map t)
+          ;; set-transient-map uses add-hook's default value, even under let.
+          (set-default 'pre-command-hook default-hook))))
+
+    (defun rdmacs--keypad-hide ()
+      "Tear down the popup; which-key has no public non-quitting cleanup API."
+      (let ((which-key-persistent-popup nil)
+            (real-this-command 'rdmacs/keypad-C-c))
+        (which-key--hide-popup)))
+
+    (defun rdmacs--keypad-read (keys)
+      "Read after KEYS and return native events, or nil when cancelled."
+      (let ((rdmacs--keypad-keys keys)
+            (rdmacs--keypad-modifier nil)
+            (rdmacs--keypad-literal nil)
+            (preview nil)
+            result)
+        (unwind-protect
+            (while (not result)
+              (when (and (bound-and-true-p which-key-mode)
+                         (or preview (sit-for which-key-idle-delay t)))
+                (rdmacs--keypad-show)
+                (setq preview t))
+              (let ((message-log-max nil))
+                (message "Keypad: %s" (rdmacs--keypad-describe)))
+              (setq result (rdmacs--keypad-handle (single-key-description (read-key)))))
+          (when preview
+            (rdmacs--keypad-hide)))
+        (if (eq result 'undefined)
+            (progn (message "%s is undefined" (string-join rdmacs--keypad-keys " ")) nil)
+          (message nil)
+          (unless (eq result 'quit) result))))
+
+    (defun rdmacs--keypad-run (keys)
+      "Translate KEYS, then let the normal command loop execute the result."
+      (let ((events (rdmacs--keypad-read keys)))
+        (when events
+          (setq unread-command-events
+                (append (mapcar (lambda (event) (cons t event)) events)
+                        unread-command-events)
+                prefix-arg current-prefix-arg))
+        (setq this-command last-command)))
+
+    (evil-define-command rdmacs/keypad-C-x ()
+      "Type a literal-by-default C-x key sequence without holding Control."
+      :repeat ignore
+      :keep-visual t
+      (interactive)
+      (rdmacs--keypad-run '("C-x")))
+
+    (evil-define-command rdmacs/keypad-C-c ()
+      "Type a literal-by-default C-c key sequence without holding Control."
+      :repeat ignore
+      :keep-visual t
+      (interactive)
+      (rdmacs--keypad-run '("C-c")))
+
+    (rdmacs/leader-keys
+      "x" '(rdmacs/keypad-C-x :wk "C-x keys")
+      "c" '(rdmacs/keypad-C-c :wk "C-c keys"))
+#+end_src
+
 
 ** Which-Key
 Which-key is a helper utility for keychords (which key to press).
@@ -1328,7 +1688,9 @@ Uses libghostty to run a real terminal inside emacs.
 
 
 ** Compilation Mode
-Configure and enhance Emacs' compilation mode
+Configure and enhance Emacs' compilation mode. Personal compilation bindings are
+under =C-c c=: =C-c c c= runs smart compile and =C-c c r= recompiles. Through
+the keypad, these are =SPC c c c= and =SPC c c r=.
 #+begin_src emacs-lisp
 
     (defun rdmacs/smart-compile ()
@@ -1338,17 +1700,18 @@ Configure and enhance Emacs' compilation mode
           (call-interactively #'project-compile)
         (call-interactively #'compile)))
 
+    (general-define-key
+      :keymaps 'global
+      "C-c c" '(:ignore t :wk "Compile")
+      "C-c c c" '(rdmacs/smart-compile :wk "Run compile command")
+      "C-c c r" '(recompile :wk "Recompile"))
+
     (use-package compile
       :ensure nil
-      :defer
+      :defer t
       :custom
       (compilation-scroll-output t)
-      (compilation-max-output-line-length nil)
-      :config
-      (rdmacs/leader-keys
-        "c" '(:ignore t :wk "Compile")
-        "c c" '(rdmacs/smart-compile :wk "Run compile command")
-        "c r" '(recompile :wk "Recompile")))
+      (compilation-max-output-line-length nil))
 #+end_src
 * Version Control
 ** Magit
