@@ -64,6 +64,7 @@
 - [[#org-mode][Org Mode]]
   - [[#better-fonts][Better Fonts]]
   - [[#basic-config][Basic Config]]
+  - [[#latex-previews][LaTeX Previews]]
   -  [[#org-knowledge-base][Org Knowledge Base]]
   - [[#table-of-contents][Table of Contents]]
   - [[#org-superstar][Org Superstar]]
@@ -2006,6 +2007,16 @@ We use an Org mode document for our Emacs configuration because it provides:
                     (setq-local electric-pair-inhibit-predicate
                                 `(lambda (c)
                                    (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c)))))))
+#+end_src
+
+** LaTeX Previews
+Render LaTeX previews at 150% of the default size for easier reading alongside
+the surrounding text. Change only the scale, preserving Org's other preview options.
+
+#+begin_src emacs-lisp
+    (with-eval-after-load 'org
+      (setq org-format-latex-options
+            (plist-put org-format-latex-options :scale 1)))
 #+end_src
 
 **  Org Knowledge Base
