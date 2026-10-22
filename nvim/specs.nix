@@ -150,11 +150,11 @@ in
           lazy = true;
           data = vp.nvim-lspconfig;
         }
-        {
-          name = "inlay-hints";
-          lazy = true;
-          data = vp.inlay-hints-nvim;
-        }
+        # {
+        #   name = "inlay-hints";
+        #   lazy = true;
+        #   data = vp.inlay-hints-nvim;
+        # }
       ];
     };
     ui = {

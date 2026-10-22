@@ -55,22 +55,22 @@ require("lze").load({
 			require("mason-lspconfig").setup({ automatic_installation = true })
 		end,
 	},
-	{
-		"inlay-hints.nvim",
-		for_cat = "lsp",
-		event = "LspAttach",
-		after = function()
-			require("inlay-hints").setup()
-		end,
-		keys = {
-			{
-				"<leader>ih",
-				"<cmd>InlayHintsToggle<cr>",
-				desc = "toggle lsp inlay hints",
-				mode = { "n" },
-			},
-		},
-	},
+	-- {
+	-- 	"inlay-hints.nvim",
+	-- 	for_cat = "lsp",
+	-- 	event = "LspAttach",
+	-- 	after = function()
+	-- 		require("inlay-hints").setup()
+	-- 	end,
+	-- 	keys = {
+	-- 		{
+	-- 			"<leader>ih",
+	-- 			"<cmd>InlayHintsToggle<cr>",
+	-- 			desc = "toggle lsp inlay hints",
+	-- 			mode = { "n" },
+	-- 		},
+	-- 	},
+	-- },
 	{
 		"lazydev.nvim",
 		for_cat = "extras",
