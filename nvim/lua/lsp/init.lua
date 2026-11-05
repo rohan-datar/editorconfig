@@ -192,6 +192,21 @@ require("lze").load({
 		},
 	},
 	{
+		"lspkl",
+		for_cat = "lsp",
+		before = function()
+			require("lsp.pkl").setup()
+		end,
+		lsp = {
+			cmd = { "lspkl" },
+			filetypes = { "pkl" },
+			root_markers = { "PklProject", ".git" },
+			settings = {
+				pkl = { cli = { path = "pkl" } },
+			},
+		},
+	},
+	{
 		"nil_ls",
 		for_cat = "lsp",
 		lsp = {},

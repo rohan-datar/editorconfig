@@ -1,4 +1,7 @@
 vim.filetype.add({
+	filename = {
+		PklProject = "pkl",
+	},
 	extension = {
 		jlex = "jflex",
 		jflex = "jflex",

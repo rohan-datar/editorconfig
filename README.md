@@ -19,6 +19,25 @@ This repository is a Nix flake that builds my Neovim, Emacs, and Helix configura
 - `.#helix-full`: Workstation profile. Adds language servers, linters, formatters, debuggers, and the shared Emacs TeX toolchain. Adds Swift formatting on Darwin; `sourcekit-lsp` comes from Xcode.
 - `.#helix`: Compatibility alias for `.#helix-full`, **not** the minimal profile.
 
+## Pkl in Neovim
+
+The full and test profiles bundle `lspkl` and the Pkl CLI. Opening a `.pkl` file
+starts `lspkl` through the existing LSP setup, with completion, diagnostics,
+hover, navigation (including read-only `lspkl://` sources), and LSP formatting
+through Conform's format-on-save fallback. `PklProject` and `.git` mark workspace
+roots; standalone files also work. The minimal profile does not start the server.
+
+```bash
+nix run .#nvim-full -- /path/to/main.pkl
+# In Neovim: :checkhealth vim.lsp
+#           :lua vim.print(vim.lsp.get_clients({ name = "lspkl" }))
+
+# Rebuild against the local lspkl checkout without changing the lock file
+nix run .#nvim-full --override-input lspkl "path:$HOME/Projects/lspkl" --no-write-lock-file -- /path/to/main.pkl
+```
+
+For a newer pinned server, run `nix flake update lspkl` and rebuild.
+
 ## Trying Helix
 ```bash
 # Servers and a lightweight first run

@@ -273,6 +273,7 @@ in
         zig
         clang
         nodejs
+        pkl
         ;
     })
     ++ optionals config.specs.debuggers.enable (values {
@@ -294,6 +295,7 @@ in
         clang-tools
         vscode-json-languageserver
         ;
+      lspkl = inputs.lspkl.packages.${pkgs.stdenv.hostPlatform.system}.lspkl;
     })
     ++ optionals config.specs.editing.enable (values {
       inherit (pkgs)
