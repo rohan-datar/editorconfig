@@ -30,6 +30,8 @@ return {
 				swift = { "swiftformat" },
 				nix = { "nixfmt" },
 				html = { "superhtml" },
+				pkl = { "pkl" },
+				pcf = { "pkl" },
 				["*"] = { "trim_newlines", "trim_whitespace" },
 			},
 		})
