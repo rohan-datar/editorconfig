@@ -7,15 +7,27 @@ inputs:
   ...
 }:
 let
-  # rustaceanvim ships busted integration specs that spawn rust-analyzer; they
-  # fail in nix's darwin build sandbox (rust-analyzer never finishes indexing),
-  # which breaks the plugin's build on macOS. The plugin itself is fine at
-  # runtime, so skip its test suite when building the plugin.
+  # nixpkgs builds rustaceanvim from its LuaRocks rock, whose busted specs spawn
+  # rust-analyzer; that never finishes indexing in nix's darwin build sandbox, so
+  # the plugin's build fails (flakily) on macOS. Note the specs run in the inner
+  # lua package that vimPlugins.rustaceanvim wraps, not in the wrapper, so
+  # overrideAttrs on the wrapper does not skip them. Build the plugin straight
+  # from the upstream tag instead: it ships no test suite.
   vp = pkgs.vimPlugins.extend (
-    _final: prev: {
-      rustaceanvim = prev.rustaceanvim.overrideAttrs (_: {
-        doCheck = false;
-      });
+    _final: _prev: {
+      rustaceanvim = pkgs.vimUtils.buildVimPlugin {
+        pname = "rustaceanvim";
+        version = "9.2.2";
+        src = pkgs.fetchFromGitHub {
+          owner = "mrcjkb";
+          repo = "rustaceanvim";
+          tag = "v9.2.2";
+          hash = "sha256-XHsx2/qoXOJ6mCwJnj6W/sqEqVffQ1xiBdjYTVrn/Pk=";
+        };
+        # neotest is an optional integration; checking its module would pull
+        # neotest into the build for nothing.
+        nvimRequireCheck = [ "rustaceanvim" ];
+      };
     }
   );
   values = builtins.attrValues;
