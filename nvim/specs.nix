@@ -7,7 +7,17 @@ inputs:
   ...
 }:
 let
-  vp = pkgs.vimPlugins;
+  # rustaceanvim ships busted integration specs that spawn rust-analyzer; they
+  # fail in nix's darwin build sandbox (rust-analyzer never finishes indexing),
+  # which breaks the plugin's build on macOS. The plugin itself is fine at
+  # runtime, so skip its test suite when building the plugin.
+  vp = pkgs.vimPlugins.extend (
+    _final: prev: {
+      rustaceanvim = prev.rustaceanvim.overrideAttrs (_: {
+        doCheck = false;
+      });
+    }
+  );
   values = builtins.attrValues;
   inherit (builtins) mapAttrs;
   inherit (lib)
